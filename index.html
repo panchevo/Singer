@@ -158,6 +158,230 @@
   }
   #overlay .emoji { font-size: 90px; margin-bottom: 10px; }
 body{ cursor: url('cur.png') 0 12, auto !important; }
+
+
+
+/* ===== МЕНЮ ПАУЗЫ ===== */
+#pauseMenu {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(5, 5, 15, 0.88);
+  backdrop-filter: blur(8px);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 30;
+}
+#pauseMenu h2 {
+  font-size: 72px; color: #ffd700; text-shadow: 0 0 30px #ffd700;
+  letter-spacing: 8px; margin-bottom: 10px;
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow {
+  from { text-shadow: 0 0 20px #ffd700; }
+  to   { text-shadow: 0 0 45px #ffd700, 0 0 60px #ff8c00; }
+}
+#pauseMenu .pause-subtitle {
+  font-size: 18px; color: #aaa; margin-bottom: 40px;
+  font-style: italic; letter-spacing: 2px;
+}
+#pauseMenu .pause-buttons {
+  display: flex; flex-direction: column; gap: 16px;
+  min-width: 380px;
+}
+.pause-btn {
+  padding: 18px 40px; font-size: 22px;
+  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.1);
+  color: #ffd700; border-radius: 12px;
+  cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+.pause-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 25px #ffd700;
+  transform: translateX(8px);
+}
+.pause-btn.danger {
+  border-color: #e74c3c; color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+.pause-btn.danger:hover {
+  background: rgba(231, 76, 60, 0.3);
+  box-shadow: 0 0 25px #e74c3c;
+}
+#pauseMenu .pause-hint {
+  margin-top: 35px; color: #666; font-size: 14px; letter-spacing: 1px;
+}
+
+/* Кнопка выхода в главном меню */
+.exit-btn {
+  margin-top: 20px;
+  padding: 14px 40px; font-size: 18px;
+  border: 2px solid #e74c3c; background: rgba(231, 76, 60, 0.08);
+  color: #e74c3c; cursor: url('cur.png') 0 12, auto !important;
+  border-radius: 10px; transition: all 0.3s;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+}
+.exit-btn:hover {
+  background: rgba(231, 76, 60, 0.25);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+  transform: scale(1.05);
+}
+
+/* Уведомление о сохранении */
+.save-toast {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  background: rgba(46, 204, 113, 0.95); color: #fff;
+  padding: 14px 30px; border-radius: 10px;
+  font-size: 18px; z-index: 100;
+  box-shadow: 0 0 25px rgba(46, 204, 113, 0.6);
+  animation: toastIn 0.3s ease;
+}
+.save-toast.error {
+  background: rgba(231, 76, 60, 0.95);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== */
+#gameDialog {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(5, 5, 15, 0.75);
+  backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200;
+  animation: dialogFadeIn 0.25s ease;
+}
+@keyframes dialogFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#gameDialog .dialog-box {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  border: 3px solid #ffd700;
+  border-radius: 18px;
+  padding: 40px 50px;
+  min-width: 420px;
+  max-width: 620px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.5),
+              0 0 100px rgba(255, 140, 0, 0.25),
+              inset 0 0 40px rgba(255, 215, 0, 0.06);
+  position: relative;
+  animation: dialogPop 0.35s cubic-bezier(0.18, 1.4, 0.4, 1);
+}
+@keyframes dialogPop {
+  from { transform: scale(0.7) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+#gameDialog .dialog-box::before,
+#gameDialog .dialog-box::after {
+  content: '';
+  position: absolute;
+  width: 40px; height: 40px;
+  border: 3px solid #ffd700;
+  pointer-events: none;
+  opacity: 0.7;
+}
+#gameDialog .dialog-box::before {
+  top: -3px; left: -3px;
+  border-right: none; border-bottom: none;
+  border-top-left-radius: 18px;
+}
+#gameDialog .dialog-box::after {
+  bottom: -3px; right: -3px;
+  border-left: none; border-top: none;
+  border-bottom-right-radius: 18px;
+}
+#gameDialog .dialog-icon {
+  font-size: 64px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
+  animation: dialogIconPulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes dialogIconPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+#gameDialog .dialog-title {
+  font-size: 34px;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+  letter-spacing: 3px;
+  margin-bottom: 18px;
+  font-family: 'Georgia', serif;
+}
+#gameDialog .dialog-message {
+  font-size: 19px;
+  color: #ddd;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  font-family: 'Georgia', serif;
+}
+#gameDialog .dialog-message em {
+  color: #ff8c00;
+  font-style: italic;
+}
+#gameDialog .dialog-message strong {
+  color: #ffd700;
+}
+#gameDialog .dialog-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#gameDialog .dialog-btn {
+  padding: 14px 32px;
+  font-size: 18px;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  border: 2px solid #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffd700;
+  border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+#gameDialog .dialog-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+  transform: translateY(-2px) scale(1.03);
+}
+#gameDialog .dialog-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+#gameDialog .dialog-btn.primary {
+  background: rgba(255, 215, 0, 0.25);
+  font-weight: bold;
+}
+#gameDialog .dialog-btn.danger {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+}
+#gameDialog .dialog-btn.danger:hover {
+  background: rgba(231, 76, 60, 0.3);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+}
+#gameDialog .dialog-btn.neutral {
+  border-color: #90a4ae;
+  color: #b0bec5;
+  background: rgba(144, 164, 174, 0.12);
+}
+#gameDialog .dialog-btn.neutral:hover {
+  background: rgba(144, 164, 174, 0.3);
+  box-shadow: 0 0 25px rgba(144, 164, 174, 0.6);
+}
+/* Фокус для клавиатуры */
+#gameDialog .dialog-btn:focus {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
 </style>
 </head>
 <body>
@@ -185,7 +409,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   <button class="voice-btn" data-voice="baritone">
     <span>🎭 Баритон</span><span class="range">A2 – A4</span>
   </button>
-  <p class="hint">← → или A/D — движение &nbsp;|&nbsp; SPACE — прыжок &nbsp;|&nbsp; Удерживайте ENTER — набор высоты голоса, отпустите — выстрел нотой &nbsp;|&nbsp; Собирайте ♪ и ♫ &nbsp;|&nbsp; КЛИК по персонажу — меню арий</p>
+  <p class="hint">← → или A/D — движение &nbsp;|&nbsp; SPACE — прыжок &nbsp;|&nbsp; Удерживайте ENTER — набор высоты голоса, отпустите — выстрел нотой &nbsp;|&nbsp; Собирайте ♪ и ♫ &nbsp;|&nbsp; КЛИК по персонажу — меню арий</p><button class="exit-btn" id="btnExit">✕ ВЫХОД ИЗ ИГРЫ</button>
 </div>
 
 <div id="ariaMenu">
@@ -194,6 +418,38 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   <div class="aria-grid" id="ariaGrid"></div>
   <div class="close-hint">Нажмите ESC или кликните по фону, чтобы закрыть</div>
 </div>
+
+
+<!-- ===== МЕНЮ ПАУЗЫ ===== -->
+<div id="pauseMenu">
+  <h2>⏸ ПАУЗА</h2>
+  <div class="pause-subtitle">Игра приостановлена</div>
+  <div class="pause-buttons">
+    <button id="btnResume" class="pause-btn">▶ ПРОДОЛЖИТЬ</button>
+    <button id="btnSave" class="pause-btn">💾 СОХРАНИТЬ УРОВЕНЬ</button>
+    <button id="btnLoad" class="pause-btn">📂 ЗАГРУЗИТЬ УРОВЕНЬ</button>
+    <button id="btnToMenu" class="pause-btn danger">🏠 В ГЛАВНОЕ МЕНЮ</button>
+  </div>
+  <div class="pause-hint">P или ESC — продолжить • F5 — перезапуск</div>
+</div>
+
+
+
+<!-- ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== -->
+<div id="gameDialog">
+  <div class="dialog-box">
+    <div class="dialog-icon" id="dialogIcon">🎭</div>
+    <h3 class="dialog-title" id="dialogTitle">Заголовок</h3>
+    <p class="dialog-message" id="dialogMessage">Сообщение</p>
+    <div class="dialog-buttons" id="dialogButtons"></div>
+  </div>
+</div>
+
+
+
+<!-- Скрытый input для загрузки файла -->
+<input type="file" id="loadFileInput" accept=".song,application/json" style="display:none">
+
 
 <div id="overlay"></div>
 
@@ -5571,6 +5827,466 @@ function gameLoop() {
   render();
   requestAnimationFrame(gameLoop);
 }
+
+/* ============================================================
+   МЕНЮ ПАУЗЫ + СОХРАНЕНИЕ/ЗАГРУЗКА + ВЫХОД
+   ============================================================ */
+
+const pauseMenuEl = document.getElementById('pauseMenu');
+const loadFileInput = document.getElementById('loadFileInput');
+const SAVE_VERSION = 1;
+
+// ===== Показать уведомление =====
+function showToast(msg, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = 'save-toast' + (isError ? ' error' : '');
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.4s';
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 400);
+  }, 2200);
+}
+
+// ===== Открыть/закрыть паузу =====
+function openPauseMenu() {
+  if (!gameState.voice) return;
+  if (gameState.stageComplete || gameState.gameComplete) return;
+  gameState.paused = true;
+  pauseMenuEl.style.display = 'flex';
+}
+function closePauseMenu() {
+  pauseMenuEl.style.display = 'none';
+  // Не снимаем паузу, если открыто меню арий или оверлей
+  if (ariaMenuEl.style.display !== 'flex' &&
+      document.getElementById('overlay').style.display !== 'flex') {
+    gameState.paused = false;
+  }
+}
+
+// ===== Сериализация состояния =====
+function serializeGameState() {
+  const p = gameState.player;
+  return {
+    version: SAVE_VERSION,
+    savedAt: new Date().toISOString(),
+    voiceKey: gameState.voiceKey,
+    operaIdx: gameState.currentOperaIdx,
+    stageIdx: gameState.currentStageIdx,
+    health: gameState.health,
+    score: gameState.score,
+    time: gameState.time,
+    player: {
+      x: p.x, y: p.y, vx: p.vx, vy: p.vy,
+      facing: p.facing, onGround: p.onGround
+    },
+    camera: { x: gameState.camera.x, y: gameState.camera.y },
+    enemiesKilled: gameState.enemiesKilled,
+    enemiesTotal: gameState.enemiesTotal,
+    notesCollected: gameState.notesCollected,
+    notesNeeded: gameState.notesNeeded,
+    ariaCooldowns: { ...gameState.ariaCooldowns },
+    // Сохраняем врагов (только живых с их hp)
+    enemies: gameState.enemies
+      .filter(e => e.alive)
+      .map(e => ({
+        x: e.x, y: e.y, vx: e.vx, w: e.w, h: e.h,
+        hp: e.hp, maxHp: e.maxHp, type: e.type,
+        patrolMinX: e.patrolMinX, patrolMaxX: e.patrolMaxX
+      })),
+    // Босс
+    boss: gameState.boss ? {
+      x: gameState.boss.x, y: gameState.boss.y,
+      hp: gameState.boss.hp, maxHp: gameState.boss.maxHp
+    } : null,
+    // Собираемые ноты (ещё не собранные)
+    collectibleNotes: gameState.collectibleNotes
+      .filter(n => !n.collected)
+      .map(n => ({ x: n.x, y: n.y, type: n.type })),
+    // Эффекты
+    effects: { ...gameState.effects },
+    invulnTimer: gameState.invulnTimer
+  };
+}
+
+// ===== Сохранение =====
+function saveGameToFile() {
+  try {
+    const data = serializeGameState();
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const opera = OPERAS[gameState.currentOperaIdx];
+    const safeName = opera.name.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_');
+    a.href = url;
+    a.download = `opera_save_${safeName}_stage${gameState.currentStageIdx + 1}.song`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('💾 Уровень сохранён!');
+  } catch (err) {
+    console.error('Save failed:', err);
+    showToast('❌ Ошибка сохранения', true);
+  }
+}
+
+// ===== Загрузка из файла =====
+function loadGameFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !data.voiceKey) {
+        throw new Error('Неверный формат файла');
+      }
+      applyLoadedState(data);
+      showToast('📂 Уровень загружен!');
+      closePauseMenu();
+    } catch (err) {
+      console.error('Load failed:', err);
+      showToast('❌ Ошибка загрузки: ' + err.message, true);
+    }
+  };
+  reader.onerror = () => showToast('❌ Не удалось прочитать файл', true);
+  reader.readAsText(file);
+}
+
+// ===== Применение загруженного состояния =====
+function applyLoadedState(data) {
+  // 1. Восстанавливаем голос
+  const voiceKey = data.voiceKey;
+  if (!VOICE_TYPES[voiceKey]) throw new Error('Неизвестный голос: ' + voiceKey);
+
+  // 2. Скрываем меню, показываем HUD
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  document.getElementById('voiceInfo').textContent =
+    VOICE_TYPES[voiceKey].name + ' — ' + VOICE_TYPES[voiceKey].damageDesc;
+
+  gameState.voice = VOICE_TYPES[voiceKey];
+  gameState.voiceKey = voiceKey;
+  gameState.groundY = H - 80;
+
+  // 3. Восстанавливаем прогресс
+  gameState.health = data.health;
+  gameState.score = data.score;
+  gameState.time = data.time || 0;
+  gameState.ariaCooldowns = data.ariaCooldowns || {};
+  gameState.invulnTimer = data.invulnTimer || 0;
+
+  // 4. Стартуем этап с нужным индексом
+  startStage(data.operaIdx, data.stageIdx);
+
+  // 5. После startStage — перезаписываем состояние из сохранения
+  const p = gameState.player;
+  p.x = data.player.x;
+  p.y = data.player.y;
+  p.vx = data.player.vx || 0;
+  p.vy = data.player.vy || 0;
+  p.facing = data.player.facing || 1;
+  p.onGround = data.player.onGround || false;
+
+  gameState.camera.x = data.camera?.x || 0;
+  gameState.camera.y = data.camera?.y || 0;
+
+  gameState.enemiesKilled = data.enemiesKilled || 0;
+  gameState.enemiesTotal = data.enemiesTotal || 0;
+  gameState.notesCollected = data.notesCollected || 0;
+  gameState.notesNeeded = data.notesNeeded || 0;
+
+  // 6. Восстанавливаем врагов (заменяем сгенерированных)
+  if (Array.isArray(data.enemies) && data.enemies.length > 0) {
+    gameState.enemies = data.enemies.map(e => ({
+      x: e.x, y: e.y, vx: e.vx,
+      vy: 0, w: e.w, h: e.h,
+      alive: true, hitFlash: 0,
+      hp: e.hp, maxHp: e.maxHp,
+      patrolMinX: e.patrolMinX,
+      patrolMaxX: e.patrolMaxX,
+      wobble: Math.random() * Math.PI * 2,
+      type: e.type,
+      theme: themeAt(e.x),
+      phase: Math.random() * Math.PI * 2,
+      baseY: e.y,
+      damage: 1
+    }));
+  }
+
+  // 7. Восстанавливаем босса
+  if (data.boss && gameState.boss) {
+    gameState.boss.x = data.boss.x;
+    gameState.boss.y = data.boss.y;
+    gameState.boss.hp = data.boss.hp;
+    gameState.boss.maxHp = data.boss.maxHp;
+  }
+
+  // 8. Восстанавливаем собираемые ноты
+  if (Array.isArray(data.collectibleNotes)) {
+    // Убираем уже сгенерированные и ставим из сохранения
+    gameState.collectibleNotes = data.collectibleNotes.map(n => ({
+      x: n.x, y: n.y, type: n.type,
+      collected: false, bob: Math.random() * Math.PI * 2
+    }));
+  }
+
+  // 9. Эффекты
+  if (data.effects) {
+    gameState.effects = { ...gameState.effects, ...data.effects };
+  }
+
+  // 10. Обновляем HUD
+  updateObjectiveHUD();
+  document.getElementById('health').innerHTML = '❤️'.repeat(Math.max(0, gameState.health));
+  document.getElementById('score').textContent = '𝄞' + gameState.score;
+}
+
+// ===== Обработчики кнопок паузы =====
+document.getElementById('btnResume').addEventListener('click', closePauseMenu);
+document.getElementById('btnSave').addEventListener('click', saveGameToFile);
+document.getElementById('btnLoad').addEventListener('click', () => loadFileInput.click());
+document.getElementById('btnToMenu').addEventListener('click', async () => {
+  const ok = await gameConfirm(
+    'Выйти в главное меню?<br><em>Несохранённый прогресс будет потерян.</em>',
+    {
+      icon: '🏠',
+      title: 'Выход в меню',
+      yesLabel: 'ВЫЙТИ',
+      noLabel: 'ОСТАТЬСЯ'
+    }
+  );
+  if (ok) {
+    showToast('🏠 Возврат в главное меню...');
+    setTimeout(() => location.reload(), 400);
+  }
+});
+loadFileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) loadGameFromFile(file);
+  loadFileInput.value = ''; // сброс, чтобы можно было загрузить тот же файл повторно
+});
+
+// ===== Кнопка выхода из игры =====
+document.getElementById('btnExit').addEventListener('click', async () => {
+  const ok = await gameConfirm(
+    'Покинуть оперную сцену?<br><em>Все несохранённые арии будут потеряны.</em>',
+    {
+      icon: '🚪',
+      title: 'Выход из игры',
+      yesLabel: 'ВЫЙТИ',
+      noLabel: 'ОСТАТЬСЯ'
+    }
+  );
+  if (ok) {
+    // Пробуем закрыть окно
+    window.open('', '_self');
+    window.close();
+    // Фолбэк: показываем прощальный экран
+    await new Promise(r => setTimeout(r, 300));
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;
+                  height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
+                  color:#ffd700;font-family:Georgia,serif;font-size:48px;
+                  flex-direction:column;gap:20px;text-align:center;padding:40px;">
+        <div style="font-size:90px;filter:drop-shadow(0 0 30px #ffd700);">🎭</div>
+        <div>До встречи на сцене!</div>
+        <div style="font-size:18px;color:#888;font-style:italic;">
+          «Соловей мой, соловей...» — можете закрыть эту вкладку
+        </div>
+      </div>`;
+  }
+});
+// ===== Горячие клавиши =====
+window.addEventListener('keydown', (e) => {
+  // P или Escape — пауза (Escape уже обрабатывается для меню арий — приоритет у арий)
+  if ((e.key === 'p' || e.key === 'P' || e.key === 'з' || e.key === 'З')) {
+    if (ariaMenuEl.style.display === 'flex') return;
+    if (!gameState.voice) return;
+    if (gameState.stageComplete || gameState.gameComplete) return;
+    e.preventDefault();
+    if (gameState.paused) {
+      closePauseMenu();
+    } else {
+      openPauseMenu();
+    }
+  }
+});
+
+// ===== Также пауза по Escape, если меню арий закрыто =====
+// (уже есть обработчик Escape выше, но он только закрывает меню арий)
+// Добавляем дополнительную логику: если меню арий закрыто — открываем паузу
+const _origEscHandler = (e) => {
+  if (e.key === 'Escape') {
+    if (ariaMenuEl.style.display === 'flex') return; // обработает основной
+    if (!gameState.voice) return;
+    if (gameState.stageComplete || gameState.gameComplete) return;
+    if (gameState.paused && pauseMenuEl.style.display !== 'flex') return;
+    e.preventDefault();
+    if (gameState.paused) closePauseMenu();
+    else openPauseMenu();
+  }
+};
+window.addEventListener('keydown', _origEscHandler);
+
+// ===== Автопауза при потере фокуса =====
+window.addEventListener('blur', () => {
+  if (gameState.voice && !gameState.paused &&
+      !gameState.stageComplete && !gameState.gameComplete) {
+    openPauseMenu();
+  }
+});
+
+// ===== Клик по фону меню паузы =====
+pauseMenuEl.addEventListener('click', (e) => {
+  if (e.target === pauseMenuEl) closePauseMenu();
+});
+
+
+/* ============================================================
+   ИГРОВЫЕ ДИАЛОГОВЫЕ ОКНА (замена confirm/alert)
+   ============================================================ */
+
+const gameDialogEl = document.getElementById('gameDialog');
+const dialogIconEl = document.getElementById('dialogIcon');
+const dialogTitleEl = document.getElementById('dialogTitle');
+const dialogMessageEl = document.getElementById('dialogMessage');
+const dialogButtonsEl = document.getElementById('dialogButtons');
+let dialogKeyHandler = null;
+let dialogPreviousPauseState = false;
+
+/**
+ * Показать игровое диалоговое окно.
+ * @param {Object} opts
+ *   - icon:   {string}  эмодзи-иконка (по умолчанию '🎭')
+ *   - title:  {string}  заголовок
+ *   - message:{string}  сообщение (можно HTML)
+ *   - buttons:{Array<{label, value, style, primary}>}
+ *   - onClose:{Function} колбэк при закрытии (value кнопки)
+ *   - closeOnBackdrop: {boolean} закрывать по клику на фон (для info-окон)
+ */
+function showGameDialog(opts) {
+  const {
+    icon = '🎭',
+    title = '',
+    message = '',
+    buttons = [{ label: 'OK', value: true, primary: true }],
+    onClose = null,
+    closeOnBackdrop = false
+  } = opts;
+
+  // Запомним паузу и поставим игру на паузу
+  dialogPreviousPauseState = gameState.paused;
+  gameState.paused = true;
+
+  dialogIconEl.textContent = icon;
+  dialogTitleEl.textContent = title;
+  dialogMessageEl.innerHTML = message;
+  dialogButtonsEl.innerHTML = '';
+
+  let resolved = false;
+  const close = (value) => {
+    if (resolved) return;
+    resolved = true;
+    gameDialogEl.style.display = 'none';
+    if (dialogKeyHandler) {
+      window.removeEventListener('keydown', dialogKeyHandler);
+      dialogKeyHandler = null;
+    }
+    // Восстанавливаем паузу: если диалог был вызван из паузы — оставляем паузу
+    // иначе возвращаем как было
+    if (!dialogPreviousPauseState) {
+      gameState.paused = false;
+    }
+    if (typeof onClose === 'function') onClose(value);
+  };
+
+  // Создаём кнопки
+  buttons.forEach((btn, idx) => {
+    const b = document.createElement('button');
+    b.className = 'dialog-btn' + (btn.style ? ' ' + btn.style : (btn.primary ? ' primary' : ''));
+    b.textContent = btn.label;
+    b.dataset.value = String(btn.value);
+    b.addEventListener('click', () => close(btn.value));
+    dialogButtonsEl.appendChild(b);
+    if (idx === 0) setTimeout(() => b.focus(), 50);
+  });
+
+  // Клавиатура: Enter = primary, Esc = последняя кнопка (отмена)
+  dialogKeyHandler = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const primaryBtn = buttons.find(b => b.primary) || buttons[0];
+      close(primaryBtn.value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      // Ищем «отмену»: neutral, danger без primary, или последнюю
+      const cancelBtn = buttons.find(b => b.style === 'neutral')
+                     || buttons[buttons.length - 1];
+      close(cancelBtn.value);
+    }
+  };
+  window.addEventListener('keydown', dialogKeyHandler);
+
+  // Клик по фону
+  if (closeOnBackdrop) {
+    gameDialogEl.onclick = (e) => {
+      if (e.target === gameDialogEl) close(buttons[buttons.length - 1].value);
+    };
+  } else {
+    gameDialogEl.onclick = null;
+  }
+
+  gameDialogEl.style.display = 'flex';
+}
+
+// ===== Удобные обёртки =====
+
+/** Аналог confirm() — возвращает Promise<boolean> */
+function gameConfirm(message, opts = {}) {
+  return new Promise(resolve => {
+    showGameDialog({
+      icon: opts.icon || '❓',
+      title: opts.title || 'Подтверждение',
+      message,
+      buttons: [
+        { label: opts.yesLabel || 'ДА', value: true, primary: true },
+        { label: opts.noLabel  || 'НЕТ', value: false, style: 'neutral' }
+      ],
+      onClose: resolve
+    });
+  });
+}
+
+/** Аналог alert() — возвращает Promise<void> */
+function gameAlert(message, opts = {}) {
+  return new Promise(resolve => {
+    showGameDialog({
+      icon: opts.icon || 'ℹ️',
+      title: opts.title || 'Сообщение',
+      message,
+      buttons: [{ label: opts.okLabel || 'OK', value: true, primary: true }],
+      onClose: () => resolve(),
+      closeOnBackdrop: true
+    });
+  });
+}
+
+/** Диалог с произвольными кнопками — Promise<value> */
+function gameChoice(message, buttons, opts = {}) {
+  return new Promise(resolve => {
+    showGameDialog({
+      icon: opts.icon || '🎭',
+      title: opts.title || 'Выбор',
+      message,
+      buttons,
+      onClose: resolve
+    });
+  });
+}
+
+
 </script>
 </body>
 </html>
