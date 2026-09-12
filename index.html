@@ -162,7 +162,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 </head>
 <body>
 <canvas id="game"></canvas>
-
+<audio id="bgMusic" loop preload="auto" src="music.mp3"></audio>
 <div id="hud" style="display:none">
   <div class="note-display" id="noteDisplay">C3</div>
   <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
@@ -1499,7 +1499,56 @@ function spawnBoss(opera) {
   };
 }
 
+
+
+
+// ===== ФОНОВАЯ МУЗЫКА =====
+let bgMusicEl = null;
+let bgMusicStarted = false;
+
+function startMusic() {
+  if (!bgMusicEl) {
+    bgMusicEl = document.getElementById('bgMusic');
+  }
+  if (!bgMusicEl || bgMusicStarted) return;
+
+  bgMusicEl.volume = 0.35;          // тише, чтобы не перебивать голос
+  bgMusicEl.loop = true;            // на всякий случай дублируем
+  bgMusicEl.currentTime = 0;
+
+  const playPromise = bgMusicEl.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => { bgMusicStarted = true; })
+      .catch(err => {
+        console.warn('Music autoplay blocked:', err);
+        // Повторим попытку при первом взаимодействии пользователя
+        const retry = () => {
+          bgMusicEl.play().then(() => {
+            bgMusicStarted = true;
+            window.removeEventListener('pointerdown', retry);
+            window.removeEventListener('keydown', retry);
+          }).catch(() => {});
+        };
+        window.addEventListener('pointerdown', retry, { once: true });
+        window.addEventListener('keydown', retry, { once: true });
+      });
+  }
+}
+
+function stopMusic() {
+  if (bgMusicEl && bgMusicStarted) {
+    bgMusicEl.pause();
+    bgMusicEl.currentTime = 0;
+    bgMusicStarted = false;
+  }
+}
+
+function setMusicVolume(v) {
+  if (bgMusicEl) bgMusicEl.volume = Math.max(0, Math.min(1, v));
+}
 function startGame(voiceKey) {
+startMusic()
   gameState.voice = VOICE_TYPES[voiceKey];
   gameState.voiceKey = voiceKey;
   document.getElementById('menu').style.display = 'none';
