@@ -444,14 +444,28 @@ function playBassSample(midi, velocity = 1.0) {
   env.gain.linearRampToValueAtTime(peak, now + 0.012);
   env.gain.setValueAtTime(peak, now + playDur - release);
   env.gain.linearRampToValueAtTime(0.0001, now + playDur);
+    // Срез верха: низкочастотный lowpass + сильный highshelf
+  const lowpass = audioCtx.createBiquadFilter();
+  lowpass.type = 'lowpass';
+  lowpass.frequency.value = 900 + (1 - tNorm) * 500;   // чем ниже нота — тем глуше
+  lowpass.Q.value = 0.7;
+
   const tone = audioCtx.createBiquadFilter();
   tone.type = 'highshelf';
-  tone.frequency.value = 3500;
-  tone.gain.value = -4 - tNorm * 10;
+  tone.frequency.value = 1500;
+  tone.gain.value = -18 - tNorm * 8;                   // жёстко режем верх
+
+  const lowShelf = audioCtx.createBiquadFilter();
+  lowShelf.type = 'lowshelf';
+  lowShelf.frequency.value = 200;
+  lowShelf.gain.value = 4;                             // немного подчёркиваем низ
+
   src.connect(env);
-  env.connect(tone);
-  tone.connect(masterGain._comp);
-  if (reverbSend) tone.connect(reverbSend);
+  env.connect(lowpass);
+  lowpass.connect(tone);
+  tone.connect(lowShelf);
+  lowShelf.connect(masterGain._comp);
+  if (reverbSend) lowShelf.connect(reverbSend);
   src.start(now);
   src.stop(now + playDur + 0.05);
 }
@@ -972,7 +986,7 @@ let gameState = {
   notes:[], collectibleNotes:[], particles:[], platforms:[], enemies:[],
   camera:{ x:0, y:0 },
   charging:false, chargeValue:0, chargeDirection:1,
-  lastNote:'C3', score:0, groundY:0, time:0,
+  lastNote:'C3', score:0, groundY:0, time:0,  shotCooldown:0,
   health:3, invulnTimer:0, deathTimer:0,
   generatedUpToX:0, lastPlatform:null, lastEnemyX:0,
   effects: { frozen:0, invuln:0, shield:0, slow:0, doubleJump:0, rage:0, jumpsLeft:0 },
@@ -992,7 +1006,8 @@ window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
   if (e.key === 'Enter' && gameState.voice && !gameState.charging
       && gameState.health > 0 && !gameState.paused
-      && !gameState.stageComplete && !gameState.gameComplete) {
+      && !gameState.stageComplete && !gameState.gameComplete
+      && gameState.shotCooldown <= 0) {
     gameState.charging = true;
   }
 });
@@ -1750,9 +1765,11 @@ function fireNote() {
       life:0.6, maxLife:0.6, color, size: 3 + Math.random()*4
     });
   }
-  gameState.score++;
+   gameState.score++;
   gameState.chargeValue = 0;
   gameState.chargeDirection = 1;
+  gameState.shotCooldown = 0.35;   // ← перерыв между выстрелами (секунды)
+
 }
 function lerpColor(a, b, t) {
   const ar = parseInt(a.slice(1,3),16), ag = parseInt(a.slice(3,5),16), ab = parseInt(a.slice(5,7),16);
@@ -2554,6 +2571,7 @@ function update(dt) {
   }
 
   if (gameState.invulnTimer > 0) gameState.invulnTimer -= effectiveDt;
+  if (gameState.shotCooldown > 0) gameState.shotCooldown -= effectiveDt;
 
   if (gameState.invulnTimer <= 0 && gameState.health > 0) {
     for (const enemy of gameState.enemies) {
