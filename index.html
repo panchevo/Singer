@@ -382,6 +382,360 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   outline-offset: 3px;
 }
 
+
+/* ===== ОПЕРНЫЙ ЗАНАВЕС ===== */
+#curtain {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 80%),
+    repeating-linear-gradient(90deg,
+      rgba(120, 20, 40, 0.35) 0px,
+      rgba(180, 30, 60, 0.55) 40px,
+      rgba(120, 20, 40, 0.35) 80px);
+  display: none; align-items: center; justify-content: center;
+  color: #fff; z-index: 8;
+  animation: curtainIn 0.6s ease;
+}
+@keyframes curtainIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#curtain::before,
+#curtain::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 90px;
+  background: linear-gradient(180deg,
+    #5a0a1a 0%, #8b1028 15%, #5a0a1a 30%,
+    #8b1028 45%, #5a0a1a 60%, #8b1028 75%, #5a0a1a 100%);
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+#curtain::before { left: 0;  border-right: 3px solid #ffd700; }
+#curtain::after  { right: 0; border-left:  3px solid #ffd700; }
+
+#curtain .curtain-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; z-index: 1; text-align: center; padding: 20px;
+}
+#curtain .curtain-emblem {
+  font-size: 110px;
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
+  animation: emblemFloat 3s ease-in-out infinite alternate;
+}
+@keyframes emblemFloat {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-12px); }
+}
+#curtain h2 {
+  font-size: 56px; color: #ffd700;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,140,0,0.6);
+  letter-spacing: 8px; font-family: 'Georgia', serif;
+}
+#curtain .curtain-sub {
+  font-size: 20px; color: #ffb8b8; font-style: italic;
+  letter-spacing: 1px; margin-bottom: 20px;
+}
+#curtain .curtain-btn {
+  padding: 16px 40px; font-size: 20px;
+  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.12);
+  color: #ffd700; border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+  transition: all 0.25s;
+}
+#curtain .curtain-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px #ffd700;
+  transform: scale(1.05);
+}
+
+
+
+/* ===== ОПЕРНЫЙ ЗАНАВЕС ===== */
+#curtain {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 80%),
+    repeating-linear-gradient(90deg,
+      rgba(120, 20, 40, 0.35) 0px,
+      rgba(180, 30, 60, 0.55) 40px,
+      rgba(120, 20, 40, 0.35) 80px);
+  display: none; align-items: center; justify-content: center;
+  color: #fff; z-index: 8;
+  animation: curtainIn 0.6s ease;
+}
+@keyframes curtainIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#curtain::before,
+#curtain::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 90px;
+  background: linear-gradient(180deg,
+    #5a0a1a 0%, #8b1028 15%, #5a0a1a 30%,
+    #8b1028 45%, #5a0a1a 60%, #8b1028 75%, #5a0a1a 100%);
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+#curtain::before { left: 0;  border-right: 3px solid #ffd700; }
+#curtain::after  { right: 0; border-left:  3px solid #ffd700; }
+
+#curtain .curtain-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; z-index: 1; text-align: center; padding: 20px;
+}
+#curtain .curtain-emblem {
+  font-size: 110px;
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
+  animation: emblemFloat 3s ease-in-out infinite alternate;
+}
+@keyframes emblemFloat {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-12px); }
+}
+#curtain h2 {
+  font-size: 56px; color: #ffd700;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,140,0,0.6);
+  letter-spacing: 8px; font-family: 'Georgia', serif;
+}
+#curtain .curtain-sub {
+  font-size: 20px; color: #ffb8b8; font-style: italic;
+  letter-spacing: 1px; margin-bottom: 20px;
+}
+#curtain .curtain-btn {
+  padding: 16px 40px; font-size: 20px;
+  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.12);
+  color: #ffd700; border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+  transition: all 0.25s;
+}
+#curtain .curtain-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px #ffd700;
+  transform: scale(1.05);
+}
+
+
+/* ===== МЕНЮ ПАУЗЫ — ОПЕРНЫЙ ЗАНАВЕС ===== */
+#pauseMenu {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 85%);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 30; overflow: hidden;
+}
+
+/* ===== ДВЕ ШТОРЫ, СХОДЯЩИЕСЯ К ЦЕНТРУ ===== */
+#pauseMenu::before,
+#pauseMenu::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 50%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(90, 10, 26, 0.95) 0px,
+      rgba(139, 16, 40, 0.95) 30px,
+      rgba(180, 30, 60, 0.95) 55px,
+      rgba(139, 16, 40, 0.95) 80px,
+      rgba(90, 10, 26, 0.95) 110px),
+    linear-gradient(180deg, #5a0a1a 0%, #8b1028 20%, #5a0a1a 40%,
+                    #8b1028 60%, #5a0a1a 80%, #3a0812 100%);
+  box-shadow: inset 0 0 120px rgba(0,0,0,0.8);
+  pointer-events: none;
+  animation: curtainOpen 0.7s cubic-bezier(0.25, 1, 0.4, 1) both;
+}
+#pauseMenu::before {
+  left: 0;
+  border-right: 4px solid #ffd700;
+  box-shadow: inset -30px 0 80px rgba(0,0,0,0.7), 8px 0 40px rgba(0,0,0,0.6);
+}
+#pauseMenu::after {
+  right: 0;
+
+  box-shadow: inset 30px 0 80px rgba(0,0,0,0.7), -8px 0 40px rgba(0,0,0,0.6);
+}
+
+@keyframes curtainOpen {
+  from { width: 0%; }
+  to   { width: 50%; }
+}
+
+/* ===== ЦЕНТРАЛЬНАЯ СЦЕНА ===== */
+#pauseMenu .pause-stage {
+  position: relative;
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 50px 70px;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 240, 200, 0.12), transparent 70%),
+    linear-gradient(180deg, rgba(20,10,15,0.7), rgba(10,5,10,0.85));
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  box-shadow:
+    0 0 60px rgba(255, 215, 0, 0.4),
+    0 0 120px rgba(255, 140, 0, 0.2),
+    inset 0 0 60px rgba(255, 215, 0, 0.08);
+  animation: stageIn 0.9s cubic-bezier(0.25, 1, 0.4, 1) both 0.3s;
+}
+
+@keyframes stageIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Золотые декоративные уголки */
+#pauseMenu .pause-stage::before,
+#pauseMenu .pause-stage::after {
+  content: '';
+  position: absolute;
+  width: 60px; height: 60px;
+  border: 3px solid #ffd700;
+  pointer-events: none;
+  opacity: 0.85;
+}
+#pauseMenu .pause-stage::before {
+  top: -3px; left: -3px;
+  border-right: none; border-bottom: none;
+  border-top-left-radius: 20px;
+}
+#pauseMenu .pause-stage::after {
+  bottom: -3px; right: -3px;
+  border-left: none; border-top: none;
+  border-bottom-right-radius: 20px;
+}
+
+/* ===== ЗАГОЛОВОК ===== */
+#pauseMenu h2 {
+  font-size: 64px; color: #ffd700;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000;
+  letter-spacing: 10px; margin-bottom: 8px;
+  font-family: 'Georgia', serif;
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow {
+  from { text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000; }
+  to   { text-shadow: 0 0 35px #ffd700, 0 0 65px #ff8c00, 0 4px 10px #000; }
+}
+
+/* ===== ЗОЛОТАЯ БАХРОМА ПОД ЗАГОЛОВКОМ ===== */
+#pauseMenu .fringe {
+  width: 100%;
+  height: 22px;
+  margin-bottom: 20px;
+  background:
+    repeating-linear-gradient(90deg,
+      #ffd700 0px, #ffd700 6px,
+      transparent 6px, transparent 12px),
+    linear-gradient(180deg, #ff8c00, #b8860b);
+  -webkit-mask-image: radial-gradient(ellipse 6px 11px at 50% 0, #000 95%, transparent 100%);
+  mask-image:
+    repeating-radial-gradient(circle 11px at 6px 0,
+      #000 0, #000 9px, transparent 10px, transparent 20px);
+  mask-size: 12px 22px;
+  -webkit-mask-size: 12px 22px;
+  filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.5));
+}
+
+#pauseMenu .pause-subtitle {
+  font-size: 18px; color: #ffb8b8; margin-bottom: 35px;
+  font-style: italic; letter-spacing: 3px;
+  text-shadow: 0 2px 6px #000;
+}
+
+/* ===== КНОПКИ ===== */
+#pauseMenu .pause-buttons {
+  display: flex; flex-direction: column; gap: 14px;
+  min-width: 380px;
+}
+
+.pause-btn {
+  position: relative;
+  padding: 18px 40px; font-size: 22px;
+  border: 2px solid #ffd700;
+  background:
+    linear-gradient(180deg, rgba(139, 16, 40, 0.55), rgba(60, 8, 20, 0.75));
+  color: #ffd700; border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; letter-spacing: 3px;
+  transition: all 0.25s ease;
+  text-align: left;
+  text-shadow: 0 1px 3px #000;
+  overflow: hidden;
+}
+.pause-btn::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ffd700, #ff8c00, #ffd700);
+  opacity: 0.7;
+  transition: width 0.25s ease;
+}
+.pause-btn:hover {
+  background:
+    linear-gradient(180deg, rgba(180, 30, 60, 0.75), rgba(90, 10, 26, 0.9));
+  color: #fff8dc;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.2);
+  transform: translateX(8px);
+  border-color: #fff8dc;
+}
+.pause-btn:hover::before {
+  width: 8px;
+  opacity: 1;
+}
+
+.pause-btn.danger {
+  border-color: #e74c3c; color: #ff8c8c;
+  background:
+    linear-gradient(180deg, rgba(120, 20, 20, 0.6), rgba(50, 5, 5, 0.8));
+}
+.pause-btn.danger::before {
+  background: linear-gradient(180deg, #e74c3c, #8b0000, #e74c3c);
+}
+.pause-btn.danger:hover {
+  background:
+    linear-gradient(180deg, rgba(200, 40, 40, 0.8), rgba(80, 10, 10, 0.9));
+  color: #fff;
+  box-shadow: 0 0 30px rgba(231, 76, 60, 0.8), inset 0 0 20px rgba(231, 76, 60, 0.3);
+  border-color: #ff8c8c;
+}
+
+/* ===== ПОДСКАЗКА СНИЗУ ===== */
+#pauseMenu .pause-hint {
+  margin-top: 30px; color: #b08a8a; font-size: 14px;
+  letter-spacing: 2px; text-align: center;
+  text-shadow: 0 1px 4px #000;
+  font-style: italic;
+}
+#pauseMenu .pause-hint kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid #ffd700;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.5);
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 13px;
+  margin: 0 2px;
+}
+
+/* Декоративные звёздочки-искры по бокам */
+#pauseMenu .sparkle {
+  position: absolute;
+  color: #ffd700;
+  font-size: 24px;
+  opacity: 0.7;
+  animation: sparkleFloat 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+  text-shadow: 0 0 15px #ffd700;
+}
+@keyframes sparkleFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+  50%      { transform: translateY(-15px) rotate(180deg); opacity: 0.9; }
+}
 </style>
 </head>
 <body>
@@ -412,6 +766,19 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   <p class="hint">← → или A/D — движение &nbsp;|&nbsp; SPACE — прыжок &nbsp;|&nbsp; Удерживайте ENTER — набор высоты голоса, отпустите — выстрел нотой &nbsp;|&nbsp; Собирайте ♪ и ♫ &nbsp;|&nbsp; КЛИК по персонажу — меню арий</p><button class="exit-btn" id="btnExit">✕ ВЫХОД ИЗ ИГРЫ</button>
 </div>
 
+
+
+<!-- ===== ОПЕРНЫЙ ЗАНАВЕС (показывается, когда меню закрыто) ===== -->
+<div id="curtain">
+  <div class="curtain-inner">
+    <div class="curtain-emblem">🎭</div>
+    <h2>СЦЕНА ЖДЁТ</h2>
+    <p class="curtain-sub">Выберите голос, чтобы начать выступление</p>
+    <button id="btnOpenMenu" class="curtain-btn">← ВЕРНУТЬСЯ В МЕНЮ</button>
+  </div>
+</div>
+
+
 <div id="ariaMenu">
   <h2 id="ariaMenuTitle">Арии</h2>
   <div class="subtitle" id="ariaMenuSubtitle">Выберите арию</div>
@@ -420,20 +787,28 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 </div>
 
 
-<!-- ===== МЕНЮ ПАУЗЫ ===== -->
+<!-- ===== МЕНЮ ПАУЗЫ — ОПЕРНЫЙ ЗАНАВЕС ===== -->
 <div id="pauseMenu">
-  <h2>⏸ ПАУЗА</h2>
-  <div class="pause-subtitle">Игра приостановлена</div>
-  <div class="pause-buttons">
-    <button id="btnResume" class="pause-btn">▶ ПРОДОЛЖИТЬ</button>
-    <button id="btnSave" class="pause-btn">💾 СОХРАНИТЬ УРОВЕНЬ</button>
-    <button id="btnLoad" class="pause-btn">📂 ЗАГРУЗИТЬ УРОВЕНЬ</button>
-    <button id="btnToMenu" class="pause-btn danger">🏠 В ГЛАВНОЕ МЕНЮ</button>
+  <div class="sparkle" style="top: 15%; left: 8%;">✦</div>
+  <div class="sparkle" style="top: 25%; right: 10%; animation-delay: 0.5s;">✦</div>
+  <div class="sparkle" style="bottom: 20%; left: 12%; animation-delay: 1s;">✦</div>
+  <div class="sparkle" style="bottom: 15%; right: 8%; animation-delay: 1.5s;">✦</div>
+
+  <div class="pause-stage">
+    <h2>⏸ ПАУЗА</h2>
+    <div class="fringe"></div>
+    <div class="pause-subtitle">Игра приостановлена</div>
+    <div class="pause-buttons">
+      <button id="btnResume" class="pause-btn">▶ ПРОДОЛЖИТЬ</button>
+      <button id="btnSave" class="pause-btn">💾 СОХРАНИТЬ УРОВЕНЬ</button>
+      <button id="btnLoad" class="pause-btn">📂 ЗАГРУЗИТЬ УРОВЕНЬ</button>
+      <button id="btnToMenu" class="pause-btn danger">🏠 В ГЛАВНОЕ МЕНЮ</button>
+    </div>
+    <div class="pause-hint">
+      <kbd>P</kbd> или <kbd>ESC</kbd> — продолжить &nbsp;•&nbsp; <kbd>F5</kbd> — перезапуск
+    </div>
   </div>
-  <div class="pause-hint">P или ESC — продолжить • F5 — перезапуск</div>
 </div>
-
-
 
 <!-- ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== -->
 <div id="gameDialog">
@@ -1257,8 +1632,8 @@ let gameState = {
 
 const keys = {};
 window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeAriaMenu(); return; }
   if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+
   keys[e.key.toLowerCase()] = true;
   if (e.key === 'Enter' && gameState.voice && !gameState.charging
       && gameState.health > 0 && !gameState.paused
@@ -6285,6 +6660,55 @@ function gameChoice(message, buttons, opts = {}) {
     });
   });
 }
+
+
+
+/* ============================================================
+   УПРАВЛЕНИЕ ГЛАВНЫМ МЕНЮ + ОПЕРНЫЙ ЗАНАВЕС
+   ============================================================ */
+
+const mainMenuEl = document.getElementById('menu');
+const curtainEl  = document.getElementById('curtain');
+
+// Показать меню
+function openMainMenu() {
+  curtainEl.style.display = 'none';
+  mainMenuEl.style.display = 'flex';
+  // Анимация появления
+  mainMenuEl.style.animation = 'none';
+  void mainMenuEl.offsetWidth; // reflow
+  mainMenuEl.style.animation = 'curtainIn 0.4s ease';
+}
+
+// Скрыть меню и показать занавес
+function closeMainMenu() {
+  mainMenuEl.style.display = 'none';
+  curtainEl.style.display = 'flex';
+}
+
+// Кнопка «Вернуться в меню»
+document.getElementById('btnOpenMenu').addEventListener('click', openMainMenu);
+
+// Escape: закрываем главное меню (только если игра ещё не начата)
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  // Если игра уже запущена — Escape обрабатывается другими хендлерами
+  if (gameState.voice) return;
+  // Если меню паузы/арий/диалог открыт — не мешаем им
+  if (pauseMenuEl && pauseMenuEl.style.display === 'flex') return;
+  if (ariaMenuEl && ariaMenuEl.style.display === 'flex') return;
+  if (gameDialogEl && gameDialogEl.style.display === 'flex') return;
+  // Если оверлей открыт — не трогаем
+  const overlayEl = document.getElementById('overlay');
+  if (overlayEl && overlayEl.style.display === 'flex') return;
+
+  e.preventDefault();
+  if (mainMenuEl.style.display === 'flex') {
+    closeMainMenu();
+  } else if (curtainEl.style.display === 'flex') {
+    openMainMenu();
+  }
+});
 
 
 </script>
