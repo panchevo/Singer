@@ -764,21 +764,52 @@ function midiToName(m) {
     colors:{top:'#ffd700',mid:'#ff8c00',low:'#8b4513'},
     damageBase:1.6, damageCurve:t=>0.4+t*1.6, damageDesc:'Высокий голос',
     // низкие тише, высокие громче (как было)
-    gainCurve: t => 0.45 + Math.pow(t, 0.8) * 0.55
+     // низ — почти неслышно, верх — мощно
+    gainCurve: t => {
+      if (t > 0.4) {
+        // верхние 60%: 0.7 → 1.0 (полноценно)
+        return 0.7 + ((t - 0.4) / 0.6) * 0.3;
+      } else {
+        // нижние 40%: 0.7 → 0.02 (обвал)
+        const x = (0.4 - t) / 0.4;
+        return 0.7 * Math.pow(1 - x, 2.5) + 0.02;
+      }
+    }
   },
   bass: {
     name:'Бас', minMidi:40, maxMidi:64,
     colors:{top:'#8b4513',mid:'#ff8c00',low:'#ffd700'},
     damageBase:1.0, damageCurve:t=>2.0-t*1.6, damageDesc:'Низкий голос',
     // низ — громко, верх — всё тише и тише
-    gainCurve: t => 0.20 + 0.80 * Math.pow(1 - t, 1.6)
+    // низ — мощно, верх — почти неслышно
+    gainCurve: t => {
+      if (t < 0.6) {
+        // нижние 60% диапазона: 1.0 → 0.7 (полноценно)
+        return 1.0 - (t / 0.6) * 0.3;
+      } else {
+        // верхние 40%: 0.7 → 0.02 (обвал)
+        const x = (t - 0.6) / 0.4;
+        return 0.7 * Math.pow(1 - x, 2.5) + 0.02;
+      }
+    }
   },
-  baritone: {
+   baritone: {
     name:'Баритон', minMidi:45, maxMidi:69,
     colors:{top:'#c0392b',mid:'#ffd700',low:'#ff8c00'},
     damageBase:1.3, damageCurve:t=>0.6+1.4*(1-Math.abs(t-0.5)*2), damageDesc:'Средний голос',
-    // низ и середина — полно, верх — заметно тише (но мягче, чем у баса)
-    gainCurve: t => 0.30 + 0.70 * Math.pow(1 - t, 1.3)
+    // пик в середине, плавные склоны к краям
+       // пик в низ-середине (t≈0.4), верх падает круто
+    gainCurve: t => {
+      const peak = 0.4;
+      if (t <= peak) {
+        // низ ~0.55 → пик 1.0 (плавный подъём)
+        return 0.55 + 0.45 * (t / peak);
+      } else {
+        // пик 1.0 → верх 0.12 (крутое падение)
+        const x = (t - peak) / (1 - peak);
+        return 0.12 + 0.88 * Math.pow(1 - x, 1.6);
+      }
+    }
   }
 };
 
