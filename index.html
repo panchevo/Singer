@@ -2239,15 +2239,16 @@ function update(dt) {
   else if (keys['arrowright'] || keys['d'] || keys['в']) { p.vx = MOVE_SPEED; p.facing = 1; }
   else { p.vx *= 0.8; if (Math.abs(p.vx) < 0.1) p.vx = 0; }
 
-  const jumpPressed = keys[' '] || keys['arrowup'] || keys['w'] || keys['ц'];
-  if (jumpPressed && p.onGround) {
+   const jumpPressed = keys[' '] || keys['arrowup'] || keys['w'] || keys['ц'];
+  const jumpJustPressed = jumpPressed && !p._jumpPrev;
+
+  if (jumpJustPressed && p.onGround) {
     p.vy = JUMP_POWER; p.onGround = false;
     gameState.effects.jumpsLeft = gameState.effects.doubleJump > 0 ? 1 : 0;
-  } else if (jumpPressed && !p.onGround && gameState.effects.doubleJump > 0
-             && gameState.effects.jumpsLeft > 0 && !p._jumpHeld) {
+  } else if (jumpJustPressed && !p.onGround && gameState.effects.doubleJump > 0
+             && gameState.effects.jumpsLeft > 0) {
     p.vy = JUMP_POWER * 0.85;
     gameState.effects.jumpsLeft--;
-    p._jumpHeld = true;
     for (let i = 0; i < 8; i++) {
       gameState.particles.push({
         x: p.x+p.w/2, y: p.y+p.h,
@@ -2256,8 +2257,7 @@ function update(dt) {
       });
     }
   }
-  if (!jumpPressed) p._jumpHeld = false;
-
+  p._jumpPrev = jumpPressed;
   p.vy += GRAVITY * timeScale;
   p.x += p.vx * timeScale;
   p.y += p.vy * timeScale;
