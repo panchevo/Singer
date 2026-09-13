@@ -12068,6 +12068,15 @@ function serializeGameState() {
     health: gameState.health,
     score: gameState.score,
     time: gameState.time,
+// 👇 ДОБАВЬТЕ ЭТО
+    levelSystem: {
+      level:  levelSystem.level,
+      xp:     levelSystem.xp,
+      points: levelSystem.points,
+      stats:  { ...levelSystem.stats }
+    },
+
+
     player: {
       x: p.x, y: p.y, vx: p.vx, vy: p.vy,
       facing: p.facing, onGround: p.onGround
@@ -12150,13 +12159,26 @@ function applyLoadedState(data) {
   // 1. Восстанавливаем голос
   const voiceKey = data.voiceKey;
   if (!VOICE_TYPES[voiceKey]) throw new Error('Неизвестный голос: ' + voiceKey);
-
+  // 👇 ДОБАВЬТЕ ЭТОТ БЛОК
+  if (data.levelSystem) {
+    levelSystem.level  = data.levelSystem.level  || 1;
+    levelSystem.xp     = data.levelSystem.xp     || 0;
+    levelSystem.points = data.levelSystem.points || 0;
+    levelSystem.stats  = {
+      power:  data.levelSystem.stats?.power  || 0,
+      phrase: data.levelSystem.stats?.phrase || 0,
+      art:    data.levelSystem.stats?.art    || 0,
+      perf:   data.levelSystem.stats?.perf   || 0
+    };
+    updateLevelUI();
+    applyLevelStats();
+  }
   // 2. Скрываем меню, показываем HUD
   document.getElementById('menu').style.display = 'none';
   document.getElementById('hud').style.display = 'block';
   document.getElementById('voiceInfo').textContent =
     VOICE_TYPES[voiceKey].name + ' — ' + VOICE_TYPES[voiceKey].damageDesc;
-
+document.querySelector('.xp-panel').style.display = 'block';
   gameState.voice = VOICE_TYPES[voiceKey];
   gameState.voiceKey = voiceKey;
   gameState.groundY = H - 80;
