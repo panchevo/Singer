@@ -5,521 +5,260 @@
 <meta charset="UTF-8">
 <title>Оперный Певец - Платформер</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; font-family: 'Georgia', serif; }
-  canvas { display: block; width: 100%; height: 100%; cursor: url('cur.png') 0 12, auto !important; }
-  #menu {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #fff; z-index: 10;
-  }
-  #menu h1 { font-size: 64px; margin-bottom: 20px; color: #ffd700; text-shadow: 0 0 20px #ffd700; letter-spacing: 4px; }
-  #menu p { font-size: 20px; margin-bottom: 40px; color: #ccc; }
-  .voice-btn {
-    display: flex; align-items: center; gap: 20px;
-    padding: 20px 40px; margin: 10px; font-size: 24px;
-    border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.1);
-    color: #fff; cursor: url('cur.png') 0 12, auto !important; border-radius: 10px;
-    transition: all 0.3s; font-family: 'Georgia', serif; min-width: 400px;
-    justify-content: space-between;
-  }
-  .voice-btn:hover { background: rgba(255, 215, 0, 0.3); transform: scale(1.05); box-shadow: 0 0 30px #ffd700; }
-  .voice-btn .range { font-size: 16px; color: #ffd700; }
-  .hint { margin-top: 30px; color: #888; font-size: 16px; text-align: center; max-width: 700px; }
-  #hud {
-    position: absolute; top: 20px; left: 20px; color: #fff;
-    font-size: 18px; text-shadow: 1px 1px 3px #000; z-index: 5;
-    pointer-events: none;
-  }
-  #hud .note-display {
-    font-size: 48px; color: #ffd700; font-weight: bold;
-    text-shadow: 0 0 20px currentColor;
-  }
-  #hud .bar {
-    width: 200px; height: 10px; border: 1px solid #fff;
-    margin-top: 10px; background: rgba(0,0,0,0.5);
-    position: relative; overflow: hidden;
-  }
-  #hud .bar-fill {
-    position: absolute; left: 0; top: 0; height: 100%;
-    background: linear-gradient(90deg, #ffd700, #ff8c00);
-    transition: width 0.05s;
-  }
-  #hud .voice-info { margin-top: 5px; color: #ffd700; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; font-family: 'Georgia', serif; }
+canvas { display: block; width: 100%; height: 100%; cursor: url('cur.png') 0 12, auto !important; }
 
-  /* Objective HUD */
-  #objective {
-    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-    color: #fff; text-align: center; z-index: 5; pointer-events: none;
-    text-shadow: 1px 1px 3px #000; min-width: 320px;
-  }
-  #objective .opera-name {
-    color: #ffd700; font-size: 20px; letter-spacing: 1px;
-  }
-  #objective .opera-composer {
-    color: #aaa; font-size: 13px; font-style: italic; margin-top: 2px;
-  }
-  #objective .stage-info {
-    color: #ccc; font-size: 14px; margin-top: 6px;
-    letter-spacing: 1px;
-  }
-  #objective .goal {
-    font-size: 22px; margin-top: 8px; color: #ffd700;
-    font-weight: bold;
-  }
-  #objective .goal .count { color: #fff; }
-  #objective .goal.done { color: #2ecc71; }
+/* ===== ГЛОБАЛЬНОЕ ПРАВИЛО ДЛЯ ВСЕХ SVG-ИКОНОК ===== */
+svg.inline-icon {
+  color: inherit;
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4));
+  flex-shrink: 0;
+}
+svg.inline-icon.accent { color: #ffd700; }
+svg.inline-icon.danger { color: #e74c3c; }
+svg.inline-icon.success { color: #2ecc71; }
+svg.inline-icon.info { color: #4fc3f7; }
 
-  /* ===== МЕНЮ АРИЙ ===== */
-  #ariaMenu {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(10, 5, 20, 0.85);
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    color: #fff; z-index: 20; backdrop-filter: blur(4px);
-  }
-  #ariaMenu h2 { font-size: 42px; color: #ffd700; margin-bottom: 10px; text-shadow: 0 0 20px #ffd700; }
-  #ariaMenu .subtitle { color: #aaa; font-size: 18px; margin-bottom: 30px; }
-  .aria-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 20px; max-width: 900px; width: 90%;
-  }
-  .aria-card {
-    border: 2px solid #ffd700; border-radius: 12px;
-    padding: 20px; background: rgba(255, 215, 0, 0.08);
-    cursor: url('cur.png') 0 12, auto !important; transition: all 0.2s;
-    display: flex; flex-direction: column; gap: 8px;
-    position: relative; overflow: hidden;
-  }
-  .aria-card:hover:not(.disabled) {
-    background: rgba(255, 215, 0, 0.22);
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
-  }
-  .aria-card.disabled { opacity: 0.4; cursor: not-allowed; border-color: #555; }
-  .aria-card .aria-name { font-size: 22px; color: #ffd700; font-weight: bold; }
-  .aria-card .aria-desc { font-size: 15px; color: #ddd; line-height: 1.4; }
-  .aria-card .aria-cost {
-    font-size: 18px; color: #ff8c00; margin-top: auto;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .aria-card .aria-cost .cd { font-size: 13px; color: #888; }
-  .aria-card .aria-effect { font-size: 13px; color: #4fc3f7; font-style: italic; }
-  #ariaMenu .close-hint { margin-top: 30px; color: #888; font-size: 16px; }
+.icon-xl {
+  width: 90px !important;
+  height: 90px !important;
+  filter: drop-shadow(0 0 30px currentColor);
+}
+.icon-btn {
+  width: 1.2em !important;
+  height: 1.2em !important;
+  margin-right: 6px;
+}
 
-  /* Индикаторы активных эффектов */
-  #effects {
-    position: absolute; top: 20px; right: 20px; z-index: 6;
-    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
-    pointer-events: none;
-  }
-  .effect-badge {
-    background: rgba(0,0,0,0.6); border: 1px solid #ffd700;
-    border-radius: 20px; padding: 6px 14px;
-    color: #ffd700; font-size: 14px;
-    display: flex; align-items: center; gap: 8px;
-    animation: pulse 1s infinite alternate;
-  }
-  @keyframes pulse {
-    from { box-shadow: 0 0 5px rgba(255,215,0,0.4); }
-    to   { box-shadow: 0 0 18px rgba(255,215,0,0.9); }
-  }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinning { animation: spin 3s linear infinite; }
 
-  /* ===== ОВЕРЛЕЙ ===== */
-  #overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at center, rgba(20,10,40,0.92), rgba(0,0,0,0.97));
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    color: #fff; z-index: 40; text-align: center; padding: 40px;
-  }
-  #overlay h2 {
-    font-size: 64px; color: #ffd700; text-shadow: 0 0 30px #ffd700;
-    margin-bottom: 20px; letter-spacing: 4px;
-  }
-  #overlay h3 {
-    font-size: 32px; color: #ff8c00; margin: 10px 0 20px 0;
-    font-style: italic;
-  }
-  #overlay p {
-    font-size: 20px; color: #ccc; margin: 8px 0; max-width: 700px;
-    line-height: 1.5;
-  }
-  #overlay .stats {
-    margin-top: 20px; font-size: 22px; color: #4fc3f7;
-  }
-  #overlay button {
-    margin-top: 40px; padding: 18px 50px; font-size: 24px;
-    border: 2px solid #ffd700; background: rgba(255,215,0,0.15);
-    color: #ffd700; border-radius: 12px; cursor: url('cur.png') 0 12, auto !important;
-    font-family: 'Georgia', serif; transition: all 0.3s; letter-spacing: 2px;
-  }
-  #overlay button:hover {
-    background: rgba(255,215,0,0.35); box-shadow: 0 0 40px #ffd700;
-    transform: scale(1.05);
-  }
-  #overlay .emoji { font-size: 90px; margin-bottom: 10px; }
-body{ cursor: url('cur.png') 0 12, auto !important; }
-
-
-
-/* ===== МЕНЮ ПАУЗЫ ===== */
-#pauseMenu {
+#menu {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(5, 5, 15, 0.88);
-  backdrop-filter: blur(8px);
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-  color: #fff; z-index: 30;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 10;
 }
-#pauseMenu h2 {
-  font-size: 72px; color: #ffd700; text-shadow: 0 0 30px #ffd700;
-  letter-spacing: 8px; margin-bottom: 10px;
-  animation: pulseGlow 2s ease-in-out infinite alternate;
-}
-@keyframes pulseGlow {
-  from { text-shadow: 0 0 20px #ffd700; }
-  to   { text-shadow: 0 0 45px #ffd700, 0 0 60px #ff8c00; }
-}
-#pauseMenu .pause-subtitle {
-  font-size: 18px; color: #aaa; margin-bottom: 40px;
-  font-style: italic; letter-spacing: 2px;
-}
-#pauseMenu .pause-buttons {
-  display: flex; flex-direction: column; gap: 16px;
-  min-width: 380px;
-}
-.pause-btn {
-  padding: 18px 40px; font-size: 22px;
+#menu h1 { font-size: 64px; margin-bottom: 20px; color: #ffd700; text-shadow: 0 0 20px #ffd700; letter-spacing: 4px; }
+#menu p { font-size: 20px; margin-bottom: 40px; color: #ccc; }
+
+.voice-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 24px; margin: 6px; font-size: 18px;
   border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.1);
-  color: #ffd700; border-radius: 12px;
-  cursor: url('cur.png') 0 12, auto !important;
-  font-family: 'Georgia', serif; letter-spacing: 2px;
-  transition: all 0.25s ease;
-  text-align: left;
+  color: #fff; cursor: url('cur.png') 0 12, auto !important; border-radius: 8px;
+  transition: all 0.3s; font-family: 'Georgia', serif; min-width: 280px;
+  justify-content: space-between;
 }
-.pause-btn:hover {
-  background: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 25px #ffd700;
-  transform: translateX(8px);
-}
-.pause-btn.danger {
-  border-color: #e74c3c; color: #e74c3c;
-  background: rgba(231, 76, 60, 0.1);
-}
-.pause-btn.danger:hover {
-  background: rgba(231, 76, 60, 0.3);
-  box-shadow: 0 0 25px #e74c3c;
-}
-#pauseMenu .pause-hint {
-  margin-top: 35px; color: #666; font-size: 14px; letter-spacing: 1px;
-}
+.voice-btn:hover { background: rgba(255, 215, 0, 0.3); transform: scale(1.05); box-shadow: 0 0 30px #ffd700; }
+.voice-btn .range { font-size: 16px; color: #ffd700; }
 
-/* Кнопка выхода в главном меню */
-.exit-btn {
-  margin-top: 20px;
-  padding: 14px 40px; font-size: 18px;
-  border: 2px solid #e74c3c; background: rgba(231, 76, 60, 0.08);
-  color: #e74c3c; cursor: url('cur.png') 0 12, auto !important;
-  border-radius: 10px; transition: all 0.3s;
-  font-family: 'Georgia', serif; letter-spacing: 2px;
-}
-.exit-btn:hover {
-  background: rgba(231, 76, 60, 0.25);
-  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
-  transform: scale(1.05);
-}
-
-/* Уведомление о сохранении */
-.save-toast {
-  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-  background: rgba(46, 204, 113, 0.95); color: #fff;
-  padding: 14px 30px; border-radius: 10px;
-  font-size: 18px; z-index: 100;
-  box-shadow: 0 0 25px rgba(46, 204, 113, 0.6);
-  animation: toastIn 0.3s ease;
-}
-.save-toast.error {
-  background: rgba(231, 76, 60, 0.95);
-  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
-}
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, 20px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
-}
-
-/* ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== */
-#gameDialog {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(5, 5, 15, 0.75);
-  backdrop-filter: blur(6px);
-  display: none; align-items: center; justify-content: center;
-  z-index: 200;
-  animation: dialogFadeIn 0.25s ease;
-}
-@keyframes dialogFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-#gameDialog .dialog-box {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
-  border: 3px solid #ffd700;
-  border-radius: 18px;
-  padding: 40px 50px;
-  min-width: 420px;
-  max-width: 620px;
-  text-align: center;
-  box-shadow: 0 0 60px rgba(255, 215, 0, 0.5),
-              0 0 100px rgba(255, 140, 0, 0.25),
-              inset 0 0 40px rgba(255, 215, 0, 0.06);
-  position: relative;
-  animation: dialogPop 0.35s cubic-bezier(0.18, 1.4, 0.4, 1);
-}
-@keyframes dialogPop {
-  from { transform: scale(0.7) translateY(20px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-#gameDialog .dialog-box::before,
-#gameDialog .dialog-box::after {
-  content: '';
-  position: absolute;
-  width: 40px; height: 40px;
-  border: 3px solid #ffd700;
-  pointer-events: none;
-  opacity: 0.7;
-}
-#gameDialog .dialog-box::before {
-  top: -3px; left: -3px;
-  border-right: none; border-bottom: none;
-  border-top-left-radius: 18px;
-}
-#gameDialog .dialog-box::after {
-  bottom: -3px; right: -3px;
-  border-left: none; border-top: none;
-  border-bottom-right-radius: 18px;
-}
-#gameDialog .dialog-icon {
-  font-size: 64px;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
-  animation: dialogIconPulse 1.8s ease-in-out infinite alternate;
-}
-@keyframes dialogIconPulse {
-  from { transform: scale(1); }
-  to   { transform: scale(1.08); }
-}
-#gameDialog .dialog-title {
-  font-size: 34px;
-  color: #ffd700;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-  letter-spacing: 3px;
-  margin-bottom: 18px;
-  font-family: 'Georgia', serif;
-}
-#gameDialog .dialog-message {
-  font-size: 19px;
-  color: #ddd;
-  line-height: 1.6;
-  margin-bottom: 32px;
-  font-family: 'Georgia', serif;
-}
-#gameDialog .dialog-message em {
-  color: #ff8c00;
-  font-style: italic;
-}
-#gameDialog .dialog-message strong {
-  color: #ffd700;
-}
-#gameDialog .dialog-buttons {
-  display: flex;
-  gap: 16px;
+/* Иконки-ключи в кнопках голосов */
+.voice-key-icon {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  vertical-align: middle;
+  margin-right: 4px;
 }
-#gameDialog .dialog-btn {
-  padding: 14px 32px;
-  font-size: 18px;
-  font-family: 'Georgia', serif;
-  letter-spacing: 2px;
-  border: 2px solid #ffd700;
-  background: rgba(255, 215, 0, 0.12);
+.voice-key-icon svg {
+  width: 1.3em !important;
+  height: 1.3em !important;
+  color: currentColor;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.hint { margin-top: 30px; color: #888; font-size: 16px; text-align: center; max-width: 700px; }
+
+#hud {
+  position: absolute; top: 20px; left: 20px; color: #fff;
+  font-size: 18px; text-shadow: 1px 1px 3px #000; z-index: 5;
+  pointer-events: none;
+}
+#hud .note-display {
+  font-size: 48px; color: #ffd700; font-weight: bold;
+  text-shadow: 0 0 20px currentColor;
+}
+#hud .bar {
+  width: 200px; height: 10px; border: 1px solid #fff;
+  margin-top: 10px; background: rgba(0,0,0,0.5);
+  position: relative; overflow: hidden;
+}
+#hud .bar-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  transition: width 0.05s;
+}
+#hud .voice-info { margin-top: 5px; color: #ffd700; }
+
+/* Иконка скрипичного ключа в HUD */
+#ico-clef {
   color: #ffd700;
-  border-radius: 10px;
-  cursor: url('cur.png') 0 12, auto !important;
-  transition: all 0.2s ease;
-  min-width: 140px;
 }
-#gameDialog .dialog-btn:hover {
-  background: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
-  transform: translateY(-2px) scale(1.03);
+#ico-clef svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 6px #ffd700);
 }
-#gameDialog .dialog-btn:active {
-  transform: translateY(0) scale(0.98);
+
+/* Иконки сердечек здоровья */
+#health svg {
+  color: #e74c3c !important;
+  filter: drop-shadow(0 0 4px #e74c3c);
+  margin-right: 2px;
 }
-#gameDialog .dialog-btn.primary {
-  background: rgba(255, 215, 0, 0.25);
+
+/* ===== Objective HUD ===== */
+#objective {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  color: #fff; text-align: center; z-index: 5; pointer-events: none;
+  text-shadow: 1px 1px 3px #000; min-width: 320px;
+}
+#objective .opera-name {
+  color: #ffd700; font-size: 20px; letter-spacing: 1px;
+}
+#objective .opera-composer {
+  color: #aaa; font-size: 13px; font-style: italic; margin-top: 2px;
+}
+#objective .stage-info {
+  color: #ccc; font-size: 14px; margin-top: 6px;
+  letter-spacing: 1px;
+}
+#objective .goal {
+  font-size: 22px; margin-top: 8px; color: #ffd700;
   font-weight: bold;
 }
-#gameDialog .dialog-btn.danger {
-  border-color: #e74c3c;
-  color: #e74c3c;
-  background: rgba(231, 76, 60, 0.12);
-}
-#gameDialog .dialog-btn.danger:hover {
-  background: rgba(231, 76, 60, 0.3);
-  box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
-}
-#gameDialog .dialog-btn.neutral {
-  border-color: #90a4ae;
-  color: #b0bec5;
-  background: rgba(144, 164, 174, 0.12);
-}
-#gameDialog .dialog-btn.neutral:hover {
-  background: rgba(144, 164, 174, 0.3);
-  box-shadow: 0 0 25px rgba(144, 164, 174, 0.6);
-}
-/* Фокус для клавиатуры */
-#gameDialog .dialog-btn:focus {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
+#objective .goal .count { color: #fff; }
+#objective .goal.done { color: #2ecc71; }
+
+/* Иконки в objective */
+#objective svg {
+  color: inherit !important;
 }
 
-
-/* ===== ОПЕРНЫЙ ЗАНАВЕС ===== */
-#curtain {
+/* ===== МЕНЮ АРИЙ ===== */
+#ariaMenu {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background:
-    radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 80%),
-    repeating-linear-gradient(90deg,
-      rgba(120, 20, 40, 0.35) 0px,
-      rgba(180, 30, 60, 0.55) 40px,
-      rgba(120, 20, 40, 0.35) 80px);
-  display: none; align-items: center; justify-content: center;
-  color: #fff; z-index: 8;
-  animation: curtainIn 0.6s ease;
+  background: rgba(10, 5, 20, 0.85);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 20; backdrop-filter: blur(4px);
 }
-@keyframes curtainIn {
-  from { opacity: 0; transform: scale(1.05); }
-  to   { opacity: 1; transform: scale(1); }
+#ariaMenu h2 { font-size: 42px; color: #ffd700; margin-bottom: 10px; text-shadow: 0 0 20px #ffd700; }
+#ariaMenu .subtitle { color: #aaa; font-size: 18px; margin-bottom: 30px; }
+
+/* Иконка ключа в заголовке меню арий */
+#ariaMenuTitle svg {
+  color: inherit !important;
+  filter: drop-shadow(0 0 8px currentColor);
 }
-#curtain::before,
-#curtain::after {
-  content: '';
-  position: absolute; top: 0; bottom: 0;
-  width: 90px;
-  background: linear-gradient(180deg,
-    #5a0a1a 0%, #8b1028 15%, #5a0a1a 30%,
-    #8b1028 45%, #5a0a1a 60%, #8b1028 75%, #5a0a1a 100%);
-  box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+
+.aria-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 20px; max-width: 900px; width: 90%;
+}
+.aria-card {
+  border: 2px solid #ffd700; border-radius: 12px;
+  padding: 20px; background: rgba(255, 215, 0, 0.08);
+  cursor: url('cur.png') 0 12, auto !important; transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative; overflow: hidden;
+}
+.aria-card:hover:not(.disabled) {
+  background: rgba(255, 215, 0, 0.22);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+}
+.aria-card.disabled { opacity: 0.4; cursor: not-allowed; border-color: #555; }
+.aria-card .aria-name { font-size: 22px; color: #ffd700; font-weight: bold; }
+.aria-card .aria-desc { font-size: 15px; color: #ddd; line-height: 1.4; }
+.aria-card .aria-cost {
+  font-size: 18px; color: #ff8c00; margin-top: auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.aria-card .aria-cost .cd { font-size: 13px; color: #888; }
+.aria-card .aria-effect { font-size: 13px; color: #4fc3f7; font-style: italic; }
+
+/* ВАЖНО: иконки в карточках арий наследуют цвет от span */
+.aria-card .aria-name svg {
+  color: inherit !important;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* Иконка скрипичного ключа в цене арии */
+.aria-card .aria-cost svg {
+  color: #ffd700 !important;
+}
+
+/* Иконки в эффектах арий */
+.aria-card .aria-effect svg {
+  color: #4fc3f7 !important;
+}
+
+#ariaMenu .close-hint { margin-top: 30px; color: #888; font-size: 16px; }
+
+/* ===== Индикаторы активных эффектов ===== */
+#effects {
+  position: absolute; top: 20px; right: 20px; z-index: 6;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
   pointer-events: none;
 }
-#curtain::before { left: 0;  border-right: 3px solid #ffd700; }
-#curtain::after  { right: 0; border-left:  3px solid #ffd700; }
-
-#curtain .curtain-inner {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 14px; z-index: 1; text-align: center; padding: 20px;
+.effect-badge {
+  background: rgba(0,0,0,0.6); border: 1px solid #ffd700;
+  border-radius: 20px; padding: 6px 14px;
+  color: #ffd700; font-size: 14px;
+  display: flex; align-items: center; gap: 8px;
+  animation: pulse 1s infinite alternate;
 }
-#curtain .curtain-emblem {
-  font-size: 110px;
-  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
-  animation: emblemFloat 3s ease-in-out infinite alternate;
+@keyframes pulse {
+  from { box-shadow: 0 0 5px rgba(255,215,0,0.4); }
+  to   { box-shadow: 0 0 18px rgba(255,215,0,0.9); }
 }
-@keyframes emblemFloat {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-12px); }
-}
-#curtain h2 {
-  font-size: 56px; color: #ffd700;
-  text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,140,0,0.6);
-  letter-spacing: 8px; font-family: 'Georgia', serif;
-}
-#curtain .curtain-sub {
-  font-size: 20px; color: #ffb8b8; font-style: italic;
-  letter-spacing: 1px; margin-bottom: 20px;
-}
-#curtain .curtain-btn {
-  padding: 16px 40px; font-size: 20px;
-  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.12);
-  color: #ffd700; border-radius: 10px;
-  cursor: url('cur.png') 0 12, auto !important;
-  font-family: 'Georgia', serif; letter-spacing: 2px;
-  transition: all 0.25s;
-}
-#curtain .curtain-btn:hover {
-  background: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 30px #ffd700;
-  transform: scale(1.05);
+.effect-badge svg {
+  color: inherit !important;
 }
 
-
-
-/* ===== ОПЕРНЫЙ ЗАНАВЕС ===== */
-#curtain {
+/* ===== ОВЕРЛЕЙ ===== */
+#overlay {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background:
-    radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 80%),
-    repeating-linear-gradient(90deg,
-      rgba(120, 20, 40, 0.35) 0px,
-      rgba(180, 30, 60, 0.55) 40px,
-      rgba(120, 20, 40, 0.35) 80px);
-  display: none; align-items: center; justify-content: center;
-  color: #fff; z-index: 8;
-  animation: curtainIn 0.6s ease;
+  background: radial-gradient(circle at center, rgba(20,10,40,0.92), rgba(0,0,0,0.97));
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 40; text-align: center; padding: 40px;
 }
-@keyframes curtainIn {
-  from { opacity: 0; transform: scale(1.05); }
-  to   { opacity: 1; transform: scale(1); }
+#overlay h2 {
+  font-size: 64px; color: #ffd700; text-shadow: 0 0 30px #ffd700;
+  margin-bottom: 20px; letter-spacing: 4px;
 }
-#curtain::before,
-#curtain::after {
-  content: '';
-  position: absolute; top: 0; bottom: 0;
-  width: 90px;
-  background: linear-gradient(180deg,
-    #5a0a1a 0%, #8b1028 15%, #5a0a1a 30%,
-    #8b1028 45%, #5a0a1a 60%, #8b1028 75%, #5a0a1a 100%);
-  box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
-  pointer-events: none;
+#overlay h3 {
+  font-size: 32px; color: #ff8c00; margin: 10px 0 20px 0;
+  font-style: italic;
 }
-#curtain::before { left: 0;  border-right: 3px solid #ffd700; }
-#curtain::after  { right: 0; border-left:  3px solid #ffd700; }
-
-#curtain .curtain-inner {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 14px; z-index: 1; text-align: center; padding: 20px;
+#overlay p {
+  font-size: 20px; color: #ccc; margin: 8px 0; max-width: 700px;
+  line-height: 1.5;
 }
-#curtain .curtain-emblem {
-  font-size: 110px;
-  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
-  animation: emblemFloat 3s ease-in-out infinite alternate;
+#overlay .stats {
+  margin-top: 20px; font-size: 22px; color: #4fc3f7;
 }
-@keyframes emblemFloat {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-12px); }
+#overlay button {
+  margin-top: 40px; padding: 18px 50px; font-size: 24px;
+  border: 2px solid #ffd700; background: rgba(255,215,0,0.15);
+  color: #ffd700; border-radius: 12px; cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; transition: all 0.3s; letter-spacing: 2px;
 }
-#curtain h2 {
-  font-size: 56px; color: #ffd700;
-  text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,140,0,0.6);
-  letter-spacing: 8px; font-family: 'Georgia', serif;
-}
-#curtain .curtain-sub {
-  font-size: 20px; color: #ffb8b8; font-style: italic;
-  letter-spacing: 1px; margin-bottom: 20px;
-}
-#curtain .curtain-btn {
-  padding: 16px 40px; font-size: 20px;
-  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.12);
-  color: #ffd700; border-radius: 10px;
-  cursor: url('cur.png') 0 12, auto !important;
-  font-family: 'Georgia', serif; letter-spacing: 2px;
-  transition: all 0.25s;
-}
-#curtain .curtain-btn:hover {
-  background: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 30px #ffd700;
+#overlay button:hover {
+  background: rgba(255,215,0,0.35); box-shadow: 0 0 40px #ffd700;
   transform: scale(1.05);
 }
+#overlay .emoji { font-size: 90px; margin-bottom: 10px; }
+#overlay .emoji svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 30px #ffd700);
+}
 
+body { cursor: url('cur.png') 0 12, auto !important; }
 
 /* ===== МЕНЮ ПАУЗЫ — ОПЕРНЫЙ ЗАНАВЕС ===== */
 #pauseMenu {
@@ -529,7 +268,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   color: #fff; z-index: 30; overflow: hidden;
 }
 
-/* ===== ДВЕ ШТОРЫ, СХОДЯЩИЕСЯ К ЦЕНТРУ ===== */
 #pauseMenu::before,
 #pauseMenu::after {
   content: '';
@@ -555,7 +293,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 }
 #pauseMenu::after {
   right: 0;
-
   box-shadow: inset 30px 0 80px rgba(0,0,0,0.7), -8px 0 40px rgba(0,0,0,0.6);
 }
 
@@ -564,7 +301,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   to   { width: 50%; }
 }
 
-/* ===== ЦЕНТРАЛЬНАЯ СЦЕНА ===== */
 #pauseMenu .pause-stage {
   position: relative;
   z-index: 2;
@@ -587,7 +323,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Золотые декоративные уголки */
 #pauseMenu .pause-stage::before,
 #pauseMenu .pause-stage::after {
   content: '';
@@ -608,20 +343,40 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   border-bottom-right-radius: 20px;
 }
 
-/* ===== ЗАГОЛОВОК ===== */
 #pauseMenu h2 {
   font-size: 64px; color: #ffd700;
   text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000;
   letter-spacing: 10px; margin-bottom: 8px;
   font-family: 'Georgia', serif;
   animation: pulseGlow 2s ease-in-out infinite alternate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 @keyframes pulseGlow {
   from { text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000; }
   to   { text-shadow: 0 0 35px #ffd700, 0 0 65px #ff8c00, 0 4px 10px #000; }
 }
 
-/* ===== ЗОЛОТАЯ БАХРОМА ПОД ЗАГОЛОВКОМ ===== */
+/* Иконка в заголовке ПАУЗА */
+#pauseMenu h2 svg {
+  width: 48px !important;
+  height: 48px !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 15px #ffd700);
+}
+
+#ico-pause-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: #ffd700;
+}
+
 #pauseMenu .fringe {
   width: 100%;
   height: 22px;
@@ -646,7 +401,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   text-shadow: 0 2px 6px #000;
 }
 
-/* ===== КНОПКИ ===== */
 #pauseMenu .pause-buttons {
   display: flex; flex-direction: column; gap: 14px;
   min-width: 380px;
@@ -665,6 +419,9 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   text-align: left;
   text-shadow: 0 1px 3px #000;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .pause-btn::before {
   content: '';
@@ -687,6 +444,15 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   opacity: 1;
 }
 
+/* Иконки в кнопках паузы */
+.pause-btn svg {
+  width: 1.2em !important;
+  height: 1.2em !important;
+  color: inherit !important;
+  filter: drop-shadow(0 0 4px currentColor);
+  flex-shrink: 0;
+}
+
 .pause-btn.danger {
   border-color: #e74c3c; color: #ff8c8c;
   background:
@@ -703,7 +469,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   border-color: #ff8c8c;
 }
 
-/* ===== ПОДСКАЗКА СНИЗУ ===== */
 #pauseMenu .pause-hint {
   margin-top: 30px; color: #b08a8a; font-size: 14px;
   letter-spacing: 2px; text-align: center;
@@ -722,7 +487,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   margin: 0 2px;
 }
 
-/* Декоративные звёздочки-искры по бокам */
 #pauseMenu .sparkle {
   position: absolute;
   color: #ffd700;
@@ -738,7 +502,11 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   50%      { transform: translateY(-15px) rotate(180deg); opacity: 0.9; }
 }
 
-
+/* Иконки звёздочек в паузе */
+#pauseMenu .sparkle svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 10px #ffd700);
+}
 
 /* ===== ВНУТРИИГРОВОЙ ДИАЛОГ ===== */
 #dialogueOverlay {
@@ -801,6 +569,13 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   from { filter: drop-shadow(0 0 15px rgba(255,215,0,0.4)); transform: scale(1); }
   to   { filter: drop-shadow(0 0 30px rgba(255,215,0,0.9)); transform: scale(1.04); }
 }
+
+/* Иконки в портрете диалога */
+#dialogueOverlay .dialogue-portrait svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 15px currentColor);
+}
+
 #dialogueOverlay .dialogue-content {
   flex: 1; display: flex; flex-direction: column;
 }
@@ -833,85 +608,276 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   margin-left: auto; color: #b08a8a; font-style: italic;
 }
 
-/* === ИКОНКИ === */
-.inline-icon {
-  color: inherit;
-  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4));
-  flex-shrink: 0;
+/* ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== */
+#gameDialog {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(5, 5, 15, 0.75);
+  backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200;
+  animation: dialogFadeIn 0.25s ease;
 }
-
-.inline-icon.accent {
+@keyframes dialogFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#gameDialog .dialog-box {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  border: 3px solid #ffd700;
+  border-radius: 18px;
+  padding: 40px 50px;
+  min-width: 420px;
+  max-width: 620px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.5),
+              0 0 100px rgba(255, 140, 0, 0.25),
+              inset 0 0 40px rgba(255, 215, 0, 0.06);
+  position: relative;
+  animation: dialogPop 0.35s cubic-bezier(0.18, 1.4, 0.4, 1);
+}
+@keyframes dialogPop {
+  from { transform: scale(0.7) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+#gameDialog .dialog-box::before,
+#gameDialog .dialog-box::after {
+  content: '';
+  position: absolute;
+  width: 40px; height: 40px;
+  border: 3px solid #ffd700;
+  pointer-events: none;
+  opacity: 0.7;
+}
+#gameDialog .dialog-box::before {
+  top: -3px; left: -3px;
+  border-right: none; border-bottom: none;
+  border-top-left-radius: 18px;
+}
+#gameDialog .dialog-box::after {
+  bottom: -3px; right: -3px;
+  border-left: none; border-top: none;
+  border-bottom-right-radius: 18px;
+}
+#gameDialog .dialog-icon {
+  font-size: 64px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
+  animation: dialogIconPulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes dialogIconPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+/* Иконки в диалоге */
+#gameDialog .dialog-icon svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 20px #ffd700);
+}
+#gameDialog .dialog-title {
+  font-size: 34px;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+  letter-spacing: 3px;
+  margin-bottom: 18px;
+  font-family: 'Georgia', serif;
+}
+#gameDialog .dialog-message {
+  font-size: 19px;
+  color: #ddd;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  font-family: 'Georgia', serif;
+}
+#gameDialog .dialog-message em {
+  color: #ff8c00;
+  font-style: italic;
+}
+#gameDialog .dialog-message strong {
   color: #ffd700;
 }
-
-.inline-icon.danger {
-  color: #e74c3c;
-}
-
-.inline-icon.success {
-  color: #2ecc71;
-}
-
-.inline-icon.info {
-  color: #4fc3f7;
-}
-
-/* Для крупных иконок в заголовках */
-.icon-xl {
-  width: 90px !important;
-  height: 90px !important;
-  filter: drop-shadow(0 0 30px currentColor);
-}
-
-/* Для иконок в кнопках */
-.icon-btn {
-  width: 1.2em !important;
-  height: 1.2em !important;
-  margin-right: 6px;
-}
-
-/* Вращающаяся звезда */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.spinning { animation: spin 3s linear infinite; }
-#pauseMenu h2 {
-  font-size: 64px; color: #ffd700;
-  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000;
-  letter-spacing: 10px; margin-bottom: 8px;
-  font-family: 'Georgia', serif;
-  animation: pulseGlow 2s ease-in-out infinite alternate;
-  display: flex;              /* ← выравниваем иконку и текст по одной линии */
-  align-items: center;        /* ← по центру по вертикали */
+#gameDialog .dialog-buttons {
+  display: flex;
+  gap: 16px;
   justify-content: center;
-  gap: 8px;                   /* ← отступ между иконкой и текстом */
+  flex-wrap: wrap;
 }
-
-/* Иконка внутри заголовка — фиксированный размер, не наследует 64px */
-#pauseMenu h2 svg {
-  width: 48px !important;
-  height: 48px !important;
-  vertical-align: middle;
-  flex-shrink: 0;
-}
-
-/* Убираем лишний вертикальный сдвиг у span-обёртки */
-#pauseMenu h2 #ico-pause-title {
+#gameDialog .dialog-btn {
+  padding: 14px 32px;
+  font-size: 18px;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  border: 2px solid #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffd700;
+  border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  transition: all 0.2s ease;
+  min-width: 140px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-}.voice-btn {
-    display: flex; align-items: center; gap: 14px;
-    padding: 12px 24px; margin: 6px; font-size: 18px;
-    border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.1);
-    color: #fff; cursor: url('cur.png') 0 12, auto !important; border-radius: 8px;
-    transition: all 0.3s; font-family: 'Georgia', serif; min-width: 280px;
-    justify-content: space-between;
-  }
+  gap: 6px;
+}
+#gameDialog .dialog-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+  transform: translateY(-2px) scale(1.03);
+}
+#gameDialog .dialog-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+#gameDialog .dialog-btn.primary {
+  background: rgba(255, 215, 0, 0.25);
+  font-weight: bold;
+}
+#gameDialog .dialog-btn.danger {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+}
+#gameDialog .dialog-btn.danger:hover {
+  background: rgba(231, 76, 60, 0.3);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+}
+#gameDialog .dialog-btn.neutral {
+  border-color: #90a4ae;
+  color: #b0bec5;
+  background: rgba(144, 164, 174, 0.12);
+}
+#gameDialog .dialog-btn.neutral:hover {
+  background: rgba(144, 164, 174, 0.3);
+  box-shadow: 0 0 25px rgba(144, 164, 174, 0.6);
+}
+#gameDialog .dialog-btn:focus {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
 
+/* Иконки в кнопках диалога */
+#gameDialog .dialog-btn svg {
+  color: inherit !important;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+#gameDialog .dialog-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+}
 
+/* ===== ОПЕРНЫЙ ЗАНАВЕС ===== */
+#curtain {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at center, #2a0a1a 0%, #0a0208 80%),
+    repeating-linear-gradient(90deg,
+      rgba(120, 20, 40, 0.35) 0px,
+      rgba(180, 30, 60, 0.55) 40px,
+      rgba(120, 20, 40, 0.35) 80px);
+  display: none; align-items: center; justify-content: center;
+  color: #fff; z-index: 8;
+  animation: curtainIn 0.6s ease;
+}
+@keyframes curtainIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#curtain::before,
+#curtain::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 90px;
+  background: linear-gradient(180deg,
+    #5a0a1a 0%, #8b1028 15%, #5a0a1a 30%,
+    #8b1028 45%, #5a0a1a 60%, #8b1028 75%, #5a0a1a 100%);
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+#curtain::before { left: 0;  border-right: 3px solid #ffd700; }
+#curtain::after  { right: 0; border-left:  3px solid #ffd700; }
+
+#curtain .curtain-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; z-index: 1; text-align: center; padding: 20px;
+}
+#curtain .curtain-emblem {
+  font-size: 110px;
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.9));
+  animation: emblemFloat 3s ease-in-out infinite alternate;
+  color: #ffd700;
+}
+#curtain .curtain-emblem svg {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 40px #ffd700);
+}
+@keyframes emblemFloat {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-12px); }
+}
+#curtain h2 {
+  font-size: 56px; color: #ffd700;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,140,0,0.6);
+  letter-spacing: 8px; font-family: 'Georgia', serif;
+}
+#curtain .curtain-sub {
+  font-size: 20px; color: #ffb8b8; font-style: italic;
+  letter-spacing: 1px; margin-bottom: 20px;
+}
+#curtain .curtain-btn {
+  padding: 16px 40px; font-size: 20px;
+  border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.12);
+  color: #ffd700; border-radius: 10px;
+  cursor: url('cur.png') 0 12, auto !important;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+#curtain .curtain-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px #ffd700;
+  transform: scale(1.05);
+}
+
+/* Кнопка выхода в главном меню */
+.exit-btn {
+  margin-top: 20px;
+  padding: 14px 40px; font-size: 18px;
+  border: 2px solid #e74c3c; background: rgba(231, 76, 60, 0.08);
+  color: #e74c3c; cursor: url('cur.png') 0 12, auto !important;
+  border-radius: 10px; transition: all 0.3s;
+  font-family: 'Georgia', serif; letter-spacing: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.exit-btn:hover {
+  background: rgba(231, 76, 60, 0.25);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+  transform: scale(1.05);
+}
+.exit-btn svg {
+  color: #e74c3c !important;
+  filter: drop-shadow(0 0 4px #e74c3c);
+}
+
+/* Уведомление о сохранении */
+.save-toast {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  background: rgba(46, 204, 113, 0.95); color: #fff;
+  padding: 14px 30px; border-radius: 10px;
+  font-size: 18px; z-index: 100;
+  box-shadow: 0 0 25px rgba(46, 204, 113, 0.6);
+  animation: toastIn 0.3s ease;
+}
+.save-toast.error {
+  background: rgba(231, 76, 60, 0.95);
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
 
 /* ===== Панель опыта внизу ===== */
 .xp-panel {
@@ -919,6 +885,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   bottom: 0; left: 0; right: 0;
   height: 26px;
   z-index: 40;
+  display: none;
 }
 .level-badge {
   position: absolute;
@@ -933,7 +900,6 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 }
 .level-badge:hover { filter: brightness(1.15); }
 .level-badge .points { color: #ffd54f; margin-left: 6px; animation: pulse 1.4s infinite; }
-@keyframes pulse { 50% { opacity: .4; } }
 
 .xp-bar {
   height: 100%;
@@ -1016,14 +982,202 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 }
 .levelup-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-/* ===== Панель опыта внизу ===== */
+/* ===== Панель арий внизу ===== */
+.aria-panel {
+  position: fixed;
+  bottom: 30px;
+  left: 0; right: 0;
+  height: 68px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 45;
+  pointer-events: none;
+  padding: 0 16px;
+  background: linear-gradient(180deg,
+    rgba(10, 5, 20, 0) 0%,
+    rgba(10, 5, 20, 0.70) 50%,
+    rgba(10, 5, 20, 0.95) 100%);
+  border-top: 1px solid rgba(255, 215, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.aria-slot {
+  width: 52px;
+  height: 52px;
+  border: 2px solid #ffd700;
+  border-radius: 10px;
+  background: linear-gradient(160deg,
+    rgba(255, 215, 0, 0.12),
+    rgba(0, 0, 0, 0.55));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ===== ИКОНКИ В СЛОТАХ АРИЙ — ЗОЛОТЫЕ ===== */
+.aria-slot svg {
+  width: 28px !important;
+  height: 28px !important;
+  pointer-events: none;
+  color: #ffd700 !important;
+  fill: #ffd700;
+  stroke: #ffd700;
+  filter: drop-shadow(0 0 6px #ffd700);
+}
+
+.aria-slot:hover:not(.locked):not(.disabled) {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 0 20px #ffd700, inset 0 0 12px rgba(255, 215, 0, 0.3);
+  border-color: #fff8dc;
+}
+
+/* Заблокированная ария */
+.aria-slot.locked {
+  border-color: #555;
+  background: linear-gradient(160deg,
+    rgba(80, 80, 80, 0.25),
+    rgba(0, 0, 0, 0.75));
+  cursor: not-allowed;
+}
+.aria-slot.locked svg {
+  color: #555 !important;
+  fill: #555;
+  stroke: #555;
+  filter: none;
+  opacity: 0.5;
+}
+.aria-slot.locked::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 6px,
+      rgba(0,0,0,0.35) 6px 12px);
+  pointer-events: none;
+}
+
+/* На кулдауне */
+.aria-slot.cooling {
+  border-color: #7a5a00;
+  opacity: 0.55;
+}
+.aria-slot.cooling svg {
+  color: #7a5a00 !important;
+  fill: #7a5a00;
+  stroke: #7a5a00;
+  filter: grayscale(0.6) drop-shadow(0 0 2px #7a5a00);
+}
+
+/* Не хватает очков */
+.aria-slot.no-score {
+  border-color: #7a3a3a;
+  opacity: 0.65;
+}
+.aria-slot.no-score svg {
+  color: #7a3a3a !important;
+  fill: #7a3a3a;
+  stroke: #7a3a3a;
+}
+
+/* Бейдж с ценой */
+.aria-slot .aria-cost {
+  position: absolute;
+  bottom: -6px; right: -4px;
+  background: #1a1a2e;
+  border: 1px solid #ffd700;
+  border-radius: 8px;
+  font: bold 10px/1 'Georgia', serif;
+  color: #ffd700;
+  padding: 2px 5px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Бейдж с уровнем (для заблокированных) */
+.aria-slot .aria-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font: bold 11px/1 'Georgia', serif;
+  text-shadow: 0 1px 2px #000;
+}
+.aria-slot .aria-lock svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #888 !important;
+  fill: #888;
+  stroke: #888;
+  margin-bottom: 2px;
+  filter: none;
+}
+
+/* Бейдж кулдауна (цифра) */
+.aria-slot .aria-cd {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: bold 20px/1 'Georgia', serif;
+  color: #ffd700;
+  text-shadow: 0 0 6px #000, 0 2px 4px #000;
+  pointer-events: none;
+}
+
+/* Тултип с названием */
+.aria-slot .aria-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(10, 5, 20, 0.95);
+  border: 1px solid #ffd700;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: 12px/1.3 'Georgia', serif;
+  color: #ffd700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+.aria-slot:hover .aria-tooltip {
+  opacity: 1;
+}
+.aria-tooltip .tt-desc {
+  color: #bbb;
+  font-size: 10px;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Индикатор «новых очков характеристик» на панели опыта */
+.level-badge .points { animation: pulse 1.4s infinite; }
+
 .xp-panel {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: 26px;
-  z-index: 40;
-  display: none;        /* ← добавьте эту строку */
+  height: 28px;              /* чуть выше, чтобы текст не резался */
+  z-index: 50;               /* ВЫШЕ панели арий (у неё 45) */
+  display: none;
+  box-sizing: border-box;
 }
+
+
+
 </style>
 </head>
 <body>
@@ -1147,7 +1301,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   </div>
 </div>
 <script>
-
+const BOTTOM_UI_HEIGHT = 98; 
 window.addEventListener('wheel', (e) => {
   if (e.ctrlKey) e.preventDefault();
 }, { passive: false });
@@ -1243,8 +1397,8 @@ const ICONS = {
   
   heart: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
   
-  heartGreen: `<svg viewBox="0 0 24 24" fill="#2ecc71"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
-  
+// Стало:
+heartGreen: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
   target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`,
   
   hourglass: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm2 2v3.17L11 10l-3 3V20h8v-7l-3-3 3-3V4H8z"/></svg>`,
@@ -3619,8 +3773,23 @@ let gameState = {
   gameComplete:false, pendingAdvance:null,
   enemiesTotal:0, enemiesKilled:0,
   notesNeeded:0, notesCollected:0,
-  boss:null
+  boss:null,
+ blackHole: null,
+  mirrorClone: null,
+  positionHistory: [],
 };
+
+
+// Сразу после объявления gameState
+const levelSystem = {
+  level: 1,
+  xp: 0,
+  points: 0,
+  stats: { power: 0, phrase: 0, art: 0, perf: 0, range: 0 },
+  MAX_LEVEL: 10
+};
+
+
 
 const keys = {};
 window.addEventListener('keydown', e => {
@@ -3681,160 +3850,275 @@ ariaMenuEl.addEventListener('click', (e) => { if (e.target === ariaMenuEl) close
 //  icon: имя иконки из объекта ICONS
 //  iconColor: цвет иконки (можно не указывать — будет #ffd700)
 // ============================================================
+// ============================================================
+//  АРИИ — по 10 штук на каждый тип голоса.
+//  unlockLevel — уровень, с которого ария становится доступной.
+// ============================================================
 const ARIAS = {
-  tenor: [
-    {
-      id: 'lensky',
-      name: 'Ария Ленского',
-      desc: '«Куда, куда вы удалились...» — замораживает всех врагов.',
-      effect: 'freeze',
-      duration: 5,
-      cooldown: 12,
-      cost: 150,
-      color: '#4fc3f7',
-      icon: 'snowflake',
-      iconColor: '#4fc3f7'
-    },
-    {
-      id: 'serenade',
-      name: 'Серенада',
-      desc: '«Соловей мой, соловей...» — восстанавливает 1 здоровье.',
-      effect: 'heal',
-      duration: 0,
-      cooldown: 15,
-      cost: 100,
-      color: '#2ecc71',
-      icon: 'heartGreen',
-      iconColor: '#2ecc71'
-    },
-    {
-      id: 'vincero',
-      name: 'Vincerò!',
-      desc: '«Nessun dorma» — залп из 5 нот веером.',
-      effect: 'volley',
-      duration: 0,
-      cooldown: 10,
-      cost: 120,
-      color: '#ff8c00',
-      icon: 'target',
-      iconColor: '#ff8c00'
-    },
-    {
-      id: 'romance',
-      name: 'Романс',
-      desc: '«Я помню чудное мгновенье...» — замедляет время.',
-      effect: 'slow',
-      duration: 6,
-      cooldown: 18,
-      cost: 180,
-      color: '#ba68c8',
-      icon: 'hourglass',
-      iconColor: '#ba68c8'
-    }
+       tenor: [
+    // === Уровень 1 — оставляем ===
+    { id:'lensky', name:'Ария Ленского',
+      desc:'«Куда, куда вы удалились...» — замораживает всех врагов.',
+      effect:'freeze', duration:5, cooldown:12, cost:150,
+      color:'#4fc3f7', icon:'snowflake', iconColor:'#4fc3f7',
+      unlockLevel:1 },
+
+    { id:'serenade', name:'Ария Альфреда',
+      desc:'«Я был диким и мрачным, теперь ожил...» — восстанавливает 1 здоровье.',
+      effect:'heal', duration:0, cooldown:15, cost:100,
+      color:'#2ecc71', icon:'heartGreen', iconColor:'#2ecc71',
+      unlockLevel:2 },
+
+    { id:'vincero', name:'Ария Калафа',
+      desc:'«Nessun dorma» — залп из 5 нот веером.',
+      effect:'volley', duration:0, cooldown:10, cost:120,
+      color:'#ff8c00', icon:'target', iconColor:'#ff8c00',
+      unlockLevel:3 },
+
+    { id:'romance', name:'Романс',
+      desc:'«Я помню чудное мгновенье...» — замедляет время.',
+      effect:'slow', duration:6, cooldown:18, cost:180,
+      color:'#ba68c8', icon:'hourglass', iconColor:'#ba68c8',
+      unlockLevel:5 },
+
+    // === Уровень 2 — ЛЕНСКИЙ В ЗЕРКАЛЕ ===
+    { id:'lensky_mirror', name:'Эхо Ленского',
+      desc:'«Что день грядущий мне готовит?» — призывает зеркального двойника-поэта, стреляющего вместе с вами.',
+      effect:'mirror', duration:8, cooldown:20, cost:200,
+      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
+      unlockLevel:7 },
+
+  
+
+
+    // === Уровень 5 — ПРОКЛЯТИЕ ГЕРМАНА ===
+    { id:'german', name:'Ария Германа',
+      desc:'«Что наша жизнь? Игра!» — три карты отматывают время певца на 3 секунды назад.',
+      effect:'timeRewind', duration:3, cooldown:30, cost:300,
+      color:'#fff8dc', icon:'hourglass', iconColor:'#fff8dc',
+      unlockLevel:8 },
+
+    // === Уровень 7 — ГРОЗА ЮРОДИВОГО ===
+    { id:'gromoboy', name:'Ария Юродивого',
+      desc:'«Слёзы людские, о слёзы людские!» — молния перескакивает между врагами, поражая до 5 целей.',
+      effect:'chain', duration:0, cooldown:14, cost:180,
+      color:'#ffd700', icon:'explosion', iconColor:'#ffd700',
+      unlockLevel:10 },
+
+   
   ],
 
-  bass: [
-    {
-      id: 'varlaam',
-      name: 'Песня Варлаама',
-      desc: '«Как во городе было во Казани...» — неуязвимость.',
-      effect: 'invuln',
-      duration: 5,
-      cooldown: 14,
-      cost: 150,
-      color: '#ffd700',
-      icon: 'shield',
-      iconColor: '#ffd700'
-    },
-    {
-      id: 'boris_a',
-      name: 'Ария Бориса',
-      desc: '«Скорбит душа...» — щит, поглощающий удар.',
-      effect: 'shield',
-      duration: 15,
-      cooldown: 12,
-      cost: 100,
-      color: '#4fc3f7',
-      icon: 'shield',
-      iconColor: '#4fc3f7'
-    },
-    {
-      id: 'flea',
-      name: 'Песня о блохе',
-      desc: '«Жил-был король когда-то...» — взрыв по всем врагам.',
-      effect: 'explosion',
-      duration: 0,
-      cooldown: 16,
-      cost: 200,
-      color: '#e74c3c',
-      icon: 'explosion',
-      iconColor: '#e74c3c'
-    },
-    {
-      id: 'requiem',
-      name: 'Реквием',
-      desc: '«Dies irae» — уничтожает всех врагов.',
-      effect: 'killAll',
-      duration: 0,
-      cooldown: 30,
-      cost: 350,
-      color: '#c0392b',
-      icon: 'skull',
-      iconColor: '#c0392b'
-    }
+     bass: [
+    // === Уровень 1 — оставляем ===
+    { id:'varlaam', name:'Песня Варлаама',
+      desc:'«Как во городе было во Казани...» — неуязвимость.',
+      effect:'invuln', duration:5, cooldown:14, cost:150,
+      color:'#ffd700', icon:'shield', iconColor:'#ffd700',
+      unlockLevel:1 },
+
+    
+    { id:'boris_a', name:'Ария Бориса',
+      desc:'«Скорбит душа...» — щит, поглощающий удар.',
+      effect:'shield', duration:15, cooldown:12, cost:100,
+      color:'#4fc3f7', icon:'shield', iconColor:'#4fc3f7',
+      unlockLevel:2 },
+
+
+// === Уровень 5 — АРИЯ МЕФИСТОФЕЛЯ ===
+    { id:'varlaam_tp', name:'Ария Мефистофеля',
+      desc:'«На земле!» — мгновенно телепортирует певца к курсору.',
+      effect:'teleport', duration:0, cooldown:10, cost:120,
+      color:'#ba68c8', icon:'star', iconColor:'#ba68c8',
+      unlockLevel:3 },
+
+    { id:'requiem', name:'Реквием',
+      desc:'«Dies irae» — уничтожает всех врагов.',
+      effect:'killAll', duration:0, cooldown:30, cost:350,
+      color:'#c0392b', icon:'skull', iconColor:'#c0392b',
+      unlockLevel:5 },
+
+    // === Уровень 2 — ТЕНЬ БОРИСА ===
+    { id:'boris_mirror', name:'Тень Бориса',
+      desc:'«Тяжка десница грозного царя...» — из-за трона выходит двойник-царь, стреляющий вместе с вами.',
+      effect:'mirror', duration:8, cooldown:20, cost:200,
+      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
+      unlockLevel:7 },
+
+    // === Уровень 3 — ХАН КОНЧАК ===
+    { id:'konchak', name:'Ария Кончака',
+      desc:'«Ты красотой своей пленяешь меня!» — пучина половецкого стана втягивает всех врагов и ноты.',
+      effect:'blackHole', duration:4, cooldown:24, cost:280,
+      color:'#4a148c', icon:'moon', iconColor:'#4a148c',
+      unlockLevel:8 },
+
+
+
+    // === Уровень 7 — ПАМЯТЬ ВЕКОВ ===
+    { id:'memoria', name:'Поминальная ария',
+      desc:'«Вечная память» — отматывает время певца на 3 секунды назад.',
+      effect:'timeRewind', duration:3, cooldown:30, cost:300,
+      color:'#fff8dc', icon:'hourglass', iconColor:'#fff8dc',
+      unlockLevel:10 },
+
+  
   ],
 
   baritone: [
-    {
-      id: 'figaro_a',
-      name: 'Ария Фигаро',
-      desc: '«Largo al factotum» — двойной прыжок.',
-      effect: 'doubleJump',
-      duration: 8,
-      cooldown: 12,
-      cost: 120,
-      color: '#ffd700',
-      icon: 'kangaroo',
-      iconColor: '#ffd700'
-    },
-    {
-      id: 'donjuan_a',
-      name: 'Серенада Дон Жуана',
-      desc: '«Deh, vieni alla finestra» — притягивает ноты.',
-      effect: 'magnet',
-      duration: 0,
-      cooldown: 10,
-      cost: 80,
-      color: '#ff8c00',
-      icon: 'magnet',
-      iconColor: '#ff8c00'
-    },
-    {
-      id: 'onegin_a',
-      name: 'Ария Онегина',
-      desc: '«Когда бы жизнь домашним кругом...» — отталкивает врагов.',
-      effect: 'push',
-      duration: 0,
-      cooldown: 14,
-      cost: 130,
-      color: '#4fc3f7',
-      icon: 'dash',
-      iconColor: '#4fc3f7'
-    },
-    {
-      id: 'toreador',
-      name: 'Песня Тореадора',
-      desc: '«Toréador, en garde!» — двойной урон.',
-      effect: 'rage',
-      duration: 8,
-      cooldown: 18,
-      cost: 200,
-      color: '#e74c3c',
-      icon: 'swords',
-      iconColor: '#e74c3c'
-    }
+    // === Уровень 1 — оставляем ===
+    { id:'figaro_a', name:'Ария Фигаро',
+      desc:'«Largo al factotum» — двойной прыжок.',
+      effect:'doubleJump', duration:8, cooldown:12, cost:120,
+      color:'#ffd700', icon:'kangaroo', iconColor:'#ffd700',
+      unlockLevel:1 },
+
+    { id:'donjuan_a', name:'Серенада Дон Жуана',
+      desc:'«Deh, vieni alla finestra» — притягивает ноты.',
+      effect:'magnet', duration:0, cooldown:10, cost:80,
+      color:'#ff8c00', icon:'magnet', iconColor:'#ff8c00',
+      unlockLevel:2 },
+
+    { id:'onegin_a', name:'Ария Онегина',
+      desc:'«Когда бы жизнь домашним кругом...» — отталкивает врагов.',
+      effect:'push', duration:0, cooldown:14, cost:130,
+      color:'#4fc3f7', icon:'dash', iconColor:'#4fc3f7',
+      unlockLevel:3 },
+
+    { id:'toreador', name:'Куплеты Тореадора',
+      desc:'«Toréador, en garde!» — двойной урон.',
+      effect:'rage', duration:8, cooldown:18, cost:200,
+      color:'#e74c3c', icon:'swords', iconColor:'#e74c3c',
+      unlockLevel:5 },
+
+
+    // === Уровень 3 — ДУЭТ С ОНЕГИНЫМ ===
+    { id:'duetto', name:'Дуэт с Онегиным',
+      desc:'«Враги! Давно ли друг от друга...» — призывает зеркального двойника, стреляющего вместе с вами.',
+      effect:'mirror', duration:8, cooldown:20, cost:200,
+      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
+      unlockLevel:7 },
+
+    // === Уровень 4 — ВОДОВОРОТ РИГОЛЕТТО ===
+    { id:'rigoletto_bh', name:'Проклятие Риголетто',
+      desc:'«Cortigiani, vil razza dannata!» — проклятие шута втягивает всех врагов и ноты в одну точку.',
+      effect:'blackHole', duration:4, cooldown:24, cost:280,
+      color:'#4a148c', icon:'moon', iconColor:'#4a148c',
+      unlockLevel:8 },
+
+
+   
+    // === Уровень 10 — ПОЛЁТ КАРМЕН ===
+    { id:'carmen', name:'Хабанера Кармен',
+      desc:'«L\'amour est un oiseau rebelle» — невесомость и тройной прыжок на 12 секунд.',
+      effect:'lowGravity', duration:12, cooldown:35, cost:400,
+      color:'#e0f7fa', icon:'dove', iconColor:'#e0f7fa',
+      unlockLevel:10 }
   ]
 };
+
+
+function renderAriaPanel() {
+  const ariaPanelEl = document.getElementById('ariaPanel');
+  if (!ariaPanelEl) return;
+  if (!gameState.voice) return;
+
+  const key = gameState.voiceKey;
+  const list = ARIAS[key] || [];
+  const currentLevel = levelSystem.level;   // ← напрямую
+  const score = gameState.score || 0;
+
+  ariaPanelEl.innerHTML = '';
+
+  list.forEach(aria => {
+    const unlocked = currentLevel >= aria.unlockLevel;
+    const cd = gameState.ariaCooldowns[aria.id] || 0;
+    const realCost = Math.round(aria.cost * (gameState._levelCostMul || 1));
+    const canAfford = score >= realCost;
+
+    const slot = document.createElement('div');
+    slot.className = 'aria-slot';
+    if (!unlocked) slot.classList.add('locked');
+    else if (cd > 0) slot.classList.add('cooling');
+    else if (!canAfford) slot.classList.add('no-score');
+
+    slot._lastUnlocked = unlocked;
+    slot._lastCanAfford = canAfford;
+    slot._lastCd = cd;
+
+    slot.innerHTML = icon(aria.icon, '28px');
+
+    const tt = document.createElement('div');
+    tt.className = 'aria-tooltip';
+    tt.innerHTML = unlocked
+      ? `${aria.name}<div class="tt-desc">${aria.desc}</div>`
+      : `🔒 ${aria.name} — откроется на ур. ${aria.unlockLevel}<div class="tt-desc">${aria.desc}</div>`;
+    slot.appendChild(tt);
+
+    if (unlocked) {
+      const cost = document.createElement('div');
+      cost.className = 'aria-cost';
+      cost.textContent = realCost;
+      slot.appendChild(cost);
+
+      if (cd > 0) {
+        const cdEl = document.createElement('div');
+        cdEl.className = 'aria-cd';
+        cdEl.textContent = Math.ceil(cd);
+        slot.appendChild(cdEl);
+      }
+
+      // ✅ Всегда вешаем обработчик
+      slot.addEventListener('click', () => {
+        const curCd = gameState.ariaCooldowns[aria.id] || 0;
+        const curCost = Math.round(aria.cost * (gameState._levelCostMul || 1));
+        if (curCd > 0) { showToast('Ария на кулдауне'); return; }
+        if (gameState.score < curCost) { showToast('Недостаточно очков'); return; }
+        activateAria(aria);
+      });
+    } else {
+      const lock = document.createElement('div');
+      lock.className = 'aria-lock';
+      lock.innerHTML = icon('close', '16px') + `<span>ур.${aria.unlockLevel}</span>`;
+      slot.appendChild(lock);
+    }
+
+    ariaPanelEl.appendChild(slot);
+  });
+}
+function updateAriaPanelLive() {
+  const ariaPanelEl = document.getElementById('ariaPanel');
+  if (!ariaPanelEl || ariaPanelEl.style.display === 'none') return;
+  if (!gameState.voiceKey) return;
+
+  const list = ARIAS[gameState.voiceKey];
+  if (!Array.isArray(list)) return;
+
+  const slots = ariaPanelEl.children;
+  if (slots.length !== list.length) return;
+
+  const currentLevel = levelSystem.level;
+  const costMul = gameState._levelCostMul || 1;
+
+  for (let i = 0; i < list.length; i++) {
+    const aria = list[i];
+    const slot = slots[i];
+    if (!slot) continue;
+
+    const unlocked = currentLevel >= (aria.unlockLevel || 1);
+    const cd = gameState.ariaCooldowns[aria.id] || 0;
+    const realCost = Math.round(aria.cost * costMul);
+    const canAfford = gameState.score >= realCost;
+
+    // Если что-то важное изменилось — пересоздаём
+    if (slot._lastUnlocked !== unlocked ||
+        slot._lastCanAfford !== canAfford ||
+        (slot._lastCd > 0) !== (cd > 0)) {
+      renderAriaPanel();
+      return;
+    }
+  }
+}
+
+
 function renderAriaMenu() {
  ariaGridEl.innerHTML = '';
 
@@ -3937,15 +4221,402 @@ gameState.ariaCooldowns[aria.id] = aria.cooldown * (gameState._levelAriaMul || 1
   applyAriaEffect(aria);
   closeAriaMenu();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function applyAriaEffect(aria) {
-  const p = gameState.player, fx = gameState.effects;
+  const p = gameState.player;
+  const fx = gameState.effects;
+  const b = gameState.boss;
+
+  // Общая функция для добавления визуального индикатора
+  const addEffect = (iconName, label, duration, color) => {
+    // Удаляем старый эффект с таким же именем, если он есть
+    gameState.activeEffects = gameState.activeEffects.filter(e => e.label !== label);
+    gameState.activeEffects.push({
+      iconName,
+      label,
+      time: duration,
+      maxTime: duration,
+      color
+    });
+  };
+
   switch (aria.effect) {
-  case 'freeze': fx.frozen = aria.duration; addActiveEffect('snowflake','Заморозка', aria.duration, aria.color); break;
-case 'slow':   fx.slow   = aria.duration; addActiveEffect('hourglass','Замедление', aria.duration, aria.color); break;
-case 'invuln': fx.invuln = aria.duration; addActiveEffect('shield','Неуязвимость', aria.duration, aria.color); break;
-case 'shield': fx.shield = 1;             addActiveEffect('shield','Щит', aria.duration, aria.color); break;
-case 'doubleJump': fx.doubleJump = aria.duration; addActiveEffect('kangaroo','Двойной прыжок', aria.duration, aria.color); break;
-case 'rage':   fx.rage   = aria.duration; addActiveEffect('swords','Ярость x2', aria.duration, aria.color); break;
+    // ============================================================
+    //  СТАРЫЕ ЭФФЕКТЫ (оставляем без изменений)
+    // ============================================================
+
+    case 'freeze':
+      fx.frozen = aria.duration;
+      addEffect('snowflake', 'Заморозка', aria.duration, aria.color);
+      // Замораживаем всех врагов
+      gameState.enemies.forEach(enemy => {
+        if (enemy.alive) enemy.vx = 0;
+      });
+      break;
+
+    case 'heal':
+      // Восстанавливаем здоровье, но не больше 3 (или другого максимума)
+      gameState.health = Math.min(3, gameState.health + 1);
+      spawnTextParticles(p.x + p.w / 2, p.y, '+1 HP', '#2ecc71');
+      break;
+
+    case 'volley': {
+      // Залп из нескольких нот веером
+      const noteCount = (aria.id === 'vincero' || aria.id === 'nessun')
+        ? (aria.id === 'nessun' ? 9 : 5)
+        : 6; // Настраиваем количество
+      const baseMidi = gameState.voice.minMidi
+        + Math.round(gameState.chargeValue * (gameState.voice.maxMidi - gameState.voice.minMidi));
+      const baseAngle = Math.atan2(
+        mouse.y - (p.y + p.h / 2),
+        mouse.x - (p.x + p.w / 2 - gameState.camera.x)
+      );
+      const spread = 0.5; // Радиан
+
+      for (let i = 0; i < noteCount; i++) {
+        const angle = baseAngle + (i - (noteCount - 1) / 2) * (spread / (noteCount - 1 || 1));
+        const speed = 10;
+        let t = 0.5; // фиксированная "заряженность"
+        let color;
+        if (t < 0.5) color = lerpColor(gameState.voice.colors.low, gameState.voice.colors.mid, t * 2);
+        else color = lerpColor(gameState.voice.colors.mid, gameState.voice.colors.top, (t - 0.5) * 2);
+
+        let damage = gameState.voice.damageBase * gameState.voice.damageCurve(t) * 20;
+        if (fx.rage > 0) damage *= 2;
+        damage *= (gameState._levelPowerMul || 1);
+
+        gameState.notes.push({
+          x: p.x + p.w / 2 + Math.cos(angle) * 30,
+          y: p.y + p.h * 0.4 + Math.sin(angle) * 30,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.5,
+          life: 1, maxLife: 1,
+          color, noteName: midiToName(baseMidi),
+          size: 20 + t * 25,
+          rot: 0,
+          rotSpeed: (Math.random() - 0.5) * 0.1,
+          t, damage
+        });
+      }
+      break;
+    }
+
+    case 'slow':
+      fx.slow = aria.duration;
+      addEffect('hourglass', 'Замедление', aria.duration, aria.color);
+      break;
+
+    case 'invuln':
+      fx.invuln = aria.duration;
+      addEffect('shield', 'Неуязвимость', aria.duration, aria.color);
+      break;
+
+    case 'shield':
+      fx.shield = aria.duration || 1;
+      addEffect('shield', 'Щит', 5, aria.color);
+      break;
+
+    case 'doubleJump':
+      fx.doubleJump = aria.duration;
+      addEffect('kangaroo', 'Двойной прыжок', aria.duration, aria.color);
+      break;
+
+    case 'rage':
+      fx.rage = aria.duration;
+      addEffect('swords', 'Ярость x2', aria.duration, aria.color);
+      break;
+
+    case 'magnet':
+      // Притягиваем все ноты на экране
+      gameState.collectibleNotes.forEach(note => {
+        if (!note.collected) note.magnet = true;
+      });
+      addEffect('magnet', 'Магнит', aria.duration, aria.color);
+      setTimeout(() => {
+        gameState.collectibleNotes.forEach(note => { note.magnet = false; });
+      }, aria.duration * 1000);
+      break;
+
+    case 'push':
+      // Отталкиваем всех врагов
+      gameState.enemies.forEach(enemy => {
+        if (enemy.alive) {
+          const dx = (enemy.x + enemy.w / 2) - (p.x + p.w / 2);
+          const dy = (enemy.y + enemy.h / 2) - (p.y + p.h / 2);
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          enemy.vx = (dx / dist) * 15;
+          enemy.vy = (dy / dist) * 5;
+        }
+      });
+      break;
+
+    case 'explosion':
+      // Взрыв по всем врагам
+      gameState.enemies.forEach(enemy => {
+        if (enemy.alive) {
+          enemy.hp -= 100 * (gameState._levelPowerMul || 1);
+          enemy.hitFlash = 0.3;
+          if (enemy.hp <= 0) {
+            enemy.alive = false;
+            enemy.hitFlash = 0.5;
+            gameState.score += 100;
+            onEnemyKilled();
+          }
+        }
+      });
+      // Если есть босс, тоже наносим урон
+      if (b && b.hp > 0) {
+        b.hp -= 150 * (gameState._levelPowerMul || 1);
+        b.hitFlash = 0.3;
+      }
+      break;
+
+    case 'killAll':
+      gameState.enemies.forEach(enemy => {
+        if (enemy.alive) {
+          enemy.hp = 0;
+          enemy.alive = false;
+          enemy.hitFlash = 0.5;
+          gameState.score += 100;
+          onEnemyKilled();
+        }
+      });
+      break;
+
+    // ============================================================
+    //  НОВЫЕ ЭФФЕКТЫ
+    // ============================================================
+
+    // ---------- ТЕЛЕПОРТ К КУРСОРУ ----------
+    case 'teleport': {
+      const targetX = mouse.x + gameState.camera.x;
+      const targetY = mouse.y;
+      // Ограничиваем позицию рамками уровня
+      p.x = Math.max(0, Math.min(gameState.stageWidth - p.w, targetX - p.w / 2));
+      p.y = Math.max(50, Math.min(gameState.groundY - p.h - 10, targetY - p.h / 2));
+      p.vx = 0;
+      p.vy = 0;
+      p.onGround = false;
+
+      // Частицы-вспышка на месте появления
+      for (let i = 0; i < 30; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 4 + Math.random() * 8;
+        gameState.particles.push({
+          x: p.x + p.w / 2, y: p.y + p.h / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 0.8, maxLife: 0.8,
+          color: aria.color, size: 4 + Math.random() * 4
+        });
+      }
+      // Расширяющиеся кольца
+      for (let r = 0; r < 3; r++) {
+        gameState.particles.push({
+          x: p.x + p.w / 2, y: p.y + p.h / 2,
+          vx: 0, vy: 0,
+          life: 0.6 + r * 0.1, maxLife: 0.6 + r * 0.1,
+          color: '#fff', size: 20 + r * 15,
+          isRing: true, ringRadius: 0
+        });
+      }
+      spawnTextParticles(p.x + p.w / 2, p.y, 'ТЕЛЕПОРТ!', aria.color);
+      break;
+    }
+
+    // ---------- ЦЕПНАЯ МОЛНИЯ ----------
+    case 'chain': {
+      // Собираем живых врагов + босса
+      const targets = gameState.enemies.filter(e => e.alive);
+      if (b && b.hp > 0) targets.push(b);
+
+      if (targets.length === 0) {
+        spawnTextParticles(p.x + p.w / 2, p.y, 'Нет целей!', '#888');
+        break;
+      }
+
+      // Сортируем по расстоянию до игрока
+      const px = p.x + p.w / 2, py = p.y + p.h / 2;
+      targets.sort((a, c) => {
+        const da = Math.hypot((a.x + a.w / 2) - px, (a.y + a.h / 2) - py);
+        const dc = Math.hypot((c.x + c.w / 2) - px, (c.y + c.h / 2) - py);
+        return da - dc;
+      });
+
+      // Берём до 5 ближайших
+      const chained = targets.slice(0, 5);
+      const damage = 35 * (gameState._levelPowerMul || 1);
+
+      let prevX = px, prevY = py;
+
+      chained.forEach((target, i) => {
+        const tx = target.x + target.w / 2;
+        const ty = target.y + target.h / 2;
+
+        // Визуал молнии
+        gameState.particles.push({
+          x: prevX, y: prevY,
+          x2: tx, y2: ty,
+          vx: 0, vy: 0,
+          life: 0.4 + i * 0.05,
+          maxLife: 0.4 + i * 0.05,
+          color: '#ffff00', size: 3,
+          isLightning: true
+        });
+
+        // Урон
+        if (target === b) {
+          b.hp -= damage;
+          b.hitFlash = 0.3;
+          b.hitPulse = 1;
+        } else {
+          target.hp -= damage;
+          target.hitFlash = 0.3;
+          if (target.hp <= 0) {
+            target.alive = false;
+            target.hitFlash = 0.5;
+            gameState.score += 100;
+            onEnemyKilled();
+          }
+        }
+
+        // Искры на цели
+        for (let j = 0; j < 10; j++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 3 + Math.random() * 6;
+          gameState.particles.push({
+            x: tx, y: ty,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 0.6, maxLife: 0.6,
+            color: '#ffff88', size: 3 + Math.random() * 3
+          });
+        }
+
+        prevX = tx;
+        prevY = ty;
+      });
+
+      addEffect('explosion', 'Цепная молния', 0.5, aria.color);
+      break;
+    }
+
+    // ---------- ЧЁРНАЯ ДЫРА ----------
+    case 'blackHole': {
+      // Создаём объект чёрной дыры в позиции курсора
+      const bhX = mouse.x + gameState.camera.x;
+      const bhY = mouse.y;
+      gameState.blackHole = {
+        x: bhX, y: bhY,
+        radius: 0,
+        maxRadius: 180,
+        time: aria.duration,
+        maxTime: aria.duration,
+        pull: 8,
+        damage: 15 * (gameState._levelPowerMul || 1)
+      };
+      addEffect('moon', 'Чёрная дыра', aria.duration, aria.color);
+      spawnTextParticles(bhX, bhY, 'ЧЁРНАЯ ДЫРА!', aria.color);
+      break;
+    }
+
+    // ---------- ЗЕРКАЛЬНЫЙ КЛОН ----------
+    case 'mirror': {
+      gameState.mirrorClone = {
+        active: true,
+        time: aria.duration,
+        maxTime: aria.duration,
+        x: p.x - 60,
+        y: p.y,
+        w: p.w,
+        h: p.h,
+        facing: -p.facing,
+        shotTimer: 0,
+        shotInterval: 0.5
+      };
+      addEffect('mask', 'Зеркальный клон', aria.duration, aria.color);
+      spawnTextParticles(p.x + p.w / 2, p.y, 'ЭХО-КЛОН!', aria.color);
+      break;
+    }
+
+    // ---------- ОТКАТ ВРЕМЕНИ ----------
+    case 'timeRewind': {
+      if (gameState.positionHistory && gameState.positionHistory.length > 0) {
+        // Берём позицию из истории ~3 секунды назад (180 кадров при 60fps)
+        const targetFrame = Math.max(0, gameState.positionHistory.length - 180);
+        const past = gameState.positionHistory[targetFrame];
+
+        // Вспышка на старом месте
+        for (let i = 0; i < 25; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 3 + Math.random() * 6;
+          gameState.particles.push({
+            x: p.x + p.w / 2, y: p.y + p.h / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 1.0, maxLife: 1.0,
+            color: aria.color, size: 3 + Math.random() * 4
+          });
+        }
+
+        // Перемещаем игрока
+        p.x = past.x;
+        p.y = past.y;
+        p.vx = 0;
+        p.vy = 0;
+        gameState.health = Math.max(gameState.health, past.health || gameState.health);
+
+        // Вспышка на новом месте
+        for (let i = 0; i < 25; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 3 + Math.random() * 6;
+          gameState.particles.push({
+            x: p.x + p.w / 2, y: p.y + p.h / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 1.0, maxLife: 1.0,
+            color: '#fff', size: 3 + Math.random() * 4
+          });
+        }
+
+        // Даём неуязвимость на 1.5 сек после отката
+        gameState.invulnTimer = 1.5;
+        spawnTextParticles(p.x + p.w / 2, p.y, 'DA CAPO!', aria.color);
+      } else {
+        spawnTextParticles(p.x + p.w / 2, p.y, 'Рано!', '#888');
+      }
+      break;
+    }
+
+    // ---------- НИЗКАЯ ГРАВИТАЦИЯ ----------
+    case 'lowGravity': {
+      fx.lowGravity = aria.duration;
+      fx.jumpsLeft = 2; // тройной прыжок
+      addEffect('dove', 'Невесомость', aria.duration, aria.color);
+      spawnTextParticles(p.x + p.w / 2, p.y, 'GRAVITAS!', aria.color);
+      break;
+    }
+
+    // ============================================================
+    //  FALLBACK
+    // ============================================================
+    default:
+      console.warn('Неизвестный эффект арии:', aria.effect);
+      break;
   }
 }
 function burst(x, y, color) {
@@ -4338,6 +5009,7 @@ document.getElementById('btnToMenu').addEventListener('click', async () => {
     // 👇 ДОБАВЬТЕ ЭТУ СТРОКУ
     document.querySelector('.xp-panel').style.display = 'none';
     showToast('Возврат в главное меню...');
+    document.getElementById('ariaPanel').style.display = 'none';
     setTimeout(() => location.reload(), 400);
   }
 });
@@ -4354,7 +5026,9 @@ startMusic()
   document.getElementById('hud').style.display = 'block';
   document.getElementById('voiceInfo').textContent = gameState.voice.name + ' — ' + gameState.voice.damageDesc;
   document.querySelector('.xp-panel').style.display = 'block';
-  gameState.groundY = H - 80;
+document.getElementById('ariaPanel').style.display = 'flex';
+renderAriaPanel();
+  gameState.groundY = H - 80 - BOTTOM_UI_HEIGHT;
   gameState.player = {
     x:100, y: gameState.groundY - 120,
     vx:0, vy:0, w:50, h:120,
@@ -4393,7 +5067,14 @@ function startStage(operaIdx, stageIdx) {
   gameState.particles = [];
   gameState.camera.x = 0;
   gameState.time = 0;
-  gameState.effects = { frozen:0, invuln:0, shield:0, slow:0, doubleJump:0, rage:0, jumpsLeft:0 };
+gameState.effects = {
+  frozen:0, invuln:0, shield:0, slow:0,
+  doubleJump:0, rage:0, jumpsLeft:0,
+  lowGravity:0
+};
+gameState.blackHole = null;
+gameState.mirrorClone = null;
+gameState.positionHistory = [];
   gameState.activeEffects = [];
   gameState.invulnTimer = 1.0;
 
@@ -5913,6 +6594,7 @@ function drawNoteSymbol(ctx, x, y, size, color) {
 
 const GRAVITY = 0.8, MOVE_SPEED = 6, JUMP_POWER = -16;
 
+
 function update(dt) {
   if (gameState.paused) return;
   if (gameState.stageComplete) return;
@@ -5922,40 +6604,75 @@ function update(dt) {
   gameState.time += effectiveDt;
   const p = gameState.player;
   if (!p) return;
-// Движение по горизонтали
-if (keys['arrowleft'] || keys['a'] || keys['ф']) { p.vx = -MOVE_SPEED; }
-else if (keys['arrowright'] || keys['d'] || keys['в']) { p.vx = MOVE_SPEED; }
-else { p.vx *= 0.8; if (Math.abs(p.vx) < 0.1) p.vx = 0; }
 
-// ===== РАЗВОРОТ В СТОРОНУ МЫШИ =====
-const playerScreenX = p.x + p.w / 2 - gameState.camera.x;
-const dirToMouse = mouse.x - playerScreenX;
-if (dirToMouse > 1) p.facing = 1;
-else if (dirToMouse < -1) p.facing = -1;
-// если мышь почти точно над игроком — оставляем прежний facing
-   const jumpPressed = keys[' '] || keys['arrowup'] || keys['w'] || keys['ц'];
+  // ============================================================
+  //  ИСТОРИЯ ПОЗИЦИЙ ДЛЯ ОТКАТА ВРЕМЕНИ
+  // ============================================================
+  if (!gameState.positionHistory) gameState.positionHistory = [];
+  gameState.positionHistory.push({
+    x: p.x, y: p.y,
+    health: gameState.health
+  });
+  if (gameState.positionHistory.length > 300) {
+    gameState.positionHistory.shift(); // держим 5 секунд истории (300 кадров)
+  }
+
+  // ============================================================
+  //  ДВИЖЕНИЕ ПО ГОРИЗОНТАЛИ
+  // ============================================================
+  if (keys['arrowleft'] || keys['a'] || keys['ф']) { p.vx = -MOVE_SPEED; }
+  else if (keys['arrowright'] || keys['d'] || keys['в']) { p.vx = MOVE_SPEED; }
+  else { p.vx *= 0.8; if (Math.abs(p.vx) < 0.1) p.vx = 0; }
+
+  // ============================================================
+  //  РАЗВОРОТ В СТОРОНУ МЫШИ
+  // ============================================================
+  const playerScreenX = p.x + p.w / 2 - gameState.camera.x;
+  const dirToMouse = mouse.x - playerScreenX;
+  if (dirToMouse > 1) p.facing = 1;
+  else if (dirToMouse < -1) p.facing = -1;
+
+  // ============================================================
+  //  ПРЫЖКИ (с учётом doubleJump и lowGravity)
+  // ============================================================
+  const jumpPressed = keys[' '] || keys['arrowup'] || keys['w'] || keys['ц'];
   const jumpJustPressed = jumpPressed && !p._jumpPrev;
 
+  const hasDoubleJump = gameState.effects.doubleJump > 0 || gameState.effects.lowGravity > 0;
+  const maxJumps = gameState.effects.lowGravity > 0 ? 2 : 1;
+
   if (jumpJustPressed && p.onGround) {
-    p.vy = JUMP_POWER; p.onGround = false;
-    gameState.effects.jumpsLeft = gameState.effects.doubleJump > 0 ? 1 : 0;
-  } else if (jumpJustPressed && !p.onGround && gameState.effects.doubleJump > 0
+    p.vy = JUMP_POWER;
+    p.onGround = false;
+    gameState.effects.jumpsLeft = hasDoubleJump ? maxJumps : 0;
+  } else if (jumpJustPressed && !p.onGround && hasDoubleJump
              && gameState.effects.jumpsLeft > 0) {
     p.vy = JUMP_POWER * 0.85;
     gameState.effects.jumpsLeft--;
     for (let i = 0; i < 8; i++) {
       gameState.particles.push({
-        x: p.x+p.w/2, y: p.y+p.h,
-        vx:(Math.random()-0.5)*4, vy:Math.random()*3,
-        life:0.5, maxLife:0.5, color:'#ffd700', size: 3 + Math.random()*3
+        x: p.x + p.w / 2, y: p.y + p.h,
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 3,
+        life: 0.5, maxLife: 0.5,
+        color: '#ffd700', size: 3 + Math.random() * 3
       });
     }
   }
   p._jumpPrev = jumpPressed;
-  p.vy += GRAVITY * timeScale;
+
+  // ============================================================
+  //  ГРАВИТАЦИЯ (с учётом lowGravity)
+  // ============================================================
+  const gravityMul = (gameState.effects.lowGravity > 0) ? 0.35 : 1;
+  p.vy += GRAVITY * timeScale * gravityMul;
+
   p.x += p.vx * timeScale;
   p.y += p.vy * timeScale;
 
+  // ============================================================
+  //  СТОЛКНОВЕНИЯ С ПЛАТФОРМАМИ
+  // ============================================================
   p.onGround = false;
   for (const plat of gameState.platforms) {
     if (p.x + p.w > plat.x && p.x < plat.x + plat.w) {
@@ -5967,16 +6684,22 @@ else if (dirToMouse < -1) p.facing = -1;
     }
   }
 
+  // Границы уровня
   if (p.x < 0) p.x = 0;
   const rightLimit = gameState.stageWidth - p.w;
   if (p.x > rightLimit) p.x = rightLimit;
 
+  // Камера
   const targetCamX = p.x + p.w / 2 - W / 3;
   gameState.camera.x += (targetCamX - gameState.camera.x) * 0.1;
   if (gameState.camera.x < 0) gameState.camera.x = 0;
 
+  // Генерация платформ впереди
   generatePlatformsUpTo(p.x + W + 1500);
 
+  // ============================================================
+  //  ЗАРЯДКА НОТЫ
+  // ============================================================
   if (gameState.charging) {
     gameState.chargeValue += gameState.chargeDirection * 0.012;
     if (gameState.chargeValue >= 1) { gameState.chargeValue = 1; gameState.chargeDirection = -1; }
@@ -6000,15 +6723,18 @@ else if (dirToMouse < -1) p.facing = -1;
     }
   }
 
+  // ============================================================
+  //  СОБИРАЕМЫЕ НОТЫ
+  // ============================================================
   for (let i = gameState.collectibleNotes.length - 1; i >= 0; i--) {
     const cn = gameState.collectibleNotes[i];
     if (cn.collected) continue;
     cn.bob += 0.06;
 
     if (cn.magnet) {
-      const dx = (p.x + p.w/2) - cn.x;
-      const dy = (p.y + p.h/2) - cn.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
+      const dx = (p.x + p.w / 2) - cn.x;
+      const dy = (p.y + p.h / 2) - cn.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist > 5) {
         cn.x += (dx / dist) * 12 * timeScale;
         cn.y += (dy / dist) * 12 * timeScale;
@@ -6018,10 +6744,10 @@ else if (dirToMouse < -1) p.facing = -1;
     if (p.x + p.w > cn.x - 15 && p.x < cn.x + 15 &&
         p.y + p.h > cn.y - 15 && p.y < cn.y + 15) {
       cn.collected = true;
-     const value = cn.type === 'single' ? 1 : 5;
-gameState.score += value;
-addXP(cn.type === 'single' ? 5 : 15);   // ← +5 или +15 XP
-gameState.notesCollected++;
+      const value = cn.type === 'single' ? 1 : 5;
+      gameState.score += value;
+      addXP(cn.type === 'single' ? 5 : 15);
+      gameState.notesCollected++;
       updateObjectiveHUD();
 
       gameState.particles.push({
@@ -6047,6 +6773,9 @@ gameState.notesCollected++;
     }
   }
 
+  // ============================================================
+  //  ЛЕТЯЩИЕ НОТЫ
+  // ============================================================
   for (let i = gameState.notes.length - 1; i >= 0; i--) {
     const n = gameState.notes[i];
     n.x += n.vx * timeScale;
@@ -6057,6 +6786,8 @@ gameState.notesCollected++;
     n.life -= 0.004 * timeScale;
 
     let hit = false;
+
+    // Столкновение с врагами
     for (const enemy of gameState.enemies) {
       if (!enemy.alive) continue;
       if (n.x + n.size * 0.5 > enemy.x &&
@@ -6112,9 +6843,9 @@ gameState.notesCollected++;
           n.x - n.size * 0.5 < b.x + b.w &&
           n.y + n.size * 0.5 > b.y &&
           n.y - n.size * 0.5 < b.y + b.h) {
-       b.hp -= n.damage;
-b.hitFlash = 0.3;
-b.hitPulse = 1;   // ← добавить
+        b.hp -= n.damage;
+        b.hitFlash = 0.3;
+        b.hitPulse = 1;
         gameState.particles.push({
           x: n.x, y: n.y,
           vx: (Math.random() - 0.5) * 2, vy: -2,
@@ -6132,7 +6863,7 @@ b.hitPulse = 1;   // ← добавить
         }
         if (b.hp <= 0) {
           gameState.score += 500;
-addXP(200);
+          addXP(200);
           for (let j = 0; j < 40; j++) {
             const ang = Math.random() * Math.PI * 2;
             const spd = 4 + Math.random() * 8;
@@ -6152,6 +6883,9 @@ addXP(200);
     }
   }
 
+  // ============================================================
+  //  ВРАГИ
+  // ============================================================
   for (const enemy of gameState.enemies) {
     if (!enemy.alive) {
       if (enemy.hitFlash > 0) enemy.hitFlash -= effectiveDt;
@@ -6161,52 +6895,60 @@ addXP(200);
       enemy.x += enemy.vx * timeScale;
     }
     enemy.wobble += 0.1 * timeScale;
-    if (enemy.x < enemy.patrolMinX) { enemy.x = enemy.patrolMinX; if (gameState.effects.frozen <= 0) enemy.vx *= -1; }
-    if (enemy.x + enemy.w > enemy.patrolMaxX) { enemy.x = enemy.patrolMaxX - enemy.w; if (gameState.effects.frozen <= 0) enemy.vx *= -1; }
+    if (enemy.x < enemy.patrolMinX) {
+      enemy.x = enemy.patrolMinX;
+      if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+    }
+    if (enemy.x + enemy.w > enemy.patrolMaxX) {
+      enemy.x = enemy.patrolMaxX - enemy.w;
+      if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+    }
   }
 
-  // Босс
+  // ============================================================
+  //  БОСС
+  // ============================================================
   if (gameState.boss && gameState.boss.hp > 0) {
     const b = gameState.boss;
     b.bob += 0.08 * timeScale;
+    b.anim += effectiveDt;
+    b.aura += effectiveDt * 2;
     if (b.hitFlash > 0) b.hitFlash -= effectiveDt;
+    if (b.hitPulse > 0) b.hitPulse -= effectiveDt * 3;
+    if (b.hitPulse < 0) b.hitPulse = 0;
 
-    // Простое поведение босса: патрулирование и стрельба
     b.attackTimer -= effectiveDt;
     if (b.attackTimer <= 0 && gameState.effects.frozen <= 0) {
       b.attackTimer = 1.6 + Math.random() * 1.2;
-      // Выстрел снарядом в игрока
-      const dx = (p.x + p.w/2) - (b.x + b.w/2);
-      const dy = (p.y + p.h/2) - (b.y + b.h/2);
-      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const dx = (p.x + p.w / 2) - (b.x + b.w / 2);
+      const dy = (p.y + p.h / 2) - (b.y + b.h / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
       const spd = 6;
       b.projectiles.push({
-        x: b.x + b.w/2, y: b.y + b.h/2,
-        vx: (dx/dist) * spd, vy: (dy/dist) * spd,
+        x: b.x + b.w / 2, y: b.y + b.h / 2,
+        vx: (dx / dist) * spd, vy: (dy / dist) * spd,
         life: 3.0
       });
     }
 
-    // Движение босса вбок
     if (gameState.effects.frozen <= 0) {
       b.x += Math.sin(gameState.time * 0.7) * 1.5 * timeScale;
       b.x = Math.max(gameState.stageWidth - 600, Math.min(gameState.stageWidth - 100, b.x));
     }
 
-    // Обновление снарядов босса
+    // Снаряды босса
     for (let i = b.projectiles.length - 1; i >= 0; i--) {
       const proj = b.projectiles[i];
       proj.x += proj.vx * timeScale;
       proj.y += proj.vy * timeScale;
       proj.life -= effectiveDt;
 
-      // Столкновение с игроком
       if (gameState.invulnTimer <= 0 && gameState.health > 0) {
         if (proj.x > p.x && proj.x < p.x + p.w && proj.y > p.y && proj.y < p.y + p.h) {
           if (gameState.effects.shield > 0) {
             gameState.effects.shield = 0;
             gameState.invulnTimer = 1.0;
-            spawnTextParticles(p.x + p.w/2, p.y, '🛡Щит!', '#4fc3f7');
+            spawnTextParticles(p.x + p.w / 2, p.y, '🛡Щит!', '#4fc3f7');
           } else {
             gameState.health--;
             gameState.invulnTimer = 1.5;
@@ -6239,7 +6981,7 @@ addXP(200);
         if (gameState.effects.shield > 0) {
           gameState.effects.shield = 0;
           gameState.invulnTimer = 1.0;
-          spawnTextParticles(p.x + p.w/2, p.y, '🛡️ Щит!', '#4fc3f7');
+          spawnTextParticles(p.x + p.w / 2, p.y, '🛡️ Щит!', '#4fc3f7');
         } else {
           gameState.health--;
           gameState.invulnTimer = 1.5;
@@ -6250,9 +6992,172 @@ addXP(200);
     }
   }
 
+  // ============================================================
+  //  ЧЁРНАЯ ДЫРА
+  // ============================================================
+  if (gameState.blackHole) {
+    const bh = gameState.blackHole;
+    bh.time -= effectiveDt;
+    bh.radius = Math.min(bh.maxRadius, bh.radius + 400 * effectiveDt);
+
+    // Втягиваем врагов
+    for (const enemy of gameState.enemies) {
+      if (!enemy.alive) continue;
+      const ex = enemy.x + enemy.w / 2;
+      const ey = enemy.y + enemy.h / 2;
+      const dx = bh.x - ex;
+      const dy = bh.y - ey;
+      const dist = Math.hypot(dx, dy) || 1;
+      if (dist < bh.radius) {
+        const pull = bh.pull * (1 - dist / bh.radius);
+        enemy.x += (dx / dist) * pull * effectiveDt;
+        enemy.y += (dy / dist) * pull * effectiveDt;
+        enemy.hp -= bh.damage * effectiveDt;
+        enemy.hitFlash = 0.1;
+        if (enemy.hp <= 0) {
+          enemy.alive = false;
+          enemy.hitFlash = 0.5;
+          gameState.score += 100;
+          onEnemyKilled();
+        }
+      }
+    }
+
+    // Втягиваем босса
+    if (gameState.boss && gameState.boss.hp > 0) {
+      const b = gameState.boss;
+      const bx = b.x + b.w / 2;
+      const by = b.y + b.h / 2;
+      const dx = bh.x - bx;
+      const dy = bh.y - by;
+      const dist = Math.hypot(dx, dy) || 1;
+      if (dist < bh.radius) {
+        const pull = bh.pull * 0.5 * (1 - dist / bh.radius);
+        b.x += (dx / dist) * pull * effectiveDt;
+        b.y += (dy / dist) * pull * effectiveDt;
+        b.hp -= bh.damage * 0.5 * effectiveDt;
+        b.hitFlash = 0.1;
+      }
+    }
+
+    // Втягиваем собираемые ноты
+    for (const note of gameState.collectibleNotes) {
+      if (note.collected) continue;
+      const dx = bh.x - note.x;
+      const dy = bh.y - note.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      if (dist < bh.radius) {
+        const pull = 12 * (1 - dist / bh.radius);
+        note.x += (dx / dist) * pull * effectiveDt;
+        note.y += (dy / dist) * pull * effectiveDt;
+      }
+    }
+
+    // Спавн частиц вокруг дыры
+    if (Math.random() < 0.6) {
+      const ang = Math.random() * Math.PI * 2;
+      const r = bh.radius * (0.7 + Math.random() * 0.3);
+      gameState.particles.push({
+        x: bh.x + Math.cos(ang) * r,
+        y: bh.y + Math.sin(ang) * r,
+        vx: -Math.cos(ang) * 6,
+        vy: -Math.sin(ang) * 6,
+        life: 0.8, maxLife: 0.8,
+        color: '#ba68c8', size: 2 + Math.random() * 3
+      });
+    }
+
+    if (bh.time <= 0) {
+      // Финальный взрыв
+      for (let i = 0; i < 40; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 5 + Math.random() * 10;
+        gameState.particles.push({
+          x: bh.x, y: bh.y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 1.2, maxLife: 1.2,
+          color: '#4a148c', size: 4 + Math.random() * 6
+        });
+      }
+      gameState.blackHole = null;
+    }
+  }
+
+  // ============================================================
+  //  ЗЕРКАЛЬНЫЙ КЛОН
+  // ============================================================
+  if (gameState.mirrorClone && gameState.mirrorClone.active) {
+    const clone = gameState.mirrorClone;
+    clone.time -= effectiveDt;
+
+    // Клон следует за игроком, но зеркально (слева от него)
+    clone.x += (p.x - 60 - clone.x) * 0.1;
+    clone.y = p.y;
+    clone.facing = p.facing;
+
+    // Стрельба клона
+    clone.shotTimer -= effectiveDt;
+    if (clone.shotTimer <= 0 && gameState.voice) {
+      clone.shotTimer = clone.shotInterval;
+      const v = gameState.voice;
+      const midi = v.minMidi + Math.round(0.5 * (v.maxMidi - v.minMidi));
+      const baseAngle = Math.atan2(
+        mouse.y - (clone.y + clone.h / 2),
+        mouse.x - (clone.x + clone.w / 2 - gameState.camera.x)
+      );
+      const color = v.colors.mid;
+      const speed = 10;
+
+      let damage = v.damageBase * v.damageCurve(0.5) * 20 * 0.6; // 60% урона игрока
+      damage *= (gameState._levelPowerMul || 1);
+      if (gameState.effects.rage > 0) damage *= 2;
+
+      gameState.notes.push({
+        x: clone.x + clone.w / 2 + Math.cos(baseAngle) * 30,
+        y: clone.y + clone.h * 0.4 + Math.sin(baseAngle) * 20,
+        vx: Math.cos(baseAngle) * speed,
+        vy: Math.sin(baseAngle) * speed - 1.5,
+        life: 1, maxLife: 1,
+        color, noteName: midiToName(midi),
+        size: 18,
+        rot: 0, rotSpeed: (Math.random() - 0.5) * 0.1,
+        t: 0.5, damage
+      });
+
+      // Звук клона — тише
+      if (v === VOICE_TYPES.tenor && tenorSampleLoaded) playTenorSample(midi, 0.5);
+      else if (v === VOICE_TYPES.bass && bassSampleLoaded) playBassSample(midi, 0.5);
+      else if (v === VOICE_TYPES.baritone && baritoneSampleLoaded) playBaritoneSample(midi, 0.5);
+    }
+
+    if (clone.time <= 0) {
+      clone.active = false;
+      // Вспышка исчезновения
+      for (let i = 0; i < 15; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 3 + Math.random() * 5;
+        gameState.particles.push({
+          x: clone.x + clone.w / 2, y: clone.y + clone.h / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 0.6, maxLife: 0.6,
+          color: '#4fc3f7', size: 3 + Math.random() * 3
+        });
+      }
+      gameState.mirrorClone = null;
+    }
+  }
+
+  // ============================================================
+  //  ТАЙМЕРЫ
+  // ============================================================
   if (gameState.invulnTimer > 0) gameState.invulnTimer -= effectiveDt;
   if (gameState.shotCooldown > 0) gameState.shotCooldown -= effectiveDt;
 
+  // ============================================================
+  //  СТОЛКНОВЕНИЯ С ВРАГАМИ
+  // ============================================================
   if (gameState.invulnTimer <= 0 && gameState.health > 0) {
     for (const enemy of gameState.enemies) {
       if (!enemy.alive) continue;
@@ -6261,8 +7166,8 @@ addXP(200);
         if (gameState.effects.shield > 0) {
           gameState.effects.shield = 0;
           gameState.invulnTimer = 1.0;
-          spawnTextParticles(p.x + p.w/2, p.y, 'Щит!', '#4fc3f7');
-          const dir = (p.x + p.w/2 < enemy.x + enemy.w/2) ? -1 : 1;
+          spawnTextParticles(p.x + p.w / 2, p.y, 'Щит!', '#4fc3f7');
+          const dir = (p.x + p.w / 2 < enemy.x + enemy.w / 2) ? -1 : 1;
           enemy.vx = dir * 8;
           p.vx = -dir * 6;
           p.vy = -6;
@@ -6270,7 +7175,7 @@ addXP(200);
         }
         gameState.health--;
         gameState.invulnTimer = 1.5;
-        p.vx = (p.x + p.w/2 < enemy.x + enemy.w/2 ? -1 : 1) * 10;
+        p.vx = (p.x + p.w / 2 < enemy.x + enemy.w / 2 ? -1 : 1) * 10;
         p.vy = -8;
         for (let j = 0; j < 20; j++) {
           const ang = Math.random() * Math.PI * 2;
@@ -6287,38 +7192,50 @@ addXP(200);
     }
   }
 
-if (gameState.deathTimer > 0) {
-  gameState.deathTimer -= effectiveDt;
-  if (gameState.deathTimer <= 0) {
-    // На этапе босса — поражение с возвратом на предыдущий этап.
-    if (gameState.stageDef && gameState.stageDef.type === 'boss') {
-      gameOver();
-      return;
+  // ============================================================
+  //  СМЕРТЬ И ВОЗРОЖДЕНИЕ
+  // ============================================================
+  if (gameState.deathTimer > 0) {
+    gameState.deathTimer -= effectiveDt;
+    if (gameState.deathTimer <= 0) {
+      if (gameState.stageDef && gameState.stageDef.type === 'boss') {
+        gameOver();
+        return;
+      }
+      gameState.health = 3;
+      p.x = Math.max(100, gameState.camera.x + 100);
+      p.y = gameState.groundY - p.h - 200;
+      p.vx = 0; p.vy = 0;
+      gameState.invulnTimer = 2;
     }
-    // На обычных этапах — возрождение на месте
-    gameState.health = 3;
-    p.x = Math.max(100, gameState.camera.x + 100);
-    p.y = gameState.groundY - p.h - 200;
-    p.vx = 0; p.vy = 0;
-    gameState.invulnTimer = 2;
   }
-}
 
+  // ============================================================
+  //  ЧАСТИЦЫ
+  // ============================================================
   for (let i = gameState.particles.length - 1; i >= 0; i--) {
     const pt = gameState.particles[i];
     pt.x += pt.vx * timeScale;
     pt.y += pt.vy * timeScale;
-    if (!pt.isText) pt.vy += 0.08 * timeScale;
+    if (!pt.isText && !pt.isLightning && !pt.isRing) {
+      pt.vy += 0.08 * timeScale;
+    }
     pt.life -= effectiveDt;
     if (pt.life <= 0) gameState.particles.splice(i, 1);
   }
 
+  // ============================================================
+  //  ЭФФЕКТЫ И КУЛДАУНЫ
+  // ============================================================
   updateEffects(effectiveDt);
   updateCooldowns(effectiveDt);
 
   // Проверка завершения этапа
   checkStageComplete();
 
+  // ============================================================
+  //  HUD
+  // ============================================================
   document.getElementById('noteDisplay').textContent = gameState.lastNote;
   document.getElementById('noteDisplay').style.color = gameState.charging
     ? (gameState.chargeValue < 0.5
@@ -6326,13 +7243,11 @@ if (gameState.deathTimer > 0) {
         : lerpColor(gameState.voice.colors.mid, gameState.voice.colors.top, (gameState.chargeValue - 0.5) * 2))
     : '#ffd700';
   document.getElementById('barFill').style.width = (gameState.chargeValue * 100) + '%';
-document.getElementById('health').innerHTML =
-  icon('heart', '1.1em', 'danger').repeat(Math.max(0, gameState.health));
+  document.getElementById('health').innerHTML =
+    icon('heart', '1.1em', 'danger').repeat(Math.max(0, gameState.health));
 
-document.getElementById('scoreValue').textContent = gameState.score;
-// clef уже статически стоит в HTML
-
-
+  document.getElementById('scoreValue').textContent = gameState.score;
+  updateAriaPanelLive();
 }
 
 function updateEffects(dt) {
@@ -6342,7 +7257,7 @@ function updateEffects(dt) {
   if (fx.slow > 0) fx.slow -= dt;
   if (fx.doubleJump > 0) fx.doubleJump -= dt;
   if (fx.rage > 0) fx.rage -= dt;
-
+if (fx.lowGravity > 0) fx.lowGravity -= dt;
   for (let i = gameState.activeEffects.length - 1; i >= 0; i--) {
     gameState.activeEffects[i].time -= dt;
     if (gameState.activeEffects[i].time <= 0) {
@@ -6425,6 +7340,16 @@ function render() {
   ctx.save();
   ctx.translate(-camX, 0);
 
+// ===== ИНДИКАТОР НИЗКОЙ ГРАВИТАЦИИ =====
+if (gameState.effects.lowGravity > 0) {
+  ctx.save();
+  ctx.globalAlpha = 0.15 + Math.sin(gameState.time * 4) * 0.05;
+  ctx.fillStyle = '#e0f7fa';
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+
   // ===== ПЛАТФОРМЫ =====
   for (const plat of gameState.platforms) {
     if (plat.x + plat.w < camX - 100) continue;
@@ -6472,6 +7397,65 @@ function render() {
       }
     }
   }
+
+
+// ===== ЧЁРНАЯ ДЫРА =====
+if (gameState.blackHole) {
+  const bh = gameState.blackHole;
+  ctx.save();
+
+  // Аккреционный диск (вращающийся)
+  const rot = gameState.time * 2;
+  for (let i = 0; i < 3; i++) {
+    const grad = ctx.createRadialGradient(
+      bh.x, bh.y, bh.radius * 0.3,
+      bh.x, bh.y, bh.radius
+    );
+    grad.addColorStop(0, 'rgba(74,20,140,0.9)');
+    grad.addColorStop(0.5, 'rgba(186,104,200,0.5)');
+    grad.addColorStop(1, 'rgba(74,20,140,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(bh.x, bh.y, bh.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Чёрный центр
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(bh.x, bh.y, bh.radius * 0.25, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Спиральные лучи
+  ctx.strokeStyle = 'rgba(186,104,200,0.6)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 8; i++) {
+    const a = rot + (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(
+      bh.x + Math.cos(a) * bh.radius * 0.3,
+      bh.y + Math.sin(a) * bh.radius * 0.3
+    );
+    ctx.quadraticCurveTo(
+      bh.x + Math.cos(a + 0.5) * bh.radius * 0.7,
+      bh.y + Math.sin(a + 0.5) * bh.radius * 0.7,
+      bh.x + Math.cos(a + 1) * bh.radius,
+      bh.y + Math.sin(a + 1) * bh.radius
+    );
+    ctx.stroke();
+  }
+
+  // Пульсирующее свечение
+  ctx.globalAlpha = 0.4 + Math.sin(gameState.time * 10) * 0.2;
+  ctx.fillStyle = '#ba68c8';
+  ctx.beginPath();
+  ctx.arc(bh.x, bh.y, bh.radius * 0.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+
 
   // ===== СОБИРАЕМЫЕ НОТЫ =====
   for (const cn of gameState.collectibleNotes) {
@@ -6527,11 +7511,47 @@ function render() {
     ctx.restore();
   }
 
-  // ===== ЧАСТИЦЫ =====
-  for (const pt of gameState.particles) {
+ for (const pt of gameState.particles) {
     ctx.save();
     ctx.globalAlpha = pt.life / pt.maxLife;
-    if (pt.isText) {
+
+    if (pt.isLightning) {
+      // Молния от (x, y) к (x2, y2)
+      ctx.strokeStyle = pt.color;
+      ctx.lineWidth = 4;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#ffff00';
+
+      // Рисуем зигзаг из 5 сегментов
+      const segments = 5;
+      ctx.beginPath();
+      ctx.moveTo(pt.x, pt.y);
+      for (let i = 1; i < segments; i++) {
+        const t = i / segments;
+        const midX = pt.x + (pt.x2 - pt.x) * t;
+        const midY = pt.y + (pt.y2 - pt.y) * t;
+        const perpX = -(pt.y2 - pt.y) / 100;
+        const perpY = (pt.x2 - pt.x) / 100;
+        const jitter = (Math.random() - 0.5) * 30;
+        ctx.lineTo(midX + perpX * jitter, midY + perpY * jitter);
+      }
+      ctx.lineTo(pt.x2, pt.y2);
+      ctx.stroke();
+
+      // Белая сердцевина
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    } else if (pt.isRing) {
+      // Кольцо (для телепорта)
+      pt.ringRadius += 8;
+      ctx.strokeStyle = pt.color;
+      ctx.lineWidth = 4;
+      ctx.globalAlpha = Math.max(0, 1 - pt.ringRadius / 80);
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, pt.ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (pt.isText) {
       ctx.fillStyle = pt.color;
       ctx.font = (pt.big ? 'bold 32px' : 'bold 18px') + ' Georgia';
       ctx.textAlign = 'center';
@@ -6545,7 +7565,7 @@ function render() {
       ctx.fill();
     }
     ctx.restore();
-  }
+}
 
   // ===== ВРАГИ =====
   for (const enemy of gameState.enemies) {
@@ -6606,6 +7626,38 @@ function render() {
 
   ctx.restore();
 
+
+// ===== ЗЕРКАЛЬНЫЙ КЛОН =====
+if (gameState.mirrorClone && gameState.mirrorClone.active) {
+  const clone = gameState.mirrorClone;
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  // Синий оттенок
+  ctx.filter = 'hue-rotate(180deg) brightness(1.3)';
+  // Рисуем спрайт игрока по тем же координатам, что и клон
+  const savedPlayer = gameState.player;
+  gameState.player = {
+    ...savedPlayer,
+    x: clone.x, y: clone.y,
+    facing: clone.facing,
+    vx: 0, vy: 0, onGround: true
+  };
+  drawSinger(gameState.player, true, 0.5);
+  gameState.player = savedPlayer;
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  // Пульсирующая аура клона
+  ctx.save();
+  ctx.strokeStyle = 'rgba(79,195,247,0.6)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(clone.x + clone.w / 2, clone.y + clone.h / 2,
+          40 + Math.sin(gameState.time * 8) * 5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
   // ===== ВИНЬЕТКА =====
   const vg = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.9);
   vg.addColorStop(0, 'rgba(0,0,0,0)');
@@ -6656,9 +7708,7 @@ function render() {
     ctx.font = '14px Georgia';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffd700';
-    const hintText = 'Кликните по певцу для выбора арии';
-    ctx.fillText(hintText, W / 2, H - 35);
-
+  
     // Иконка-палец слева от текста
     ctx.save();
 
@@ -12116,8 +13166,14 @@ function openPauseMenu() {
   gameState.paused = true;
   pauseMenuEl.style.display = 'flex';
   document.querySelector('.xp-panel').style.display = 'none';
+
+  document.querySelector('.xp-panel').style.display = 'none';
+  document.getElementById('ariaPanel').style.display = 'none';   // ← добавить
+
 }
 function closePauseMenu() {
+  document.querySelector('.xp-panel').style.display = 'block';
+  document.getElementById('ariaPanel').style.display = 'flex';    // ← добавить
   pauseMenuEl.style.display = 'none';
   document.querySelector('.xp-panel').style.display = 'block';
   // Не снимаем паузу, если открыто меню арий или оверлей
@@ -12721,13 +13777,6 @@ window.addEventListener('keydown', (e) => {
 // ============================================================
 //  СИСТЕМА ОПЫТА, УРОВНЕЙ И ХАРАКТЕРИСТИК
 // ============================================================
-const levelSystem = {
-  level: 1,
-  xp: 0,
-  points: 0,
-  stats: { power: 0, phrase: 0, art: 0, perf: 0, range: 0 },
-  MAX_LEVEL: 10
-};
 
 function xpForLevel(L) {
   return 100 + (L - 1) * 50; // 100, 150, 200, 250...
@@ -12785,6 +13834,10 @@ function addXP(amount) {
   }
   if (ls.level >= ls.MAX_LEVEL) ls.xp = 0;
   updateLevelUI();
+
+  // НЕ вызываем renderAriaPanel() здесь!
+  // Панель обновится сама через updateAriaPanelLive() в игровом цикле.
+  // А при повышении уровня — слоты просто "разблокируются" через CSS-классы.
 }
 
 function showLevelUpToast() {
@@ -12834,6 +13887,7 @@ updateLevelUI();
 applyLevelStats();
 </script>
 <!-- ===== ПАНЕЛЬ ОПЫТА + ХАРАКТЕРИСТИКИ ===== -->
+<div class="aria-panel" id="ariaPanel"></div>
 <div class="xp-panel">
   <div class="level-badge" onclick="openStats()">
     Ур. <span id="levelText">1</span>
