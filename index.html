@@ -3931,42 +3931,29 @@ const ARIAS = {
       desc:'«Куда, куда вы удалились...» — замораживает всех врагов.',
       effect:'freeze', duration:5, cooldown:12, cost:150,
       color:'#4fc3f7', icon:'snowflake', iconColor:'#4fc3f7',
-      unlockLevel:1 },
+      unlockLevel:2 },
 
     { id:'serenade', name:'Ария Альфреда',
       desc:'«Я был диким и мрачным, теперь ожил...» — восстанавливает 1 здоровье.',
       effect:'heal', duration:0, cooldown:15, cost:100,
       color:'#2ecc71', icon:'heartGreen', iconColor:'#2ecc71',
-      unlockLevel:2 },
+      unlockLevel:4 },
 
     { id:'vincero', name:'Ария Калафа',
       desc:'«Nessun dorma» — залп из 5 нот веером.',
       effect:'volley', duration:0, cooldown:10, cost:120,
       color:'#ff8c00', icon:'target', iconColor:'#ff8c00',
-      unlockLevel:3 },
+      unlockLevel:6 },
 
-    { id:'romance', name:'Романс',
-      desc:'«Я помню чудное мгновенье...» — замедляет время.',
+    { id:'romance', name:'Ария Фауста',
+      desc:'«Остановись, мгновение! Ты прекрасно!» — замедляет время.',
       effect:'slow', duration:6, cooldown:18, cost:180,
       color:'#ba68c8', icon:'hourglass', iconColor:'#ba68c8',
-      unlockLevel:5 },
-
-    // === Уровень 2 — ЛЕНСКИЙ В ЗЕРКАЛЕ ===
-    { id:'lensky_mirror', name:'Эхо Ленского',
-      desc:'«Что день грядущий мне готовит?» — призывает зеркального двойника-поэта, стреляющего вместе с вами.',
-      effect:'mirror', duration:8, cooldown:20, cost:200,
-      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
-      unlockLevel:7 },
-
-  
-
-
-    // === Уровень 5 — ПРОКЛЯТИЕ ГЕРМАНА ===
-    { id:'german', name:'Ария Германа',
-      desc:'«Что наша жизнь? Игра!» — три карты отматывают время певца на 3 секунды назад.',
-      effect:'timeRewind', duration:3, cooldown:30, cost:300,
-      color:'#fff8dc', icon:'hourglass', iconColor:'#fff8dc',
       unlockLevel:8 },
+
+
+
+ 
 
     // === Уровень 7 — ГРОЗА ЮРОДИВОГО ===
     { id:'gromoboy', name:'Ария Юродивого',
@@ -3984,14 +3971,14 @@ const ARIAS = {
       desc:'«Как во городе было во Казани...» — неуязвимость.',
       effect:'invuln', duration:5, cooldown:14, cost:150,
       color:'#ffd700', icon:'shield', iconColor:'#ffd700',
-      unlockLevel:1 },
+      unlockLevel:2 },
 
     
     { id:'boris_a', name:'Ария Бориса',
       desc:'«Скорбит душа...» — щит, поглощающий удар.',
       effect:'shield', duration:15, cooldown:12, cost:100,
       color:'#4fc3f7', icon:'shield', iconColor:'#4fc3f7',
-      unlockLevel:2 },
+      unlockLevel:4 },
 
 
 // === Уровень 5 — АРИЯ МЕФИСТОФЕЛЯ ===
@@ -3999,26 +3986,12 @@ const ARIAS = {
       desc:'«На земле!» — мгновенно телепортирует певца к курсору.',
       effect:'teleport', duration:0, cooldown:10, cost:120,
       color:'#ba68c8', icon:'star', iconColor:'#ba68c8',
-      unlockLevel:3 },
+      unlockLevel:6 },
 
-    { id:'requiem', name:'Реквием',
-      desc:'«Dies irae» — уничтожает всех врагов.',
+    { id:'requiem', name:'Ария Бартоло',
+      desc:'«Отмщенье» — уничтожает всех врагов.',
       effect:'killAll', duration:0, cooldown:30, cost:350,
       color:'#c0392b', icon:'skull', iconColor:'#c0392b',
-      unlockLevel:5 },
-
-    // === Уровень 2 — ТЕНЬ БОРИСА ===
-    { id:'boris_mirror', name:'Тень Бориса',
-      desc:'«Тяжка десница грозного царя...» — из-за трона выходит двойник-царь, стреляющий вместе с вами.',
-      effect:'mirror', duration:8, cooldown:20, cost:200,
-      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
-      unlockLevel:7 },
-
-    // === Уровень 3 — ХАН КОНЧАК ===
-    { id:'konchak', name:'Ария Кончака',
-      desc:'«Ты красотой своей пленяешь меня!» — пучина половецкого стана втягивает всех врагов и ноты.',
-      effect:'blackHole', duration:4, cooldown:24, cost:280,
-      color:'#4a148c', icon:'moon', iconColor:'#4a148c',
       unlockLevel:8 },
 
 
@@ -4030,6 +4003,9 @@ const ARIAS = {
       color:'#fff8dc', icon:'hourglass', iconColor:'#fff8dc',
       unlockLevel:10 },
 
+
+
+
   
   ],
 
@@ -4039,42 +4015,32 @@ const ARIAS = {
       desc:'«Largo al factotum» — двойной прыжок.',
       effect:'doubleJump', duration:8, cooldown:12, cost:120,
       color:'#ffd700', icon:'kangaroo', iconColor:'#ffd700',
-      unlockLevel:1 },
+      unlockLevel:2 },
+
+
+
+
+
+
+    { id:'serenade', name:'Кавантина Валентина',
+      desc:'«О, Боже, услышь мою мольбу...» — восстанавливает 1 здоровье.',
+      effect:'heal', duration:0, cooldown:5, cost:150,
+      color:'#2ecc71', icon:'heartGreen', iconColor:'#2ecc71',
+      unlockLevel:4 },
+
 
     { id:'donjuan_a', name:'Серенада Дон Жуана',
       desc:'«Deh, vieni alla finestra» — притягивает ноты.',
       effect:'magnet', duration:0, cooldown:10, cost:80,
       color:'#ff8c00', icon:'magnet', iconColor:'#ff8c00',
-      unlockLevel:2 },
+      unlockLevel:6 },
 
-    { id:'onegin_a', name:'Ария Онегина',
-      desc:'«Когда бы жизнь домашним кругом...» — отталкивает врагов.',
-      effect:'push', duration:0, cooldown:14, cost:130,
-      color:'#4fc3f7', icon:'dash', iconColor:'#4fc3f7',
-      unlockLevel:3 },
-
+   
     { id:'toreador', name:'Куплеты Тореадора',
       desc:'«Toréador, en garde!» — двойной урон.',
       effect:'rage', duration:8, cooldown:18, cost:200,
       color:'#e74c3c', icon:'swords', iconColor:'#e74c3c',
-      unlockLevel:5 },
-
-
-    // === Уровень 3 — ДУЭТ С ОНЕГИНЫМ ===
-    { id:'duetto', name:'Дуэт с Онегиным',
-      desc:'«Враги! Давно ли друг от друга...» — призывает зеркального двойника, стреляющего вместе с вами.',
-      effect:'mirror', duration:8, cooldown:20, cost:200,
-      color:'#4fc3f7', icon:'mask', iconColor:'#4fc3f7',
-      unlockLevel:7 },
-
-    // === Уровень 4 — ВОДОВОРОТ РИГОЛЕТТО ===
-    { id:'rigoletto_bh', name:'Проклятие Риголетто',
-      desc:'«Cortigiani, vil razza dannata!» — проклятие шута втягивает всех врагов и ноты в одну точку.',
-      effect:'blackHole', duration:4, cooldown:24, cost:280,
-      color:'#4a148c', icon:'moon', iconColor:'#4a148c',
       unlockLevel:8 },
-
-
    
     // === Уровень 10 — ПОЛЁТ КАРМЕН ===
     { id:'carmen', name:'Хабанера Кармен',
@@ -14035,6 +14001,8 @@ function spendPoint(key) {
   ls.stats[key]++;
   updateLevelUI();
   applyLevelStats();
+  renderAriaPanel();          // обновить панель арий (цены/доступность)
+  updateObjectiveHUD();       // на всякий случай
 }
 
 // ===== Применение характеристик к игре =====
