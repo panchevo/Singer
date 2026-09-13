@@ -832,8 +832,83 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   margin-left: auto; color: #b08a8a; font-style: italic;
 }
 
+/* === ИКОНКИ === */
+.inline-icon {
+  color: inherit;
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4));
+  flex-shrink: 0;
+}
 
+.inline-icon.accent {
+  color: #ffd700;
+}
 
+.inline-icon.danger {
+  color: #e74c3c;
+}
+
+.inline-icon.success {
+  color: #2ecc71;
+}
+
+.inline-icon.info {
+  color: #4fc3f7;
+}
+
+/* Для крупных иконок в заголовках */
+.icon-xl {
+  width: 90px !important;
+  height: 90px !important;
+  filter: drop-shadow(0 0 30px currentColor);
+}
+
+/* Для иконок в кнопках */
+.icon-btn {
+  width: 1.2em !important;
+  height: 1.2em !important;
+  margin-right: 6px;
+}
+
+/* Вращающаяся звезда */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinning { animation: spin 3s linear infinite; }
+#pauseMenu h2 {
+  font-size: 64px; color: #ffd700;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00, 0 4px 8px #000;
+  letter-spacing: 10px; margin-bottom: 8px;
+  font-family: 'Georgia', serif;
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+  display: flex;              /* ← выравниваем иконку и текст по одной линии */
+  align-items: center;        /* ← по центру по вертикали */
+  justify-content: center;
+  gap: 8px;                   /* ← отступ между иконкой и текстом */
+}
+
+/* Иконка внутри заголовка — фиксированный размер, не наследует 64px */
+#pauseMenu h2 svg {
+  width: 48px !important;
+  height: 48px !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Убираем лишний вертикальный сдвиг у span-обёртки */
+#pauseMenu h2 #ico-pause-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}.voice-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 24px; margin: 6px; font-size: 18px;
+    border: 2px solid #ffd700; background: rgba(255, 215, 0, 0.1);
+    color: #fff; cursor: url('cur.png') 0 12, auto !important; border-radius: 8px;
+    transition: all 0.3s; font-family: 'Georgia', serif; min-width: 280px;
+    justify-content: space-between;
+  }
 </style>
 </head>
 <body>
@@ -844,32 +919,50 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
   <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
   <div class="voice-info" id="voiceInfo">Тенор</div>
   <div id="health" style="margin-top:8px; font-size:22px;"></div>
-  <div id="score" style="margin-top:4px; font-size:30px; color:#ccc;">𝄞0</div>
+  <div id="score" style="margin-top:4px; display:flex; align-items:center; gap:6px;">
+  <span id="ico-clef" style="display:inline-flex; align-items:center; color:#ffd700;"></span>
+  <span id="scoreValue" style="font-size:30px; color:#ccc; line-height:1;">0</span>
+</div>
 </div>
 <div id="objective"></div>
 <div id="effects"></div>
-
 <div id="menu">
   <h1>ОПЕРНЫЙ ПЕВЕЦ</h1>
   <p>Выберите тип голоса</p>
+
   <button class="voice-btn" data-voice="tenor">
-    <span>🎭 Тенор</span><span class="range">C3 – C5</span>
+    <span>
+      <span id="ico-mask-1" class="voice-key-icon" style="color:#ffd700;"></span>
+      Тенор
+    </span>
+    <span class="range">C3 – C5</span>
   </button>
+
   <button class="voice-btn" data-voice="bass">
-    <span>🎭 Бас</span><span class="range">E2 – E4</span>
+    <span>
+      <span id="ico-mask-2" class="voice-key-icon" style="color:#e74c3c;"></span>
+      Бас
+    </span>
+    <span class="range">E2 – E4</span>
   </button>
+
   <button class="voice-btn" data-voice="baritone">
-    <span>🎭 Баритон</span><span class="range">A2 – A4</span>
+    <span>
+      <span id="ico-mask-3" class="voice-key-icon" style="color:#4fc3f7;"></span>
+      Баритон
+    </span>
+    <span class="range">A2 – A4</span>
   </button>
-  <p class="hint">← → или A/D — движение &nbsp;|&nbsp; SPACE — прыжок &nbsp;|&nbsp; Удерживайте ENTER — набор высоты голоса, отпустите — выстрел нотой &nbsp;|&nbsp; Собирайте ♪ и ♫ &nbsp;|&nbsp; КЛИК по персонажу — меню арий</p><button class="exit-btn" id="btnExit">✕ ВЫХОД ИЗ ИГРЫ</button>
+
+  <button class="exit-btn" id="btnExit">
+    <span id="ico-exit"></span> ВЫХОД ИЗ ИГРЫ
+  </button>
 </div>
-
-
 
 <!-- ===== ОПЕРНЫЙ ЗАНАВЕС (показывается, когда меню закрыто) ===== -->
 <div id="curtain">
   <div class="curtain-inner">
-    <div class="curtain-emblem">🎭</div>
+<div class="curtain-emblem" id="ico-curtain"></div>
     <h2>СЦЕНА ЖДЁТ</h2>
     <p class="curtain-sub">Выберите голос, чтобы начать выступление</p>
     <button id="btnOpenMenu" class="curtain-btn">← ВЕРНУТЬСЯ В МЕНЮ</button>
@@ -887,20 +980,19 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 
 <!-- ===== МЕНЮ ПАУЗЫ — ОПЕРНЫЙ ЗАНАВЕС ===== -->
 <div id="pauseMenu">
-  <div class="sparkle" style="top: 15%; left: 8%;">✦</div>
-  <div class="sparkle" style="top: 25%; right: 10%; animation-delay: 0.5s;">✦</div>
-  <div class="sparkle" style="bottom: 20%; left: 12%; animation-delay: 1s;">✦</div>
-  <div class="sparkle" style="bottom: 15%; right: 8%; animation-delay: 1.5s;">✦</div>
-
+<div class="sparkle" style="top: 15%; left: 8%;"          id="ico-sparkle-1"></div>
+<div class="sparkle" style="top: 25%; right: 10%; animation-delay: 0.5s;" id="ico-sparkle-2"></div>
+<div class="sparkle" style="bottom: 20%; left: 12%; animation-delay: 1s;" id="ico-sparkle-3"></div>
+<div class="sparkle" style="bottom: 15%; right: 8%; animation-delay: 1.5s;" id="ico-sparkle-4"></div>
   <div class="pause-stage">
-    <h2>⏸ ПАУЗА</h2>
+   <h2><span id="ico-pause-title"></span> ПАУЗА</h2>
     <div class="fringe"></div>
     <div class="pause-subtitle">Игра приостановлена</div>
     <div class="pause-buttons">
-      <button id="btnResume" class="pause-btn">▶ ПРОДОЛЖИТЬ</button>
-      <button id="btnSave" class="pause-btn">💾 СОХРАНИТЬ УРОВЕНЬ</button>
-      <button id="btnLoad" class="pause-btn">📂 ЗАГРУЗИТЬ УРОВЕНЬ</button>
-      <button id="btnToMenu" class="pause-btn danger">🏠 В ГЛАВНОЕ МЕНЮ</button>
+<button id="btnResume" class="pause-btn"><span id="ico-play"></span> ПРОДОЛЖИТЬ</button>
+<button id="btnSave" class="pause-btn"><span id="ico-save"></span> СОХРАНИТЬ УРОВЕНЬ</button>
+<button id="btnLoad" class="pause-btn"><span id="ico-load"></span> ЗАГРУЗИТЬ УРОВЕНЬ</button>
+<button id="btnToMenu" class="pause-btn danger"><span id="ico-home"></span> В ГЛАВНОЕ МЕНЮ</button>
     </div>
     <div class="pause-hint">
       <kbd>P</kbd> или <kbd>ESC</kbd> — продолжить &nbsp;•&nbsp; <kbd>F5</kbd> — перезапуск
@@ -911,7 +1003,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 <!-- ===== УНИВЕРСАЛЬНОЕ ИГРОВОЕ ДИАЛОГОВОЕ ОКНО ===== -->
 <div id="gameDialog">
   <div class="dialog-box">
-    <div class="dialog-icon" id="dialogIcon">🎭</div>
+  <div class="dialog-icon" id="dialogIcon"></div>
     <h3 class="dialog-title" id="dialogTitle">Заголовок</h3>
     <p class="dialog-message" id="dialogMessage">Сообщение</p>
     <div class="dialog-buttons" id="dialogButtons"></div>
@@ -928,7 +1020,7 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 <!-- ===== ВНУТРИИГРОВОЙ ДИАЛОГ ===== -->
 <div id="dialogueOverlay">
   <div class="dialogue-box">
-    <div class="dialogue-portrait" id="dialoguePortrait">🎭</div>
+<div class="dialogue-portrait" id="dialoguePortrait"></div>
     <div class="dialogue-content">
       <div class="dialogue-speaker" id="dialogueSpeaker">Персонаж</div>
       <div class="dialogue-text" id="dialogueText">Текст реплики...</div>
@@ -941,6 +1033,216 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 </div>
 <script>
 
+// ============================================================
+//  CANVAS-ИКОНКИ (Path2D из SVG-путей)
+//  Используются для отрисовки иконок в canvas через ctx.fill()
+// ============================================================
+const CANVAS_ICONS = {};
+
+function initCanvasIcons() {
+  // === Основные иконки для Canvas ===
+  CANVAS_ICONS.heart = new Path2D(
+    'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'
+  );
+
+  CANVAS_ICONS.noteSingle = new Path2D(
+    'M12 3v10.55A4 4 0 1014 17V7h4V3h-6z'
+  );
+
+  CANVAS_ICONS.noteDouble = new Path2D(
+    'M20 3v10.55A4 4 0 1122 17V7h-4V3h2zM10 5v10.55A4 4 0 1012 19V9h4V5h-6z'
+  );
+
+  CANVAS_ICONS.clef = new Path2D(
+    'M11 3c-1.5 0-2.5 1-2.5 2.5 0 2 1.5 3 1.5 3v2c-2 0-4 1.5-4 4 0 2 1.5 3.5 3 3.5 1.8 0 3-1.2 3-3 0-1.5-1-2.5-1-2.5v-2c2.5 0 4-2 4-4 0-2-1.5-3.5-3-3.5H11z'
+  );
+
+  CANVAS_ICONS.star = new Path2D(
+    'M12 2l3 6.5 7 1-5 5 1.2 7L12 18l-6.2 3.5L7 14.5l-5-5 7-1L12 2z'
+  );
+
+  CANVAS_ICONS.shield = new Path2D(
+    'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'
+  );
+
+  CANVAS_ICONS.mask = new Path2D(
+    'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.3 0-4.3-1.2-5.5-3 .1-1.8 3.7-2.8 5.5-2.8s5.4 1 5.5 2.8c-1.2 1.8-3.2 3-5.5 3z'
+  );
+
+  CANVAS_ICONS.pin = new Path2D(
+    'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'
+  );
+
+  CANVAS_ICONS.pointer = new Path2D(
+    'M10 2v10l3-3 3 7 2-1-3-7 4-1-9-5z'
+  );
+}
+
+/**
+ * Нарисовать иконку в Canvas по имени.
+ * @param {string} iconName — ключ из CANVAS_ICONS
+ * @param {number} x        — центр по X
+ * @param {number} y        — центр по Y
+ * @param {number} size     — размер в пикселях
+ * @param {string} color    — цвет заливки
+ * @returns {boolean}       — true если нарисовано
+ */
+function drawCanvasIcon(iconName, x, y, size, color = '#ffd700') {
+  const path = CANVAS_ICONS[iconName];
+  if (!path) return false;
+  ctx.save();
+  ctx.translate(x - size / 2, y - size / 2);
+  ctx.scale(size / 24, size / 24);
+  ctx.fillStyle = color;
+  ctx.fill(path);
+  ctx.restore();
+  return true;
+}
+
+// ⚠️ ВАЖНО: вызвать инициализацию сразу после объявления
+initCanvasIcons();
+// ============================================================
+//  SVG-ИКОНКИ ВМЕСТО ЭМОДЗИ
+//  Все иконки — 24×24 viewBox, используют currentColor
+// ============================================================
+const ICONS = {
+  // === Интерфейс ===
+  mask: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.3 0-4.3-1.2-5.5-3 .1-1.8 3.7-2.8 5.5-2.8s5.4 1 5.5 2.8c-1.2 1.8-3.2 3-5.5 3z"/></svg>`,
+  
+  snowflake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1M12 2l-2 3M12 2l2 3M12 22l-2-3M12 22l2-3M2 12l3-2M2 12l3 2M22 12l-3-2M22 12l-3 2"/></svg>`,
+  
+  heart: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+  
+  heartGreen: `<svg viewBox="0 0 24 24" fill="#2ecc71"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+  
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`,
+  
+  hourglass: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm2 2v3.17L11 10l-3 3V20h8v-7l-3-3 3-3V4H8z"/></svg>`,
+  
+  shield: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>`,
+  
+  explosion: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 4.5L18 4l-1 5 5-1-4 4 4 4-5-1 1 5-4.5-2.5L12 22l-1.5-4.5L6 20l1-5-5 1 4-4-4-4 5 1-1-5 4.5 2.5L12 2z"/></svg>`,
+ 
+  skull: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 1.87.94 3.53 2.4 4.6L7 22h10l-.4-8.4c1.46-1.07 2.4-2.73 2.4-4.6 0-3.87-3.13-7-7-7zM9 12c-.83 0-1.5-.67-1.5-1.5S8.17 9 9 9s1.5.67 1.5 1.5S9.83 12 9 12zm6 0c-.83 0-1.5-.67-1.5-1.5S14.17 9 15 9s1.5.67 1.5 1.5S15.83 12 15 12z"/></svg>`,
+  
+  kangaroo: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20c0-3 2-5 5-5s5 2 5 5h2c0-4-3-7-7-7-1.5 0-3 .5-4 1.5V13h8V4l3 3 1.5-1.5L12 1 8.5 4.5 10 6v2H3v12z"/></svg>`,
+  
+  magnet: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v8c0 2.2 1.8 4 4 4s4-1.8 4-4V4h4v8c0 4.4-3.6 8-8 8s-8-3.6-8-8V4zm0 0v4h4V4H4zm12 0v4h4V4h-4z"/></svg>`,
+  
+  dash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h12M9 6l6 6-6 6M17 6l4 6-4 6"/></svg>`,
+  
+  swords: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.92 5H5l9 9 1-.94-8.08-8.06zM4 5v2h2L4 5zm14.92-1.5L17 5.5l1.5 1.5L20.5 5 22 3.5 19.5 1l-1.5 1.5-.08 1zM6.5 17.5L4 20l-1 1 2 2 1-1 2.5-2.5-2-2zM19 13l-3.5 3.5 2 2L21 15l-2-2z"/></svg>`,
+  
+  party: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 22l5-14 9 9-14 5zm18-18l-1.5 1.5L20 7l1.5-1.5L20 4zM14 2l-1 2h2l-1-2zm6 6l-2 1 1 1 2-1-1-1zM9 2L8 4h2L9 2zm9 12l-1.5 1.5L18 17l1.5-1.5L18 14z"/></svg>`,
+  
+  trophy: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6v2H2v7c0 2.2 1.8 4 4 4h.5c.4 2 1.9 3.5 3.9 3.9V21H8v2h8v-2h-2.4v-2.1c2-.4 3.5-1.9 3.9-3.9H18c2.2 0 4-1.8 4-4V4h-4V2zM4 11V6h2v5H4zm16 0h-2V6h2v5z"/></svg>`,
+  
+  save: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`,
+  
+  folder: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
+  
+  home: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`,
+  
+  play: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  
+  pause: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`,
+  
+  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  
+  sparkle: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 8 8 2-8 2-2 8-2-8-8-2 8-2z"/></svg>`,
+  
+  noteSingle: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z"/></svg>`,
+  
+  noteDouble: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3v10.55A4 4 0 1122 17V7h-4V3h2zM10 5v10.55A4 4 0 1012 19V9h4V5h-6z"/></svg>`,
+  
+clef: `<span style="font-family:'Bravura','Noto Music','Segoe UI Symbol',serif;font-size:1.4em;line-height:1;">𝄞</span>`,
+  
+
+  // === Музыкальные ключи для меню голосов (юникод-символы) ===
+  tenorClefBold:  `<span style="font-family:'Bravura','Noto Music','Segoe UI Symbol','Arial Unicode MS',serif;font-size:1.3em;line-height:1;font-weight:bold;">𝄡</span>`,
+  bassClefBold:   `<span style="font-family:'Bravura','Noto Music','Segoe UI Symbol','Arial Unicode MS',serif;font-size:1.3em;line-height:1;font-weight:bold;">𝄢</span>`,
+  flatBold:       `<span style="font-family:'Bravura','Noto Music','Segoe UI Symbol','Arial Unicode MS',serif;font-size:1.3em;line-height:1;font-weight:bold;">♭</span>`,
+
+  scroll: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H8c-1.1 0-2 .9-2 2v1H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2v-1h1c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 18H5V8h1v8c0 1.1.9 2 2 2zm11-1H8V5h11v12z"/></svg>`,
+  
+  crown: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 2v2H5v-2h14z"/></svg>`,
+  
+  bride: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l-2 4 2 2 2-2-2-4zm0 8c-2.2 0-4 1.8-4 4v8h8v-8c0-2.2-1.8-4-4-4z"/></svg>`,
+  
+  wizard: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 21l-2-2 9-12 1 1L6 21zm12-18L4 15l1 1L19 4l-1-1zM8 4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z"/></svg>`,
+  
+  trident: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v8M8 4l4 6 4-6M6 6v6c0 3.3 2.7 6 6 6s6-2.7 6-6V6M12 18v4"/><circle cx="12" cy="22" r="1.5"/></svg>`,
+  
+  devil: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 2 .7 3.5 2 4.5V20h10v-6.5c1.3-1 2-2.5 2-4.5 0-4-3-7-7-7zM8 9c0-1 .7-2 2-2s2 1 2 2-.7 2-2 2-2-1-2-2zm6 0c0-1 .7-2 2-2s2 1 2 2-.7 2-2 2-2-1-2-2zM9 15l1.5-1.5L12 15l1.5-1.5L15 15"/></svg>`,
+  
+  ogre: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 3 2 5 4 6v5h6v-5c2-1 4-3 4-6 0-4-3-7-7-7zM9 9c0-1 .7-2 2-2s2 1 2 2-.7 2-2 2-2-1-2-2zm4 6h-2v-2h2v2z"/></svg>`,
+  
+  flask: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2v6L4 20c-.3 1 .4 2 1.5 2h13c1.1 0 1.8-1 1.5-2L15 8V2H9zm2 2h2v4h-2V4z"/></svg>`,
+  
+  wheat: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v20M8 6c0-2 1.8-4 4-4s4 2 4 4-1.8 4-4 4-4-2-4-4zm-3 4c0-2 1.8-4 4-4v8c-2.2 0-4-1.8-4-4zm11 0c0 2.2-1.8 4-4 4V6c2.2 0 4 1.8 4 4z"/></svg>`,
+  
+  tophat: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18h16v2H4v-2zm2-2V6c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v10H6z"/></svg>`,
+  
+  grandma: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2 0-3.5 1.5-3.5 3.5S10 9 12 9s3.5-1.5 3.5-3.5S14 2 12 2zm-5 9c-2 0-3 1.5-3 3v10h4v-4h2v4h4v-4h2v4h4V14c0-1.5-1-3-3-3H7z"/></svg>`,
+  
+  ghost: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-4 0-7 3-7 7v13l2-2 2 2 2-2 2 2 2-2 2 2 2-2V9c0-4-3-7-7-7zM9 11c0-1 .7-2 2-2s2 1 2 2-.7 2-2 2-2-1-2-2zm6 0c0-1 .7-2 2-2s2 1 2 2-.7 2-2 2-2-1-2-2z"/></svg>`,
+  
+  bow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4c8 0 16 8 16 16M4 20c8 0 16-8 16-16M4 4l16 16M20 4L4 20"/></svg>`,
+  
+  dancer: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm5 8l-2-3-3 2v5l2 6h2l-1.5-6 2.5-4zm-10 0L9 7l3 2v5l-2 6H8l1.5-6L7 10z"/></svg>`,
+  
+  blood: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C12 2 6 10 6 14c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12z"/></svg>`,
+  
+  moon: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 109 9 7 7 0 01-9-9z"/></svg>`,
+  
+  dove: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12c0-3 2-5 5-5 2 0 3 1 4 2l3-3-1 4c3 0 6 2 7 5-2 0-4 1-5 2l-4-1-2 4-2-4 2-2-2-2H3z"/></svg>`,
+  
+  statue: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2 0-3 1.5-3 3s1 3 3 3 3-1.5 3-3-1-3-3-3zm-3 8c-1.5 0-2.5 1-2.5 2.5V20h11v-7.5C17.5 11 16.5 10 15 10H9zm-2 12v2h10v-2H7z"/></svg>`,
+  
+  pray: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2h2v6h-2V2zm0 6L6 13v6h12v-6l-5-5v-1h-2v1z"/></svg>`,
+  
+  blossom: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1.5 2 4 3 4 6 0 1.5-1 2.5-2 3 1 1 2 2 2 4 0 3-2.5 5-4 7-1.5-2-4-4-4-7 0-2 1-3 2-4-1-.5-2-1.5-2-3 0-3 2.5-4 4-6z"/></svg>`,
+  
+  flower: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-1.5 0-2.5 1.5-2.5 3 0 .8.3 1.5.8 2C8 7 6 9 6 12c0 2 1 3.5 2.5 4.5-.3.5-.5 1-.5 1.5 0 1.5 1 3 2.5 3 1 0 1.5-.5 1.5-1.5V12c0-.5.5-1 1-1s1 .5 1 1v7.5c0 1 .5 1.5 1.5 1.5 1.5 0 2.5-1.5 2.5-3 0-.5-.2-1-.5-1.5C18 15.5 19 14 19 12c0-3-2-5-4.3-5 .5-.5.8-1.2.8-2C15.5 3.5 14.5 2 13 2h-1z"/></svg>`,
+  
+  axe: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2l-2 4 4 4 4-2-6-6zm-2 6L4 16l-2 6 6-2 8-8-4-4z"/></svg>`,
+  
+  octopus: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-3 0-5 2-5 5v5c0 1.5-1 2.5-2 3l-1.5 3 2 1L7 20l2-2 1 3 2-3 2 3 1-3 2 2 1.5-3-2-1 1-2c-1.5-.5-2.5-2-2.5-3V7c0-3-2-5-4-5zm-2 5c0-1 .5-2 1-2s1 1 1 2-.5 2-1 2-1-1-1-2zm6 0c0-1 .5-2 1-2s1 1 1 2-.5 2-1 2-1-1-1-2z"/></svg>`,
+  
+  mermaid: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-1.5 0-3 1.5-3 3s1.5 3 3 3 3-1.5 3-3-1.5-3-3-3zm-4 8c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm8 0c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zM6 16c0 3 2 6 6 6s6-3 6-6h-3c0 2-1 3-3 3s-3-1-3-3H6z"/></svg>`,
+  
+  notebook: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2v20h12V2H6zm8 16H8v-2h6v2zm2-4H8v-2h8v2zm0-4H8V8h8v2z"/></svg>`,
+  
+  scissors: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 14.5L4 20l1.5 1.5 5.5-5.5 5.5 5.5L18 20l-5.5-5.5 5.5-5.5L18 7.5l-5.5 5.5L7 7.5 5.5 9l5.5 5.5z"/></svg>`,
+  
+  bull: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2 0-3 1-3 1L5 1 4 3l4 1c-1 1-1.5 2.5-1.5 4C6.5 11 9 13 12 13s5.5-2 5.5-5c0-1.5-.5-3-1.5-4l4-1-1-2-4 2s-1-1-3-1zm-3 10l-1 3-2 4h3l1-4h4l1 4h3l-2-4-1-3h-6z"/></svg>`,
+  
+  rose: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2 0-3.5 1.5-3.5 3.5S10 9 12 9s3.5-1.5 3.5-3.5S14 2 12 2zM6 10c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm12 0c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zM12 11c-1.5 0-3 1-3 2.5s1.5 2.5 3 2.5 3-1 3-2.5-1.5-2.5-3-2.5zm0 7v4"/></svg>`,
+  
+  amphora: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2v3c-2 1-3 3-3 5 0 2 1 4 2 5l-1 6c0 1 1 2 2 2h6c1 0 2-1 2-2l-1-6c1-1 2-3 2-5 0-2-1-4-3-5V2H9zm-1 8h2v6H8c-1-1-2-2-2-3s1-2 2-3zm8 0c1 1 2 2 2 3s-1 2-2 3h-2V10h2z"/></svg>`,
+  
+  guitar: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3l-2 2 1 1-4 4-1-1-1.5 1.5 1.5 1.5-5 5c-1 1-3 1-4 0s-1-3 0-4l5-5 1.5 1.5L11 8.5 10 7.5l4-4 1 1 2-2 2 2z"/></svg>`,
+  
+  star: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 1-5 5 1.2 7L12 18l-6.2 3.5L7 14.5l-5-5 7-1L12 2z"/></svg>`,
+  
+  mask2: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6c2 0 4 1 5 3 1-2 3-3 4-3s3 1 4 3c1-2 3-3 5-3v6c0 4-3 7-7 7-1.5 0-3-.5-4-1.5-1 1-2.5 1.5-4 1.5-4 0-7-3-7-7V6z"/></svg>`,
+  
+  fire: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-1 3 1 5 1 8 0 1.5-1 2.5-2 2.5S9 11.5 9 10c-2 2-3 4-3 6 0 3.5 3 6 6 6s6-2.5 6-6c0-5-4-7-6-14z"/></svg>`,
+  
+  water: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C12 2 5 10 5 15c0 4 3 7 7 7s7-3 7-7c0-5-7-13-7-13z"/></svg>`,
+  
+  skull2: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9v3l-1 1v3l2 1v2c0 1 1 2 2 2h8c1 0 2-1 2-2v-2l2-1v-3l-1-1V9c0-4-3-7-7-7zM9 10c0-1 .5-1.5 1.5-1.5S12 9 12 10s-.5 1.5-1.5 1.5S9 11 9 10zm6 0c0-1 .5-1.5 1.5-1.5S18 9 18 10s-.5 1.5-1.5 1.5S15 11 15 10zm-3 5v2h-2v-2h2z"/></svg>`,
+};
+
+// ============================================================
+//  ФУНКЦИЯ ДЛЯ ВСТАВКИ ИКОНКИ В HTML
+// ============================================================
+function icon(name, size = '1em', className = '') {
+  const svg = ICONS[name];
+  if (!svg) return '';
+  return svg.replace('<svg ',
+    `<svg class="inline-icon ${className}" style="width:${size};height:${size};vertical-align:-0.15em;display:inline-block;" `);
+}
 function gameOver() {
   gameState.stageComplete = true;   // останавливает update
   gameState.paused = true;
@@ -948,7 +1250,7 @@ function gameOver() {
   const stage = gameState.stageDef;
   const isBoss = stage.type === 'boss';
   showOverlay({
-    emoji: isBoss ? '💀' : '☠️',
+iconName: 'skull', 
     title: 'ПОРАЖЕНИЕ',
     sub: isBoss
       ? `«${opera.bossName}» оказался сильнее...`
@@ -1593,380 +1895,1279 @@ const OPERAS = [
 //  ВНУТРИИГРОВЫЕ ДИАЛОГИ — по 3 этапа на каждую оперу
 //  Формат: dialogues[operaId][stageIdx] = [ {speaker, text, portrait}, ... ]
 // =============================================================
+// =============================================================
+//  ВНУТРИИГРОВЫЕ ДИАЛОГИ — по 3 этапа на каждую оперу
+//  Формат: dialogues[operaId][stageIdx] = [ {speaker, text, portrait, portraitColor?}, ... ]
+//  portrait: имя иконки из объекта ICONS (без эмодзи!)
+//  portraitColor: цвет иконки (по умолчанию золотой #ffd700)
+// =============================================================
+// ============================================================
+//  ПОРТРЕТЫ ПЕРСОНАЖЕЙ ДЛЯ ДИАЛОГОВ
+//  Рисуются на offscreen-canvas в том же стиле, что и спрайты игры
+// ============================================================
+const PORTRAIT_CACHE = {};
+const PORTRAIT_SIZE = 140;
+
+/**
+ * Создать портрет через функцию-рисовальщик.
+ * @param {string} key   — уникальный ключ (для кэша)
+ * @param {Function} fn  — функция(ctx, size), рисует в квадрате size×size
+ * @param {object} opts  — { bg1, bg2, scale, offsetY }
+ */
+function makePortrait(key, fn, opts = {}) {
+  if (PORTRAIT_CACHE[key]) return PORTRAIT_CACHE[key];
+  const size = PORTRAIT_SIZE;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const x = c.getContext('2d');
+
+  // Фоновое свечение
+  const g = x.createRadialGradient(size/2, size/2, 4, size/2, size/2, size/2);
+  g.addColorStop(0, opts.bg1 || 'rgba(255,215,0,0.18)');
+  g.addColorStop(1, opts.bg2 || 'rgba(0,0,0,0.85)');
+  x.fillStyle = g;
+  x.fillRect(0, 0, size, size);
+
+  // Золотая рамка
+  x.strokeStyle = 'rgba(255,215,0,0.55)';
+  x.lineWidth = 2;
+  x.strokeRect(3, 3, size - 6, size - 6);
+
+  // Рисуем персонажа
+  x.save();
+  x.translate(size/2, size/2 + (opts.offsetY || 0));
+  const s = opts.scale || 1.0;
+  x.scale(s, s);
+  fn(x);
+  x.restore();
+
+  const url = c.toDataURL();
+  PORTRAIT_CACHE[key] = url;
+  return url;
+}
+
+
+// ---------- ЛЮДМИЛА (Руслан и Людмила) ----------
+function pLudmila(x) {
+  // Коса (сзади)
+  x.fillStyle = '#c9a227';
+  x.beginPath();
+  x.moveTo(-6, 30); x.quadraticCurveTo(-30, 55, -22, 75);
+  x.quadraticCurveTo(-8, 70, 0, 55); x.closePath(); x.fill();
+
+  // Платье
+  const dress = x.createLinearGradient(0, 20, 0, 80);
+  dress.addColorStop(0, '#e91e63'); dress.addColorStop(1, '#6a0033');
+  x.fillStyle = dress;
+  x.beginPath();
+  x.moveTo(-26, 80); x.lineTo(26, 80); x.lineTo(20, 30);
+  x.lineTo(-20, 30); x.closePath(); x.fill();
+  x.strokeStyle = '#3a001a'; x.lineWidth = 2; x.stroke();
+
+  // Кокошник
+  x.fillStyle = '#c9a227';
+  x.beginPath();
+  x.moveTo(-26, -30); x.quadraticCurveTo(0, -55, 26, -30);
+  x.lineTo(26, -18); x.quadraticCurveTo(0, -30, -26, -18);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#5a3a00'; x.lineWidth = 2; x.stroke();
+  // Жемчужины
+  for (let i = -3; i <= 3; i++) {
+    x.fillStyle = '#fff8dc';
+    x.beginPath(); x.arc(i * 7, -26 - Math.abs(i) * 2, 2.5, 0, Math.PI*2); x.fill();
+  }
+
+  // Лицо
+  x.fillStyle = '#f0c8a0';
+  x.beginPath(); x.arc(0, 0, 20, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#c08050'; x.lineWidth = 1.5; x.stroke();
+
+  // Волосы по бокам
+  x.fillStyle = '#c9a227';
+  x.beginPath(); x.ellipse(-19, -2, 6, 16, 0, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(19, -2, 6, 16, 0, 0, Math.PI*2); x.fill();
+
+  // Глаза (голубые)
+  x.fillStyle = '#fff';
+  x.beginPath(); x.ellipse(-6, -2, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(6, -2, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#4fc3f7';
+  x.beginPath(); x.arc(-6, -2, 2.2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 2.2, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, -2, 1, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 1, 0, Math.PI*2); x.fill();
+
+  // Брови
+  x.strokeStyle = '#8a5a2a'; x.lineWidth = 1.5;
+  x.beginPath(); x.moveTo(-10, -8); x.quadraticCurveTo(-6, -11, -2, -8); x.stroke();
+  x.beginPath(); x.moveTo(10, -8); x.quadraticCurveTo(6, -11, 2, -8); x.stroke();
+
+  // Румяна
+  x.fillStyle = 'rgba(220,120,120,0.35)';
+  x.beginPath(); x.arc(-10, 5, 4, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(10, 5, 4, 0, Math.PI*2); x.fill();
+
+  // Улыбка
+  x.strokeStyle = '#c0392b'; x.lineWidth = 2;
+  x.beginPath();
+  x.moveTo(-5, 9); x.quadraticCurveTo(0, 13, 5, 9);
+  x.stroke();
+}
+
+// ---------- ЧЕРНОМОР (Руслан и Людмила) ----------
+function pChernomor(x) {
+  // Длинная борода
+  const beard = x.createLinearGradient(0, 10, 0, 80);
+  beard.addColorStop(0, '#f0f0f0'); beard.addColorStop(1, '#a0a0b0');
+  x.fillStyle = beard;
+  x.beginPath();
+  x.moveTo(-22, 10);
+  x.quadraticCurveTo(-30, 50, -10, 75);
+  x.quadraticCurveTo(0, 80, 10, 75);
+  x.quadraticCurveTo(30, 50, 22, 10);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#707080'; x.lineWidth = 1.5; x.stroke();
+  // Пряди
+  x.strokeStyle = 'rgba(160,160,176,0.8)';
+  for (let i = -2; i <= 2; i++) {
+    x.beginPath();
+    x.moveTo(i * 8, 12);
+    x.quadraticCurveTo(i * 10, 45, i * 7, 72);
+    x.stroke();
+  }
+
+  // Тело/мантия (фиолетовая)
+  const robe = x.createLinearGradient(0, 20, 0, 80);
+  robe.addColorStop(0, '#4a1a7a'); robe.addColorStop(1, '#1a0a2a');
+  x.fillStyle = robe;
+  x.beginPath();
+  x.moveTo(-30, 80); x.lineTo(30, 80); x.lineTo(24, 30);
+  x.lineTo(-24, 30); x.closePath(); x.fill();
+
+  // Звёзды на мантии
+  for (let i = 0; i < 5; i++) {
+    const sx = -20 + (i * 11) % 40, sy = 40 + Math.floor(i/3) * 15;
+    x.fillStyle = '#c5aaff';
+    x.beginPath(); x.arc(sx, sy, 2, 0, Math.PI*2); x.fill();
+  }
+
+  // Голова
+  x.fillStyle = '#c09070';
+  x.beginPath(); x.arc(0, -5, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#6a4a30'; x.lineWidth = 1.5; x.stroke();
+
+  // Колпак
+  x.fillStyle = '#3a0a5a';
+  x.beginPath();
+  x.moveTo(-20, -12); x.quadraticCurveTo(0, -55, 20, -12);
+  x.lineTo(16, -8); x.lineTo(-16, -8); x.closePath(); x.fill();
+  x.strokeStyle = '#1a0525'; x.lineWidth = 2; x.stroke();
+
+  // Звезда на колпаке
+  x.fillStyle = '#ffd700';
+  x.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 ? 2.5 : 6, a = (i/10)*Math.PI*2 - Math.PI/2;
+    const px = Math.cos(a)*r, py = -32 + Math.sin(a)*r;
+    if (i === 0) x.moveTo(px, py); else x.lineTo(px, py);
+  }
+  x.closePath(); x.fill();
+
+  // Злые глаза (красные)
+  x.fillStyle = '#ff3300';
+  x.beginPath(); x.arc(-6, -6, 3, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -6, 3, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, -6, 1.2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -6, 1.2, 0, Math.PI*2); x.fill();
+
+  // Хитрые брови
+  x.strokeStyle = '#1a0a05'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(-12, -13); x.lineTo(-2, -10); x.stroke();
+  x.beginPath(); x.moveTo(12, -13); x.lineTo(2, -10); x.stroke();
+
+  // Крючковатый нос
+  x.strokeStyle = '#6a4a30'; x.lineWidth = 1.8;
+  x.beginPath();
+  x.moveTo(0, -4); x.quadraticCurveTo(6, 2, 3, 6);
+  x.stroke();
+}
+
+// ---------- РАССКАЗЧИК ----------
+function pNarrator(x) {
+  // Книга в руках
+  x.fillStyle = '#5a1a1a';
+  x.beginPath();
+  x.moveTo(-30, 50); x.lineTo(30, 50); x.lineTo(30, 75); x.lineTo(-30, 75);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#2a0a0a'; x.lineWidth = 2; x.stroke();
+  // Страницы
+  x.fillStyle = '#f4e4c0';
+  x.fillRect(-26, 54, 52, 18);
+  // Строчки
+  x.strokeStyle = '#8a7a50'; x.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    x.beginPath(); x.moveTo(-22, 58 + i*4); x.lineTo(22, 58 + i*4); x.stroke();
+  }
+
+  // Тело — серая хламида
+  const robe = x.createLinearGradient(0, 0, 0, 60);
+  robe.addColorStop(0, '#5a5a6a'); robe.addColorStop(1, '#2a2a3a');
+  x.fillStyle = robe;
+  x.beginPath();
+  x.moveTo(-28, 55); x.lineTo(28, 55); x.lineTo(22, 20);
+  x.lineTo(-22, 20); x.closePath(); x.fill();
+  x.strokeStyle = '#1a1a2a'; x.lineWidth = 1.5; x.stroke();
+
+  // Капюшон
+  x.fillStyle = '#3a3a4a';
+  x.beginPath();
+  x.moveTo(-24, 22); x.quadraticCurveTo(0, -8, 24, 22);
+  x.lineTo(20, 26); x.lineTo(-20, 26); x.closePath(); x.fill();
+  x.strokeStyle = '#1a1a2a'; x.lineWidth = 1.5; x.stroke();
+
+  // Лицо в тени
+  x.fillStyle = '#b09070';
+  x.beginPath(); x.arc(0, 8, 15, 0, Math.PI*2); x.fill();
+
+  // Тень от капюшона
+  x.fillStyle = 'rgba(0,0,0,0.45)';
+  x.beginPath();
+  x.arc(0, 8, 15, Math.PI*1.1, Math.PI*1.9);
+  x.fill();
+
+  // Глаза (мудрые, светящиеся)
+  x.fillStyle = '#4fc3f7';
+  x.beginPath(); x.arc(-5, 6, 2.2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(5, 6, 2.2, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#fff';
+  x.beginPath(); x.arc(-5, 5, 0.8, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(5, 5, 0.8, 0, Math.PI*2); x.fill();
+
+  // Седые усы и борода
+  x.fillStyle = '#c0c0c0';
+  x.beginPath();
+  x.moveTo(-10, 14);
+  x.quadraticCurveTo(0, 28, 10, 14);
+  x.quadraticCurveTo(0, 18, -10, 14);
+  x.closePath(); x.fill();
+  // Усы
+  x.strokeStyle = '#c0c0c0'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(-10, 12); x.quadraticCurveTo(0, 15, 10, 12); x.stroke();
+}
+
+
+// ---------- РУСЛАН (Руслан и Людмила) ----------
+function pRuslan(x) {
+  // Плащ за спиной
+  const cape = x.createLinearGradient(0, 0, 0, 70);
+  cape.addColorStop(0, '#8b0000');
+  cape.addColorStop(1, '#3a0000');
+  x.fillStyle = cape;
+  x.beginPath();
+  x.moveTo(-30, 70); x.lineTo(30, 70);
+  x.lineTo(24, 10); x.lineTo(-24, 10);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#000'; x.lineWidth = 1.5; x.stroke();
+
+  // Кольчуга
+  const armor = x.createLinearGradient(0, 10, 0, 75);
+  armor.addColorStop(0, '#b0b0c0');
+  armor.addColorStop(0.5, '#7a7a8a');
+  armor.addColorStop(1, '#3a3a4a');
+  x.fillStyle = armor;
+  x.beginPath();
+  x.moveTo(-24, 10); x.lineTo(24, 10);
+  x.lineTo(28, 75); x.lineTo(-28, 75);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#1a1a2a'; x.lineWidth = 2; x.stroke();
+
+  // Точки кольчуги
+  x.fillStyle = 'rgba(220,220,240,0.4)';
+  for (let y = 15; y < 70; y += 7) {
+    for (let xx = -22; xx < 22; xx += 7) {
+      x.beginPath(); x.arc(xx, y, 1.5, 0, Math.PI * 2); x.fill();
+    }
+  }
+
+  // Нагрудник с солнцем
+  x.fillStyle = '#c9a227';
+  x.beginPath(); x.arc(0, 35, 10, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = '#5a3a00'; x.lineWidth = 1.5; x.stroke();
+  // Лучи
+  x.strokeStyle = '#ffd700'; x.lineWidth = 2;
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    x.beginPath();
+    x.moveTo(Math.cos(a) * 12, 35 + Math.sin(a) * 12);
+    x.lineTo(Math.cos(a) * 17, 35 + Math.sin(a) * 17);
+    x.stroke();
+  }
+
+  // Голова
+  x.fillStyle = '#e8b088';
+  x.beginPath(); x.arc(0, -10, 20, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = '#8a5a3a'; x.lineWidth = 1.5; x.stroke();
+
+  // Шлем островерхий
+  x.fillStyle = '#6a6a7a';
+  x.beginPath();
+  x.moveTo(-22, -14);
+  x.quadraticCurveTo(0, -55, 22, -14);
+  x.lineTo(22, -8);
+  x.lineTo(-22, -8);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#2a2a3a'; x.lineWidth = 2; x.stroke();
+
+  // Носовая стрелка шлема
+  x.fillStyle = '#8a8a9a';
+  x.beginPath();
+  x.moveTo(-3, -14); x.lineTo(0, -4); x.lineTo(3, -14);
+  x.closePath(); x.fill();
+
+  // Плюмаж (перо на шлеме)
+  x.fillStyle = '#c0392b';
+  x.beginPath();
+  x.moveTo(0, -50);
+  x.quadraticCurveTo(-8, -70, 0, -78);
+  x.quadraticCurveTo(6, -68, 4, -50);
+  x.closePath(); x.fill();
+
+  // Русые волосы по бокам
+  x.fillStyle = '#a0522d';
+  x.beginPath(); x.ellipse(-20, -6, 5, 12, 0, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.ellipse(20, -6, 5, 12, 0, 0, Math.PI * 2); x.fill();
+
+  // Глаза (голубые)
+  x.fillStyle = '#fff';
+  x.beginPath(); x.ellipse(-6, -10, 4, 3, 0, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.ellipse(6, -10, 4, 3, 0, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#4fc3f7';
+  x.beginPath(); x.arc(-6, -10, 2.2, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.arc(6, -10, 2.2, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, -10, 1, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.arc(6, -10, 1, 0, Math.PI * 2); x.fill();
+
+  // Мужественные брови
+  x.strokeStyle = '#5a3a1a'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(-11, -16); x.lineTo(-2, -15); x.stroke();
+  x.beginPath(); x.moveTo(11, -16); x.lineTo(2, -15); x.stroke();
+
+  // Нос
+  x.strokeStyle = '#c08050'; x.lineWidth = 1.5;
+  x.beginPath();
+  x.moveTo(0, -8);
+  x.lineTo(-1, -1);
+  x.quadraticCurveTo(0, 1, 1, -1);
+  x.stroke();
+
+  // Борода
+  x.fillStyle = '#a0522d';
+  x.beginPath();
+  x.moveTo(-13, 0);
+  x.quadraticCurveTo(0, 20, 13, 0);
+  x.quadraticCurveTo(8, 8, 0, 8);
+  x.quadraticCurveTo(-8, 8, -13, 0);
+  x.closePath(); x.fill();
+
+  // Усы
+  x.strokeStyle = '#a0522d'; x.lineWidth = 2.5;
+  x.beginPath();
+  x.moveTo(-11, 2);
+  x.quadraticCurveTo(0, 6, 11, 2);
+  x.stroke();
+
+  // Решительная улыбка
+  x.strokeStyle = '#8a3a2a'; x.lineWidth = 2;
+  x.beginPath();
+  x.moveTo(-4, 8);
+  x.quadraticCurveTo(0, 10, 4, 8);
+  x.stroke();
+}
+
+
+// ---------- САДКО ----------
+function pSadko(x) {
+  // Рубаха
+  x.fillStyle = '#2a7a5a';
+  x.beginPath();
+  x.moveTo(-28, 80); x.lineTo(28, 80); x.lineTo(22, 25);
+  x.lineTo(-22, 25); x.closePath(); x.fill();
+  x.strokeStyle = '#0a3a2a'; x.lineWidth = 2; x.stroke();
+
+  // Гусли на груди
+  x.fillStyle = '#c9a227';
+  x.beginPath();
+  x.moveTo(-15, 40); x.lineTo(15, 40); x.lineTo(12, 65); x.lineTo(-12, 65);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#5a3a00'; x.lineWidth = 1.5; x.stroke();
+  x.strokeStyle = '#f4e4c0'; x.lineWidth = 1;
+  for (let i = -10; i <= 10; i += 4) {
+    x.beginPath(); x.moveTo(i, 42); x.lineTo(i, 63); x.stroke();
+  }
+
+  // Лицо
+  x.fillStyle = '#e8b088';
+  x.beginPath(); x.arc(0, 5, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#8a5a30'; x.lineWidth = 1.5; x.stroke();
+
+  // Волосы
+  x.fillStyle = '#4a2a10';
+  x.beginPath(); x.arc(0, -6, 19, Math.PI, 0); x.fill();
+  x.beginPath(); x.arc(-18, 2, 6, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(18, 2, 6, 0, Math.PI*2); x.fill();
+
+  // Глаза (голубые, мечтательные)
+  x.fillStyle = '#fff';
+  x.beginPath(); x.ellipse(-6, 3, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(6, 3, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#0288d1';
+  x.beginPath(); x.arc(-6, 3, 2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, 3, 2, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, 3, 0.9, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, 3, 0.9, 0, Math.PI*2); x.fill();
+
+  // Брови
+  x.strokeStyle = '#3a1a08'; x.lineWidth = 1.8;
+  x.beginPath(); x.moveTo(-10, -2); x.lineTo(-2, -1); x.stroke();
+  x.beginPath(); x.moveTo(10, -2); x.lineTo(2, -1); x.stroke();
+
+  // Улыбка
+  x.strokeStyle = '#8a3a2a'; x.lineWidth = 2;
+  x.beginPath();
+  x.moveTo(-6, 13); x.quadraticCurveTo(0, 17, 6, 13);
+  x.stroke();
+
+  // Борода
+  x.fillStyle = '#4a2a10';
+  x.beginPath();
+  x.moveTo(-12, 14);
+  x.quadraticCurveTo(0, 30, 12, 14);
+  x.quadraticCurveTo(0, 20, -12, 14);
+  x.closePath(); x.fill();
+}
+
+// ---------- БОРИС ГОДУНОВ ----------
+function pBoris(x) {
+  // Мантия горностаевая
+  x.fillStyle = '#3a2620';
+  x.beginPath();
+  x.moveTo(-32, 80); x.lineTo(32, 80); x.lineTo(26, 25);
+  x.lineTo(-26, 25); x.closePath(); x.fill();
+  x.strokeStyle = '#1a0f0a'; x.lineWidth = 2; x.stroke();
+  // Пятнышки горностая
+  x.fillStyle = 'rgba(240,240,240,0.85)';
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
+    const sx = -22 + c*9 + (r%2)*4, sy = 30 + r*13;
+    x.beginPath(); x.ellipse(sx, sy, 1.8, 2.5, 0.4, 0, Math.PI*2); x.fill();
+  }
+
+  // Кафтан золотой
+  x.fillStyle = '#c9a227';
+  x.beginPath();
+  x.moveTo(-16, 25); x.lineTo(16, 25); x.lineTo(18, 70);
+  x.lineTo(-18, 70); x.closePath(); x.fill();
+  x.strokeStyle = '#5a3a00'; x.lineWidth = 1.5; x.stroke();
+  // Крест на груди
+  x.strokeStyle = '#f0ead6'; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(0, 30); x.lineTo(0, 55); x.stroke();
+  x.beginPath(); x.moveTo(-8, 40); x.lineTo(8, 40); x.stroke();
+
+  // Лицо
+  x.fillStyle = '#e8b088';
+  x.beginPath(); x.arc(0, 0, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#8a5a3a'; x.lineWidth = 1.5; x.stroke();
+
+  // Окладистая борода
+  x.fillStyle = '#4a3020';
+  x.beginPath();
+  x.moveTo(-16, 8); x.quadraticCurveTo(0, 35, 16, 8);
+  x.quadraticCurveTo(10, 18, 0, 18);
+  x.quadraticCurveTo(-10, 18, -16, 8);
+  x.closePath(); x.fill();
+
+  // Шапка Мономаха
+  x.fillStyle = '#1a1a1a';
+  x.beginPath();
+  x.ellipse(0, -18, 24, 7, 0, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#ffd700'; x.lineWidth = 2; x.stroke();
+  // Мех
+  x.fillStyle = '#3a2620';
+  x.beginPath(); x.ellipse(0, -21, 26, 9, 0, 0, Math.PI*2); x.fill();
+  // Купол
+  const dome = x.createLinearGradient(0, -50, 0, -18);
+  dome.addColorStop(0, '#ffd700'); dome.addColorStop(1, '#8a6a10');
+  x.fillStyle = dome;
+  x.beginPath();
+  x.moveTo(-20, -22); x.quadraticCurveTo(0, -55, 20, -22);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#5a3a00'; x.lineWidth = 1.5; x.stroke();
+  // Крест
+  x.strokeStyle = '#ffd700'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(0, -50); x.lineTo(0, -65); x.stroke();
+  x.beginPath(); x.moveTo(-6, -58); x.lineTo(6, -58); x.stroke();
+
+  // Усталые глаза
+  x.fillStyle = '#3a1a0a';
+  x.beginPath(); x.arc(-6, -2, 2.2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 2.2, 0, Math.PI*2); x.fill();
+  // Мешки
+  x.strokeStyle = 'rgba(80,40,20,0.5)'; x.lineWidth = 1.2;
+  x.beginPath(); x.arc(-6, 2, 4, 0, Math.PI); x.stroke();
+  x.beginPath(); x.arc(6, 2, 4, 0, Math.PI); x.stroke();
+
+  // Скорбные брови
+  x.strokeStyle = '#2a1a0a'; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(-12, -8); x.quadraticCurveTo(-7, -6, -2, -8); x.stroke();
+  x.beginPath(); x.moveTo(12, -8); x.quadraticCurveTo(7, -6, 2, -8); x.stroke();
+}
+
+// ---------- МЕФИСТОФЕЛЬ (Фауст) ----------
+function pMephisto(x) {
+  // Крылья за спиной
+  x.fillStyle = 'rgba(120,10,10,0.7)';
+  x.beginPath();
+  x.moveTo(-20, 0);
+  x.quadraticCurveTo(-55, -25, -48, 25);
+  x.quadraticCurveTo(-35, 15, -22, 15);
+  x.closePath(); x.fill();
+  x.beginPath();
+  x.moveTo(20, 0);
+  x.quadraticCurveTo(55, -25, 48, 25);
+  x.quadraticCurveTo(35, 15, 22, 15);
+  x.closePath(); x.fill();
+
+  // Плащ
+  const cloak = x.createLinearGradient(0, 20, 0, 80);
+  cloak.addColorStop(0, '#2a0a0a'); cloak.addColorStop(1, '#000');
+  x.fillStyle = cloak;
+  x.beginPath();
+  x.moveTo(-30, 80); x.lineTo(30, 80); x.lineTo(24, 25);
+  x.lineTo(-24, 25); x.closePath(); x.fill();
+
+  // Испанский камзол
+  x.fillStyle = '#3a0505';
+  x.beginPath();
+  x.moveTo(-16, 25); x.lineTo(16, 25); x.lineTo(20, 70);
+  x.lineTo(-20, 70); x.closePath(); x.fill();
+  x.strokeStyle = '#8b0000'; x.lineWidth = 2; x.stroke();
+
+  // Рубиновая брошь
+  x.fillStyle = '#ff0033';
+  x.beginPath(); x.arc(0, 38, 5, 0, Math.PI*2); x.fill();
+
+  // Голова
+  x.fillStyle = '#7a2020';
+  x.beginPath(); x.arc(0, 0, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#000'; x.lineWidth = 2; x.stroke();
+
+  // Рога
+  x.fillStyle = '#1a0000';
+  x.beginPath();
+  x.moveTo(-14, -12);
+  x.quadraticCurveTo(-30, -35, -22, -50);
+  x.quadraticCurveTo(-15, -35, -6, -14);
+  x.closePath(); x.fill();
+  x.beginPath();
+  x.moveTo(14, -12);
+  x.quadraticCurveTo(30, -35, 22, -50);
+  x.quadraticCurveTo(15, -35, 6, -14);
+  x.closePath(); x.fill();
+
+  // Шляпа с пером
+  x.fillStyle = '#1a0000';
+  x.beginPath(); x.ellipse(0, -18, 28, 7, 0, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#2a0505';
+  x.beginPath();
+  x.moveTo(-16, -20); x.lineTo(16, -20);
+  x.lineTo(12, -40); x.lineTo(-12, -40); x.closePath(); x.fill();
+  x.strokeStyle = '#8b0000'; x.lineWidth = 2; x.stroke();
+  // Перо
+  x.strokeStyle = '#ff0033'; x.lineWidth = 2.5;
+  x.beginPath();
+  x.moveTo(14, -35); x.quadraticCurveTo(35, -55, 30, -75);
+  x.stroke();
+  x.fillStyle = '#ff0033';
+  x.beginPath(); x.ellipse(28, -68, 4, 10, 0.3, 0, Math.PI*2); x.fill();
+
+  // Глаза-огоньки
+  const eyeGlow1 = x.createRadialGradient(-7, -2, 1, -7, -2, 6);
+  eyeGlow1.addColorStop(0, '#fff'); eyeGlow1.addColorStop(0.4, '#ff4400');
+  eyeGlow1.addColorStop(1, 'rgba(255,68,0,0)');
+  x.fillStyle = eyeGlow1;
+  x.beginPath(); x.arc(-7, -2, 6, 0, Math.PI*2); x.fill();
+  const eyeGlow2 = x.createRadialGradient(7, -2, 1, 7, -2, 6);
+  eyeGlow2.addColorStop(0, '#fff'); eyeGlow2.addColorStop(0.4, '#ff4400');
+  eyeGlow2.addColorStop(1, 'rgba(255,68,0,0)');
+  x.fillStyle = eyeGlow2;
+  x.beginPath(); x.arc(7, -2, 6, 0, Math.PI*2); x.fill();
+
+  // Зрачки
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-7, -2, 1.5, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(7, -2, 1.5, 0, Math.PI*2); x.fill();
+
+  // Сатанинская улыбка
+  x.strokeStyle = '#8b0000'; x.lineWidth = 2;
+  x.beginPath();
+  x.moveTo(-8, 8); x.quadraticCurveTo(0, 14, 8, 8);
+  x.stroke();
+
+  // Усы
+  x.strokeStyle = '#1a0000'; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(-10, 4); x.quadraticCurveTo(0, 7, 10, 4); x.stroke();
+}
+
+// ---------- КОНЧАК (Князь Игорь) ----------
+function pKonchak(x) {
+  // Халат восточный
+  const robe = x.createLinearGradient(0, 20, 0, 80);
+  robe.addColorStop(0, '#bf360c'); robe.addColorStop(1, '#4a0a00');
+  x.fillStyle = robe;
+  x.beginPath();
+  x.moveTo(-32, 80); x.lineTo(32, 80); x.lineTo(26, 25);
+  x.lineTo(-26, 25); x.closePath(); x.fill();
+  x.strokeStyle = '#1a0500'; x.lineWidth = 2; x.stroke();
+  // Узор
+  x.strokeStyle = '#ffd700'; x.lineWidth = 1.2;
+  for (let i = -20; i <= 20; i += 10) {
+    x.beginPath(); x.arc(i, 40, 3, 0, Math.PI*2); x.stroke();
+    x.beginPath(); x.arc(i, 60, 3, 0, Math.PI*2); x.stroke();
+  }
+
+  // Лук за спиной
+  x.strokeStyle = '#5a3a10'; x.lineWidth = 4;
+  x.beginPath(); x.arc(-30, 0, 35, -Math.PI*0.7, Math.PI*0.7); x.stroke();
+  x.strokeStyle = '#f0ead6'; x.lineWidth = 1.2;
+  x.beginPath(); x.moveTo(-30 + Math.cos(-Math.PI*0.7)*35, Math.sin(-Math.PI*0.7)*35);
+  x.lineTo(-30 + Math.cos(Math.PI*0.7)*35, Math.sin(Math.PI*0.7)*35); x.stroke();
+
+  // Голова
+  x.fillStyle = '#c08050';
+  x.beginPath(); x.arc(0, 0, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#5a3a10'; x.lineWidth = 1.5; x.stroke();
+
+  // Шапка с мехом
+  x.fillStyle = '#1a0a00';
+  x.beginPath(); x.ellipse(0, -16, 22, 8, 0, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#8b1a00';
+  x.beginPath();
+  x.moveTo(-18, -18); x.lineTo(18, -18);
+  x.lineTo(0, -48); x.closePath(); x.fill();
+  x.strokeStyle = '#ffd700'; x.lineWidth = 1.5; x.stroke();
+  // Золотой шарик
+  x.fillStyle = '#ffd700';
+  x.beginPath(); x.arc(0, -50, 4, 0, Math.PI*2); x.fill();
+
+  // Борода
+  x.fillStyle = '#1a0a00';
+  x.beginPath();
+  x.moveTo(-12, 10); x.quadraticCurveTo(0, 35, 12, 10);
+  x.quadraticCurveTo(0, 22, -12, 10);
+  x.closePath(); x.fill();
+
+  // Усы
+  x.strokeStyle = '#1a0a00'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(-12, 6); x.quadraticCurveTo(0, 10, 12, 6); x.stroke();
+
+  // Свирепые глаза
+  x.fillStyle = '#ffcc00';
+  x.beginPath(); x.arc(-6, -2, 2.5, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 2.5, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, -2, 1.3, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 1.3, 0, Math.PI*2); x.fill();
+
+  // Гневные брови
+  x.strokeStyle = '#1a0a00'; x.lineWidth = 2.5;
+  x.beginPath(); x.moveTo(-12, -8); x.lineTo(-2, -5); x.stroke();
+  x.beginPath(); x.moveTo(12, -8); x.lineTo(2, -5); x.stroke();
+}
+
+// ---------- ВЕНЕРА (Тангейзер) ----------
+function pVenus(x) {
+  // Розовая аура
+  const aura = x.createRadialGradient(0, 10, 5, 0, 10, 70);
+  aura.addColorStop(0, 'rgba(236,64,122,0.5)');
+  aura.addColorStop(1, 'rgba(236,64,122,0)');
+  x.fillStyle = aura;
+  x.beginPath(); x.arc(0, 10, 70, 0, Math.PI*2); x.fill();
+
+  // Платье
+  const dress = x.createLinearGradient(0, 20, 0, 80);
+  dress.addColorStop(0, '#ec407a'); dress.addColorStop(1, '#6a0033');
+  x.fillStyle = dress;
+  x.beginPath();
+  x.moveTo(-32, 80); x.lineTo(32, 80); x.lineTo(24, 25);
+  x.lineTo(-24, 25); x.closePath(); x.fill();
+  x.strokeStyle = '#3a001a'; x.lineWidth = 2; x.stroke();
+
+  // Золотой пояс
+  x.fillStyle = '#ffd700';
+  x.fillRect(-28, 45, 56, 5);
+  x.strokeStyle = '#8a6a10'; x.lineWidth = 1; x.strokeRect(-28, 45, 56, 5);
+
+  // Голова
+  x.fillStyle = '#f0d0c0';
+  x.beginPath(); x.arc(0, 0, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#c08080'; x.lineWidth = 1.5; x.stroke();
+
+  // Золотые волосы
+  x.fillStyle = '#ffd700';
+  x.beginPath(); x.arc(0, -6, 19, Math.PI, 0); x.fill();
+  // Локоны
+  x.beginPath();
+  x.moveTo(-19, -4);
+  x.quadraticCurveTo(-34, 20, -28, 60);
+  x.quadraticCurveTo(-22, 55, -18, 40);
+  x.quadraticCurveTo(-24, 10, -14, -4);
+  x.closePath(); x.fill();
+  x.beginPath();
+  x.moveTo(19, -4);
+  x.quadraticCurveTo(34, 20, 28, 60);
+  x.quadraticCurveTo(22, 55, 18, 40);
+  x.quadraticCurveTo(24, 10, 14, -4);
+  x.closePath(); x.fill();
+
+  // Диадема
+  x.fillStyle = '#fff8dc';
+  x.beginPath();
+  x.moveTo(-16, -18); x.quadraticCurveTo(0, -28, 16, -18);
+  x.lineTo(14, -14); x.quadraticCurveTo(0, -22, -14, -14);
+  x.closePath(); x.fill();
+  x.strokeStyle = '#ffd700'; x.lineWidth = 1.5; x.stroke();
+  // Жемчужины
+  for (let i = -2; i <= 2; i++) {
+    x.fillStyle = '#fff';
+    x.beginPath(); x.arc(i*6, -20 - Math.abs(i)*1.5, 2, 0, Math.PI*2); x.fill();
+  }
+
+  // Глаза (голубые)
+  x.fillStyle = '#fff';
+  x.beginPath(); x.ellipse(-6, -2, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(6, -2, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#2a5a8a';
+  x.beginPath(); x.arc(-6, -2, 2.2, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 2.2, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#000';
+  x.beginPath(); x.arc(-6, -2, 1, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 1, 0, Math.PI*2); x.fill();
+
+  // Ресницы
+  x.strokeStyle = '#000'; x.lineWidth = 1.2;
+  x.beginPath(); x.moveTo(-10, -5); x.lineTo(-11, -8); x.stroke();
+  x.beginPath(); x.moveTo(10, -5); x.lineTo(11, -8); x.stroke();
+
+  // Пухлые губы
+  x.fillStyle = '#e91e63';
+  x.beginPath(); x.ellipse(0, 10, 5, 3, 0, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#8a0030'; x.lineWidth = 1; x.stroke();
+
+  // Роза в волосах
+  x.fillStyle = '#ff1744';
+  x.beginPath(); x.arc(14, -14, 5, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#ff4567';
+  for (let i = 0; i < 5; i++) {
+    const a = (i/5)*Math.PI*2;
+    x.beginPath();
+    x.ellipse(14 + Math.cos(a)*3, -14 + Math.sin(a)*3, 3, 1.8, a, 0, Math.PI*2);
+    x.fill();
+  }
+  x.fillStyle = '#ffd700';
+  x.beginPath(); x.arc(14, -14, 1.8, 0, Math.PI*2); x.fill();
+}
+
+// ---------- ЦАРИЦА НОЧИ (Волшебная флейта) ----------
+function pQueenOfNight(x) {
+  // Звёздная аура
+  const aura = x.createRadialGradient(0, 0, 5, 0, 0, 70);
+  aura.addColorStop(0, 'rgba(26,35,126,0.6)');
+  aura.addColorStop(1, 'rgba(26,35,126,0)');
+  x.fillStyle = aura;
+  x.beginPath(); x.arc(0, 0, 70, 0, Math.PI*2); x.fill();
+
+  // Платье
+  const dress = x.createLinearGradient(0, 20, 0, 80);
+  dress.addColorStop(0, '#1a237e'); dress.addColorStop(1, '#000010');
+  x.fillStyle = dress;
+  x.beginPath();
+  x.moveTo(-34, 80); x.lineTo(34, 80); x.lineTo(26, 25);
+  x.lineTo(-26, 25); x.closePath(); x.fill();
+  x.strokeStyle = '#c5cae9'; x.lineWidth = 2; x.stroke();
+
+  // Звёзды на платье
+  for (let i = 0; i < 8; i++) {
+    const sx = -20 + (i*13) % 40, sy = 35 + Math.floor(i/4)*18;
+    x.fillStyle = '#fff';
+    x.beginPath(); x.arc(sx, sy, 1.5, 0, Math.PI*2); x.fill();
+  }
+
+  // Луна на груди
+  x.fillStyle = '#ffd700';
+  x.beginPath(); x.arc(0, 42, 6, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#0a1040';
+  x.beginPath(); x.arc(2, 41, 5, 0, Math.PI*2); x.fill();
+
+  // Голова
+  x.fillStyle = '#f0d8f0';
+  x.beginPath(); x.arc(0, 0, 18, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#8a6aaa'; x.lineWidth = 1.5; x.stroke();
+
+  // Длинные волосы
+  x.fillStyle = '#0a0a2a';
+  x.beginPath(); x.arc(0, -6, 19, Math.PI, 0); x.fill();
+  x.beginPath();
+  x.moveTo(-18, -4);
+  x.quadraticCurveTo(-30, 25, -24, 65);
+  x.lineTo(-18, 65);
+  x.quadraticCurveTo(-22, 25, -12, -4);
+  x.closePath(); x.fill();
+  x.beginPath();
+  x.moveTo(18, -4);
+  x.quadraticCurveTo(30, 25, 24, 65);
+  x.lineTo(18, 65);
+  x.quadraticCurveTo(22, 25, 12, -4);
+  x.closePath(); x.fill();
+
+  // Звёздная корона
+  for (let i = -3; i <= 3; i++) {
+    const a = (i/3) * 0.6;
+    const sx = Math.sin(a) * 22;
+    const sy = -22 - Math.cos(a) * 8;
+    x.fillStyle = '#c5cae9';
+    x.beginPath();
+    for (let k = 0; k < 10; k++) {
+      const r = k % 2 ? 2 : 5;
+      const ang = (k/10)*Math.PI*2 - Math.PI/2;
+      const px = sx + Math.cos(ang)*r, py = sy + Math.sin(ang)*r;
+      if (k === 0) x.moveTo(px, py); else x.lineTo(px, py);
+    }
+    x.closePath(); x.fill();
+  }
+
+  // Сияющие глаза
+  const g1 = x.createRadialGradient(-6, -2, 1, -6, -2, 6);
+  g1.addColorStop(0, '#fff'); g1.addColorStop(0.5, '#c5cae9');
+  g1.addColorStop(1, 'rgba(197,202,233,0)');
+  x.fillStyle = g1;
+  x.beginPath(); x.arc(-6, -2, 6, 0, Math.PI*2); x.fill();
+  const g2 = x.createRadialGradient(6, -2, 1, 6, -2, 6);
+  g2.addColorStop(0, '#fff'); g2.addColorStop(0.5, '#c5cae9');
+  g2.addColorStop(1, 'rgba(197,202,233,0)');
+  x.fillStyle = g2;
+  x.beginPath(); x.arc(6, -2, 6, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#0a0a2a';
+  x.beginPath(); x.arc(-6, -2, 1.5, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(6, -2, 1.5, 0, Math.PI*2); x.fill();
+
+  // Тонкие губы
+  x.strokeStyle = '#6a2a5a'; x.lineWidth = 1.8;
+  x.beginPath();
+  x.moveTo(-5, 10); x.quadraticCurveTo(0, 12, 5, 10);
+  x.stroke();
+}
+
+
+
+// ============================================================
+//  РЕЕСТР ПОРТРЕТОВ: ключ → { draw, bg1, bg2, scale, offsetY }
+// ============================================================
+const PORTRAITS = {
+  // Руслан и Людмила
+  ludmila:  { draw: pLudmila,  bg1: 'rgba(255,182,193,0.3)' },
+  chernomor:{ draw: pChernomor,bg1: 'rgba(186,104,200,0.3)' },
+  // Садко
+  sadko:    { draw: pSadko,    bg1: 'rgba(79,195,247,0.3)' },
+  // Борис Годунов
+  boris:    { draw: pBoris,    bg1: 'rgba(255,215,0,0.25)' },
+  // Фауст
+  mephisto: { draw: pMephisto, bg1: 'rgba(255,68,0,0.3)' },
+  // Князь Игорь
+  konchak:  { draw: pKonchak,  bg1: 'rgba(191,54,12,0.3)' },
+  // Тангейзер
+  venus:    { draw: pVenus,    bg1: 'rgba(236,64,122,0.3)' },
+  // Волшебная флейта
+  queenNight:{ draw: pQueenOfNight, bg1: 'rgba(26,35,126,0.4)' },
+  // Рассказчик (нейтральный)
+  narrator: { draw: pNarrator, bg1: 'rgba(120,120,180,0.25)' },
+  ruslan:   { draw: pRuslan,   bg1: 'rgba(255,215,0,0.25)' }, 
+};
+
 const STAGE_DIALOGUES = {
   ruslan: [
     [
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Киевская Русь. Князь Руслан готовится к свадьбе с прекрасной Людмилой.' },
-      { speaker: 'Людмила', portrait: '👰',
+      { speaker: 'Людмила', portrait: 'ludmila',
         text: '«Милый Руслан! Собери все ноты моей песни — злой карлик Черномор похитил их, чтобы лишить меня голоса!»' }
     ],
     [
-      { speaker: 'Руслан', portrait: '⚔️',
+      { speaker: 'Руслан', portrait: 'ruslan', portraitColor: '#c0c0d0',
         text: '«Следы ведут в тёмный лес. Стража Черномора не дремлет — будь осторожен, певец!»' },
-      { speaker: 'Стражник', portrait: '🛡️',
+      { speaker: 'Стражник', portrait: 'shield', portraitColor: '#8a8a9a',
         text: '«Стой! Кто идёт?! А, это ты... Тогда берегись моего меча!»' }
     ],
     [
-      { speaker: 'Черномор', portrait: '🧙',
+      { speaker: 'Черномор', portrait: 'chernomor',
         text: '«Ха-ха-ха! Ты добрался до моего замка, жалкий смертный? Моя борода защитит меня от любой ноты!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Могучая борода карлика колышется. Используй свой голос!' }
     ]
   ],
 
   sadko: [
     [
-      { speaker: 'Садко', portrait: '🎵',
+      { speaker: 'Садко', portrait: 'sadko',
         text: '«Гусли мои упали на дно морское! Но голос мой звучит и под водой!»' },
-      { speaker: 'Морские чудища', portrait: '🐙',
+      { speaker: 'Морские чудища', portrait: 'octopus', portraitColor: '#00695c',
         text: '«Буль-буль! Убирайся, певец, пока мы не проглотили тебя вместе с нотами!»' }
     ],
     [
-      { speaker: 'Морская дева', portrait: '🧜',
+      { speaker: 'Морская дева', portrait: 'mermaid', portraitColor: '#26c6da',
         text: '«Жемчужные ноты разбросаны по всему дну. Собери их — и узнаешь тайну морского царства!»' }
     ],
     [
-      { speaker: 'Морской Царь', portrait: '🔱',
+      { speaker: 'Морской Царь', portrait: 'trident', portraitColor: '#00695c',
         text: '«Дерзкий смертный! Мой трезубец развеет твой голос по волнам!»' },
-      { speaker: 'Садко', portrait: '🎵',
+      { speaker: 'Садко', portrait: 'sadko',
         text: '«А я спою так, что заслушаются даже рыбы! Трезубец — не защита от настоящей музыки!»' }
     ]
   ],
 
   boris: [
     [
-      { speaker: 'Борис Годунов', portrait: '👑',
+      { speaker: 'Борис Годунов', portrait: 'boris',
         text: '«Царские грамоты-ноты разбросаны по Кремлю. Собери их — и поможешь мне оправдаться перед совестью.»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Царь мрачно смотрит вдаль. Совесть терзает его сильнее, чем враги.' }
     ],
     [
-      { speaker: 'Самозванец', portrait: '🎭',
+      { speaker: 'Самозванец', portrait: 'mask', portraitColor: '#c0392b',
         text: '«Я — истинный царь! Лже-Борис не спасёт тебя от моего гнева!»' },
-      { speaker: 'Борис', portrait: '👑',
+      { speaker: 'Борис', portrait: 'boris',
         text: '«Разгони этих обманщиков, певец! Моё царство в опасности!»' }
     ],
     [
-      { speaker: 'Борис', portrait: '👑',
+      { speaker: 'Борис', portrait: 'boris',
         text: '«Ты пришёл за моей короной? Знай — моя совесть тяжелее любых лат. Но я всё равно буду сражаться!»' }
     ]
   ],
 
   faust: [
     [
-      { speaker: 'Мефистофель', portrait: '😈',
+      { speaker: 'Мефистофель', portrait: 'mephisto',
         text: '«Подпиши контракт, Фауст... а заодно разгони моих демонов, если осмелишься!»' },
-      { speaker: 'Демоны', portrait: '👹',
+      { speaker: 'Демоны', portrait: 'devil', portraitColor: '#8b0000',
         text: '«Ха-ха-ха! Наш хозяин предлагает тебе сделку — и смерть!»' }
     ],
     [
-      { speaker: 'Фауст', portrait: '🧪',
+      { speaker: 'Фауст', portrait: 'flask', portraitColor: '#ba68c8',
         text: '«Ноты искупления! Может быть, они спасут мою душу от проклятия...»' },
-      { speaker: 'Мефистофель', portrait: '😈',
+      { speaker: 'Мефистофель', portrait: 'mephisto',
         text: '«Поздно, глупец! Твоя душа уже моя!»' }
     ],
     [
-      { speaker: 'Мефистофель', portrait: '😈',
+      { speaker: 'Мефистофель', portrait: 'mephisto',
         text: '«Ну что ж, смертный, сыграем в последнюю партию! Мои крылья быстрее твоего голоса!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Огненная аура пылает вокруг дьявола. Уворачивайся и пой!' }
     ]
   ],
 
   susanin: [
     [
-      { speaker: 'Иван Сусанин', portrait: '🌾',
+      { speaker: 'Иван Сусанин', portrait: 'wheat', portraitColor: '#daa520',
         text: '«Ноты Родины разбросаны по зимнему лесу. Собери их — они укажут путь к спасению царя!»' }
     ],
     [
-      { speaker: 'Польский Командир', portrait: '⚔️',
+      { speaker: 'Польский Командир', portrait: 'swords', portraitColor: '#c0c0d0',
         text: '«Покажи нам дорогу, мужик! Или умрёшь на месте!»' },
-      { speaker: 'Сусанин', portrait: '🌾',
+      { speaker: 'Сусанин', portrait: 'wheat', portraitColor: '#daa520',
         text: '«Я покажу вас... в самую глухую чащу! Держись, певец!»' }
     ],
     [
-      { speaker: 'Польский Командир', portrait: '⚔️',
+      { speaker: 'Польский Командир', portrait: 'swords', portraitColor: '#c0c0d0',
         text: '«Ты завёл нас в ловушку, предатель! Умри!»' },
-      { speaker: 'Сусанин', portrait: '🌾',
+      { speaker: 'Сусанин', portrait: 'wheat', portraitColor: '#daa520',
         text: '«Умираю за Русь... но песня моя будет жить вечно! Спой за меня, герой!»' }
     ]
   ],
 
   onegin: [
     [
-      { speaker: 'Онегин', portrait: '🎩',
+      { speaker: 'Онегин', portrait: 'tophat', portraitColor: '#90a4ae',
         text: '«Скука смертная... Разгони этот светский балаган, певец. Может, станет интереснее.»' }
     ],
     [
-      { speaker: 'Татьяна', portrait: '💌',
+      { speaker: 'Татьяна', portrait: 'scroll', portraitColor: '#ffb6c1',
         text: '«Ноты моего письма к Онегину разбросаны по залу. Собери их — и он узнает мои истинные чувства!»' }
     ],
     [
-      { speaker: 'Онегин', portrait: '🎩',
+      { speaker: 'Онегин', portrait: 'tophat', portraitColor: '#90a4ae',
         text: '«Дуэль? С поэтом? Как банально... Что ж, защищайся. Только не пой — я не выношу фальши.»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Ленский падает от выстрела. Онегин стоит бледный. Судьба свела вас не случайно.' }
     ]
   ],
 
   pique: [
     [
-      { speaker: 'Графиня', portrait: '👵',
+      { speaker: 'Графиня', portrait: 'grandma', portraitColor: '#b0bec5',
         text: '«Три карты... Три карты знаю я одна. Собери их, если посмеешь бросить мне вызов!»' }
     ],
     [
-      { speaker: 'Призраки игорного дома', portrait: '👻',
+      { speaker: 'Призраки игорного дома', portrait: 'ghost', portraitColor: '#b0bec5',
         text: '«Ставки сделаны! Проиграешь — твоя душа сгорит вместе с картами!»' }
     ],
     [
-      { speaker: 'Графиня', portrait: '👵',
+      { speaker: 'Графиня', portrait: 'grandma', portraitColor: '#b0bec5',
         text: '«Ты пришёл за тайной трёх карт? Что ж... но сначала — переживи мой вихрь!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Тень старухи растёт, карты кружатся вокруг неё. Смертельная игра начинается.' }
     ]
   ],
 
   igor: [
     [
-      { speaker: 'Кончак', portrait: '🏹',
+      { speaker: 'Кончак', portrait: 'konchak',
         text: '«Русский князь! Твои воины разбиты, но я предлагаю тебе почётный плен. Откажешься — пеняй на себя!»' }
     ],
     [
-      { speaker: 'Половецкие плясуньи', portrait: '💃',
+      { speaker: 'Половецкие плясуньи', portrait: 'dancer', portraitColor: '#ec407a',
         text: '«Собери наши ноты, чужеземец! Может, станцуешь с нами — а может, умрёшь от нашей пляски!»' }
     ],
     [
-      { speaker: 'Кончак', portrait: '🏹',
+      { speaker: 'Кончак', portrait: 'konchak',
         text: '«Хочешь свободы? Докажи, что достоин! Мой лук не знает промаха!»' }
     ]
   ],
 
   aida: [
     [
-      { speaker: 'Аида', portrait: '🏺',
+      { speaker: 'Аида', portrait: 'amphora', portraitColor: '#ffd700',
         text: '«Собери ноты Нила, певец! Они — единственная надежда на свободу для меня и моего народа!»' }
     ],
     [
-      { speaker: 'Жрецы Рамфиса', portrait: '🧙',
+      { speaker: 'Жрецы Рамфиса', portrait: 'wizard', portraitColor: '#33691e',
         text: '«Святотатец! Ты посягнул на тайны храма! Твой голос не спасёт тебя от гнева богов!»' }
     ],
     [
-      { speaker: 'Рамфис', portrait: '🧙',
+      { speaker: 'Рамфис', portrait: 'wizard', portraitColor: '#33691e',
         text: '«Я — голос богов! Моё слово — закон! Умри, дерзкий певец!»' },
-      { speaker: 'Аида', portrait: '🏺',
+      { speaker: 'Аида', portrait: 'amphora', portraitColor: '#ffd700',
         text: '«Не бойся, я рядом! Пой так, как никогда не пел!»' }
     ]
   ],
 
   traviata: [
     [
-      { speaker: 'Виолетта', portrait: '🌸',
+      { speaker: 'Виолетта', portrait: 'blossom', portraitColor: '#ff69b4',
         text: '«Светские интриги сжигают меня. Прерви их, певец, — я хочу тишины!»' }
     ],
     [
-      { speaker: 'Виолетта', portrait: '🌸',
+      { speaker: 'Виолетта', portrait: 'blossom', portraitColor: '#ff69b4',
         text: '«Ноты моей любви к Альфреду... Собери их, пока болезнь не забрала меня!»' }
     ],
     [
-      { speaker: 'Жермон', portrait: '🎩',
+      { speaker: 'Жермон', portrait: 'tophat', portraitColor: '#5d4037',
         text: '«Ты разрушила мою семью, куртизанка! Мой сын не будет твоим мужем!»' },
-      { speaker: 'Виолетта', portrait: '🌸',
+      { speaker: 'Виолетта', portrait: 'blossom', portraitColor: '#ff69b4',
         text: '«Спой за меня, певец! Пусть даже смерть — но с песней на устах!»' }
     ]
   ],
 
   rigoletto: [
     [
-      { speaker: 'Джильда', portrait: '🌸',
+      { speaker: 'Джильда', portrait: 'blossom', portraitColor: '#ffb6c1',
         text: '«Собери ноты моей песни! Отец прячет меня от всего мира, но музыка спасёт!»' }
     ],
     [
-      { speaker: 'Придворные шуты', portrait: '🎭',
+      { speaker: 'Придворные шуты', portrait: 'mask', portraitColor: '#880e4f',
         text: '«Ха-ха-ха! Разве смешной горбун спасёт свою дочь от герцога?»' }
     ],
     [
-      { speaker: 'Риголетто', portrait: '🎭',
+      { speaker: 'Риголетто', portrait: 'mask', portraitColor: '#880e4f',
         text: '«Проклятие! Я заплатил убийце, но он забрал мою Джильду! Моя месть будет страшна!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Шут срывает маску. За ней — окровавленное лицо безумного отца.' }
     ]
   ],
 
   tosca: [
     [
-      { speaker: 'Флория Тоска', portrait: '🎭',
+      { speaker: 'Флория Тоска', portrait: 'mask', portraitColor: '#8d6e63',
         text: '«Полиция по пятам! Беги, певец, и защити меня своим голосом!»' }
     ],
     [
-      { speaker: 'Тоска', portrait: '🎭',
+      { speaker: 'Тоска', portrait: 'mask', portraitColor: '#8d6e63',
         text: '«Собери ноты моей молитвы! Только они дают мне силы бороться со Скарпиа!»' }
     ],
     [
-      { speaker: 'Скарпиа', portrait: '🩸',
+      { speaker: 'Скарпиа', portrait: 'blood', portraitColor: '#8b0000',
         text: '«Я предлагаю тебе сделку, Тоска: твоя любовь — жизнь Каварадосси!»' },
-      { speaker: 'Тоска', portrait: '🎭',
+      { speaker: 'Тоска', portrait: 'mask', portraitColor: '#8d6e63',
         text: '«Никогда! Спой, певец, и мы спасёмся или умрём вместе!»' }
     ]
   ],
 
   carmen: [
     [
-      { speaker: 'Кармен', portrait: '🌹',
+      { speaker: 'Кармен', portrait: 'rose', portraitColor: '#e91e63',
         text: '«Хабанера — это свобода! Собери её ноты, чтобы я могла танцевать!»' }
     ],
     [
-      { speaker: 'Контрабандисты', portrait: '🗡️',
+      { speaker: 'Контрабандисты', portrait: 'swords', portraitColor: '#607d8b',
         text: '«Тише! Таможня на хвосте. Один неверный звук — и мы в тюрьме!»' }
     ],
     [
-      { speaker: 'Эскамильо', portrait: '🐂',
+      { speaker: 'Эскамильо', portrait: 'bull', portraitColor: '#d84315',
         text: '«Тореадор, смелее в бой! Кармен будет моей, а ты, певец, — на рогах быка!»' },
-      { speaker: 'Кармен', portrait: '🌹',
+      { speaker: 'Кармен', portrait: 'rose', portraitColor: '#e91e63',
         text: '«Не бойся, я рядом! Пой — и мы победим!»' }
     ]
   ],
 
   flute: [
     [
-      { speaker: 'Царица Ночи', portrait: '🌙',
+      { speaker: 'Царица Ночи', portrait: 'queenNight',
         text: '«Прогони моих слуг, певец! Они не знают, кому служат — мне или дню!»' }
     ],
     [
-      { speaker: 'Памина', portrait: '🕊️',
+      { speaker: 'Памина', portrait: 'dove', portraitColor: '#fff8dc',
         text: '«Ноты волшебной флейты разбросаны по царству. Собери их — они укажут путь к Зарастро!»' }
     ],
     [
-      { speaker: 'Царица Ночи', portrait: '🌙',
+      { speaker: 'Царица Ночи', portrait: 'queenNight',
         text: '«Ты осмелился бросить мне вызов?! Моя тьма поглотит твой жалкий голос!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Звёздная аура Царицы пульсирует. Только чистая нота может пробить её тьму.' }
     ]
   ],
 
   figaro: [
     [
-      { speaker: 'Фигаро', portrait: '✂️',
+      { speaker: 'Фигаро', portrait: 'scissors', portraitColor: '#ffd54f',
         text: '«Свадьба на носу! Собери все ноты обряда, пока старый Бартоло не испортил праздник!»' }
     ],
     [
-      { speaker: 'Бартоло', portrait: '🩺',
+      { speaker: 'Бартоло', portrait: 'flask', portraitColor: '#6d4c41',
         text: '«Эта свадьба не состоится! Я подам в суд, и все ноты будут моими!»' }
     ],
     [
-      { speaker: 'Бартоло', portrait: '🩺',
+      { speaker: 'Бартоло', portrait: 'flask', portraitColor: '#6d4c41',
         text: '«Ты разрушил мои планы, мерзавец! Умри под моим скальпелем!»' },
-      { speaker: 'Фигаро', portrait: '✂️',
+      { speaker: 'Фигаро', portrait: 'scissors', portraitColor: '#ffd54f',
         text: '«Спой, друг! Пусть даже старик узнает, что такое настоящая музыка!»' }
     ]
   ],
 
   donjuan: [
     [
-      { speaker: 'Дон Жуан', portrait: '🎩',
+      { speaker: 'Дон Жуан', portrait: 'tophat', portraitColor: '#cfd8dc',
         text: '«Прогони моих слуг, певец. Мне нужно остаться наедине с прекрасной дамой.»' }
     ],
     [
-      { speaker: 'Лепорелло', portrait: '📓',
+      { speaker: 'Лепорелло', portrait: 'notebook', portraitColor: '#90a4ae',
         text: '«Собери ноты ужина! Хозяин пригласил на него... статую Командора!»' }
     ],
     [
-      { speaker: 'Командор', portrait: '🗿',
+      { speaker: 'Командор', portrait: 'statue', portraitColor: '#b0bec5',
         text: '«Ты пригласил меня на ужин, Дон Жуан. Теперь я приглашаю тебя на смерть.»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Каменная статуя ожила. Её глазницы тлеют красным. Пой, если хочешь жить.' }
     ]
   ],
 
   barber: [
     [
-      { speaker: 'Граф Альмавива', portrait: '🎸',
+      { speaker: 'Граф Альмавива', portrait: 'guitar', portraitColor: '#ffb74d',
         text: '«Спой серенаду под балконом Розины! Собери все ноты — и она откликнется!»' }
     ],
     [
-      { speaker: 'Дон Базилио', portrait: '🙏',
+      { speaker: 'Дон Базилио', portrait: 'pray', portraitColor: '#4e342e',
         text: '«Клевета — моё оружие! Мои приспешники не дадут тебе пройти!»' }
     ],
     [
-      { speaker: 'Дон Базилио', portrait: '🙏',
+      { speaker: 'Дон Базилио', portrait: 'pray', portraitColor: '#4e342e',
         text: '«Клевета! Клевета! Твой голос — ничто против моей лжи!»' },
-      { speaker: 'Фигаро', portrait: '✂️',
+      { speaker: 'Фигаро', portrait: 'scissors', portraitColor: '#ffd54f',
         text: '«Спой, друг! Правда всегда громче лжи!»' }
     ]
   ],
 
   lohengrin: [
     [
-      { speaker: 'Тельрамунд', portrait: '⚔️',
+      { speaker: 'Тельрамунд', portrait: 'swords', portraitColor: '#424242',
         text: '«Рыцарь Лебедя? Что ж, посмотрим, так ли силён его меч! В атаку, мятежники!»' }
     ],
     [
-      { speaker: 'Эльза', portrait: '👑',
+      { speaker: 'Эльза', portrait: 'crown', portraitColor: '#fff8dc',
         text: '«Собери ноты Святого Грааля! Они — единственная надежда на спасение Брабанта!»' }
     ],
     [
-      { speaker: 'Тельрамунд', portrait: '⚔️',
+      { speaker: 'Тельрамунд', portrait: 'swords', portraitColor: '#424242',
         text: '«В последний раз, рыцарь! Боги решат наш спор!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Тёмная аура мятежа пылает. Спой — и победа будет за тобой.' }
     ]
   ],
 
   tannhauser: [
     [
-      { speaker: 'Венера', portrait: '💗',
+      { speaker: 'Венера', portrait: 'venus',
         text: '«Останься в моём гроте, Тангейзер! Здесь вечная любовь и нега!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Собери ноты грота — они откроют путь к свободе.' }
     ],
     [
-      { speaker: 'Нимфы', portrait: '🌸',
+      { speaker: 'Нимфы', portrait: 'flower', portraitColor: '#ff69b4',
         text: '«Оставайся с нами! Танцуй, пей и забудь о жестоком мире!»' }
     ],
     [
-      { speaker: 'Венера', portrait: '💗',
+      { speaker: 'Венера', portrait: 'venus',
         text: '«Ты уходишь, Тангейзер? Тогда прощай — но не забудь мою любовь!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Пламенеющая аура богини наполняет грот. Пой, чтобы освободиться!' }
     ]
   ],
 
   dutchman: [
     [
-      { speaker: 'Летучий Голландец', portrait: '👻',
+      { speaker: 'Летучий Голландец', portrait: 'ghost', portraitColor: '#546e7a',
         text: '«Ты видишь мой корабль, смертный? Смерть — единственный выход из моего проклятия!»' }
     ],
     [
-      { speaker: 'Сента', portrait: '💙',
+      { speaker: 'Сента', portrait: 'heart', portraitColor: '#4fc3f7',
         text: '«Собери ноты морской бури! Только верная любовь спасёт капитана!»' }
     ],
     [
-      { speaker: 'Голландец', portrait: '👻',
+      { speaker: 'Голландец', portrait: 'ghost', portraitColor: '#546e7a',
         text: '«Ты предлагаешь мне любовь? Но проклятие сильнее! Молния и буря — вот моя правда!»' },
-      { speaker: 'Рассказчик', portrait: '📜',
+      { speaker: 'Рассказчик', portrait: 'narrator',
         text: 'Призрачная аура окутывает капитана. Молния рассекает небо. Спой — и верни его душе покой.' }
     ]
   ],
 
   walkure: [
     [
-      { speaker: 'Зиглинда', portrait: '🌺',
+      { speaker: 'Зиглинда', portrait: 'flower', portraitColor: '#ff69b4',
         text: '«Собери ноты валькирий! Они — единственная надежда на спасение моего брата!»' }
     ],
     [
-      { speaker: 'Хундинг', portrait: '🪓',
+      { speaker: 'Хундинг', portrait: 'axe', portraitColor: '#8d6e63',
         text: '«Пришёл на мою землю? Тогда умри на моём топоре! Вперёд, дружина!»' }
     ],
     [
-      { speaker: 'Хундинг', portrait: '🪓',
+      { speaker: 'Хундинг', portrait: 'axe', portraitColor: '#8d6e63',
         text: '«В последний раз, певец! Твой голос против моего топора — кто кого?»' },
-      { speaker: 'Брунгильда', portrait: '🛡️',
+      { speaker: 'Брунгильда', portrait: 'shield', portraitColor: '#cfd8dc',
         text: '«Я — валькирия! Пой, и я выйду из огня тебе на помощь!»' }
     ]
   ]
 };
-
-
 // =============================================================
 //  СИСТЕМА ВНУТРИИГРОВЫХ ДИАЛОГОВ
 // =============================================================
@@ -1998,17 +3199,40 @@ function showDialogue(lines, onComplete) {
   }
   // Обработчик клавиш
   window.addEventListener('keydown', dialogueKeyHandler, true);
-}
-
-function renderDialogueLine() {
+}function renderDialogueLine() {
   if (!dialogueState) return;
   const line = dialogueState.lines[dialogueState.index];
 
-  dialoguePortraitEl.textContent = line.portrait || '🎭';
-  dialogueSpeakerEl.textContent  = line.speaker  || '...';
-  dialogueTextEl.innerHTML       = line.text     || '';
+  // ===== Портрет =====
+  const key = line.portrait;
+  const portraitDef = PORTRAITS[key];
 
-  // Анимация появления текста
+  if (portraitDef) {
+    // Рисуем настоящий портрет персонажа
+    const url = makePortrait(key, portraitDef.draw, {
+      bg1: portraitDef.bg1,
+      bg2: portraitDef.bg2 || 'rgba(0,0,0,0.9)',
+      scale: portraitDef.scale || 1.0,
+      offsetY: portraitDef.offsetY || 0
+    });
+    dialoguePortraitEl.innerHTML =
+      `<img src="${url}" alt="${line.speaker}"
+            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    dialoguePortraitEl.style.background = 'none';
+  } else {
+    // Фолбэк — старая SVG-иконка
+    dialoguePortraitEl.innerHTML = icon(key || 'mask', '64px');
+    dialoguePortraitEl.style.color = line.portraitColor || '#ffd700';
+  }
+
+  dialoguePortraitEl.style.display = 'flex';
+  dialoguePortraitEl.style.alignItems = 'center';
+  dialoguePortraitEl.style.justifyContent = 'center';
+  dialoguePortraitEl.style.overflow = 'hidden';
+
+  dialogueSpeakerEl.textContent = line.speaker || '...';
+  dialogueTextEl.innerHTML      = line.text    || '';
+
   dialogueTextEl.style.animation = 'none';
   void dialogueTextEl.offsetWidth;
   dialogueTextEl.style.animation = 'dialogueSlideUp 0.25s ease';
@@ -2286,32 +3510,222 @@ ariaMenuEl.addEventListener('click', (e) => { if (e.target === ariaMenuEl) close
     closeAriaMenu();
   }
 }, true);  // ← capture: true, чтобы сработать раньше остальных
+
+// ============================================================
+//  АРИИ — с SVG-иконками вместо эмодзи
+//  icon: имя иконки из объекта ICONS
+//  iconColor: цвет иконки (можно не указывать — будет #ffd700)
+// ============================================================
 const ARIAS = {
   tenor: [
-    { id:'lensky', name:'Ария Ленского', desc:'«Куда, куда вы удалились...» — замораживает всех врагов.', effect:'freeze', duration:5, cooldown:12, cost:150, color:'#4fc3f7', icon:'❄️' },
-    { id:'serenade', name:'Серенада', desc:'«Соловей мой, соловей...» — восстанавливает 1 здоровье.', effect:'heal', duration:0, cooldown:15, cost:100, color:'#2ecc71', icon:'💚' },
-    { id:'vincero', name:'Vincerò!', desc:'«Nessun dorma» — залп из 5 нот веером.', effect:'volley', duration:0, cooldown:10, cost:120, color:'#ff8c00', icon:'🎯' },
-    { id:'romance', name:'Романс', desc:'«Я помню чудное мгновенье...» — замедляет время.', effect:'slow', duration:6, cooldown:18, cost:180, color:'#ba68c8', icon:'⏳' }
+    {
+      id: 'lensky',
+      name: 'Ария Ленского',
+      desc: '«Куда, куда вы удалились...» — замораживает всех врагов.',
+      effect: 'freeze',
+      duration: 5,
+      cooldown: 12,
+      cost: 150,
+      color: '#4fc3f7',
+      icon: 'snowflake',
+      iconColor: '#4fc3f7'
+    },
+    {
+      id: 'serenade',
+      name: 'Серенада',
+      desc: '«Соловей мой, соловей...» — восстанавливает 1 здоровье.',
+      effect: 'heal',
+      duration: 0,
+      cooldown: 15,
+      cost: 100,
+      color: '#2ecc71',
+      icon: 'heartGreen',
+      iconColor: '#2ecc71'
+    },
+    {
+      id: 'vincero',
+      name: 'Vincerò!',
+      desc: '«Nessun dorma» — залп из 5 нот веером.',
+      effect: 'volley',
+      duration: 0,
+      cooldown: 10,
+      cost: 120,
+      color: '#ff8c00',
+      icon: 'target',
+      iconColor: '#ff8c00'
+    },
+    {
+      id: 'romance',
+      name: 'Романс',
+      desc: '«Я помню чудное мгновенье...» — замедляет время.',
+      effect: 'slow',
+      duration: 6,
+      cooldown: 18,
+      cost: 180,
+      color: '#ba68c8',
+      icon: 'hourglass',
+      iconColor: '#ba68c8'
+    }
   ],
+
   bass: [
-    { id:'varlaam', name:'Песня Варлаама', desc:'«Как во городе было во Казани...» — неуязвимость.', effect:'invuln', duration:5, cooldown:14, cost:150, color:'#ffd700', icon:'🛡️' },
-    { id:'boris_a', name:'Ария Бориса', desc:'«Скорбит душа...» — щит, поглощающий удар.', effect:'shield', duration:15, cooldown:12, cost:100, color:'#4fc3f7', icon:'🔵' },
-    { id:'flea', name:'Песня о блохе', desc:'«Жил-был король когда-то...» — взрыв по всем врагам.', effect:'explosion', duration:0, cooldown:16, cost:200, color:'#e74c3c', icon:'💥' },
-    { id:'requiem', name:'Реквием', desc:'«Dies irae» — уничтожает всех врагов.', effect:'killAll', duration:0, cooldown:30, cost:350, color:'#c0392b', icon:'☠️' }
+    {
+      id: 'varlaam',
+      name: 'Песня Варлаама',
+      desc: '«Как во городе было во Казани...» — неуязвимость.',
+      effect: 'invuln',
+      duration: 5,
+      cooldown: 14,
+      cost: 150,
+      color: '#ffd700',
+      icon: 'shield',
+      iconColor: '#ffd700'
+    },
+    {
+      id: 'boris_a',
+      name: 'Ария Бориса',
+      desc: '«Скорбит душа...» — щит, поглощающий удар.',
+      effect: 'shield',
+      duration: 15,
+      cooldown: 12,
+      cost: 100,
+      color: '#4fc3f7',
+      icon: 'shield',
+      iconColor: '#4fc3f7'
+    },
+    {
+      id: 'flea',
+      name: 'Песня о блохе',
+      desc: '«Жил-был король когда-то...» — взрыв по всем врагам.',
+      effect: 'explosion',
+      duration: 0,
+      cooldown: 16,
+      cost: 200,
+      color: '#e74c3c',
+      icon: 'explosion',
+      iconColor: '#e74c3c'
+    },
+    {
+      id: 'requiem',
+      name: 'Реквием',
+      desc: '«Dies irae» — уничтожает всех врагов.',
+      effect: 'killAll',
+      duration: 0,
+      cooldown: 30,
+      cost: 350,
+      color: '#c0392b',
+      icon: 'skull',
+      iconColor: '#c0392b'
+    }
   ],
+
   baritone: [
-    { id:'figaro_a', name:'Ария Фигаро', desc:'«Largo al factotum» — двойной прыжок.', effect:'doubleJump', duration:8, cooldown:12, cost:120, color:'#ffd700', icon:'🦘' },
-    { id:'donjuan_a', name:'Серенада Дон Жуана', desc:'«Deh, vieni alla finestra» — притягивает ноты.', effect:'magnet', duration:0, cooldown:10, cost:80, color:'#ff8c00', icon:'🧲' },
-    { id:'onegin_a', name:'Ария Онегина', desc:'«Когда бы жизнь домашним кругом...» — отталкивает врагов.', effect:'push', duration:0, cooldown:14, cost:130, color:'#4fc3f7', icon:'💨' },
-    { id:'toreador', name:'Песня Тореадора', desc:'«Toréador, en garde!» — двойной урон.', effect:'rage', duration:8, cooldown:18, cost:200, color:'#e74c3c', icon:'⚔️' }
+    {
+      id: 'figaro_a',
+      name: 'Ария Фигаро',
+      desc: '«Largo al factotum» — двойной прыжок.',
+      effect: 'doubleJump',
+      duration: 8,
+      cooldown: 12,
+      cost: 120,
+      color: '#ffd700',
+      icon: 'kangaroo',
+      iconColor: '#ffd700'
+    },
+    {
+      id: 'donjuan_a',
+      name: 'Серенада Дон Жуана',
+      desc: '«Deh, vieni alla finestra» — притягивает ноты.',
+      effect: 'magnet',
+      duration: 0,
+      cooldown: 10,
+      cost: 80,
+      color: '#ff8c00',
+      icon: 'magnet',
+      iconColor: '#ff8c00'
+    },
+    {
+      id: 'onegin_a',
+      name: 'Ария Онегина',
+      desc: '«Когда бы жизнь домашним кругом...» — отталкивает врагов.',
+      effect: 'push',
+      duration: 0,
+      cooldown: 14,
+      cost: 130,
+      color: '#4fc3f7',
+      icon: 'dash',
+      iconColor: '#4fc3f7'
+    },
+    {
+      id: 'toreador',
+      name: 'Песня Тореадора',
+      desc: '«Toréador, en garde!» — двойной урон.',
+      effect: 'rage',
+      duration: 8,
+      cooldown: 18,
+      cost: 200,
+      color: '#e74c3c',
+      icon: 'swords',
+      iconColor: '#e74c3c'
+    }
   ]
 };
-
 function renderAriaMenu() {
   const v = gameState.voice, key = gameState.voiceKey;
-  ariaTitleEl.textContent = '🎭 Арии — ' + v.name;
-  ariaSubtitleEl.textContent = 'Очки: 𝄞' + gameState.score + '  •  Кликните по арии';
-  ariaGridEl.innerHTML = '';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // ===== Иконка ключа в зависимости от голоса =====
+  const VOICE_CLEF_ICON = {
+    tenor:    'tenorClefBold',
+    bass:     'bassClefBold',
+    baritone: 'flatBold'
+  };
+  const clefIconName = VOICE_CLEF_ICON[key] || 'mask';
+  const clefIconColor = {
+    tenor:    '#ffd700',
+    bass:     '#e74c3c',
+    baritone: '#4fc3f7'
+  }[key] || '#ffd700';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ariaTitleEl.innerHTML =
+    `<span style="color:${clefIconColor};display:inline-flex;align-items:center;vertical-align:middle;margin-right:6px;">`
+    + icon(clefIconName, '1.2em')
+    + `</span> Арии — ` + v.name;
   (ARIAS[key] || []).forEach(aria => {
     const cd = gameState.ariaCooldowns[aria.id] || 0;
     const canAfford = gameState.score >= aria.cost;
@@ -2319,14 +3733,19 @@ function renderAriaMenu() {
     const disabled = !canAfford || onCooldown;
     const card = document.createElement('div');
     card.className = 'aria-card' + (disabled ? ' disabled' : '');
-    card.innerHTML = `
-      <div class="aria-name">${aria.icon} ${aria.name}</div>
-      <div class="aria-desc">${aria.desc}</div>
-      <div class="aria-effect">Эффект: ${describeEffect(aria)}</div>
-      <div class="aria-cost">
-        <span>𝄞 ${aria.cost}</span>
-        <span class="cd">${onCooldown ? '⏱ ' + cd.toFixed(1) + 'с' : (aria.cooldown ? 'КД ' + aria.cooldown + 'с' : '')}</span>
-      </div>`;
+  card.innerHTML = `
+  <div class="aria-name">
+    <span style="color:${aria.iconColor || '#ffd700'};display:inline-flex;vertical-align:middle;">
+      ${icon(aria.icon, '1.2em')}
+    </span>
+    ${aria.name}
+  </div>
+  <div class="aria-desc">${aria.desc}</div>
+  <div class="aria-effect">Эффект: ${describeEffect(aria)}</div>
+  <div class="aria-cost">
+    <span>${icon('clef','1em')} ${aria.cost}</span>
+    <span class="cd">${onCooldown ? icon('hourglass','0.9em') + ' ' + cd.toFixed(1) + 'с' : (aria.cooldown ? 'КД ' + aria.cooldown + 'с' : '')}</span>
+  </div>`;
     if (!disabled) card.addEventListener('click', () => activateAria(aria));
     ariaGridEl.appendChild(card);
   });
@@ -2351,77 +3770,12 @@ function activateAria(aria) {
 function applyAriaEffect(aria) {
   const p = gameState.player, fx = gameState.effects;
   switch (aria.effect) {
-    case 'freeze': fx.frozen = aria.duration; addActiveEffect('❄️ Заморозка', aria.duration, aria.color); break;
-    case 'heal':
-      gameState.health = Math.min(5, gameState.health + 1);
-      spawnTextParticles(p.x + p.w/2, p.y, '+1 ❤️', '#2ecc71'); break;
-    case 'volley':
-      for (let i = 0; i < 5; i++) {
-        const angle = -0.6 + i * 0.3;
-        const dir = p.facing;
-        const v = gameState.voice;
-        const t = 0.7;
-        const midi = v.minMidi + Math.round(t * (v.maxMidi - v.minMidi));
-        gameState.notes.push({
-          x:p.x+p.w/2+dir*30, y:p.y+p.h*0.4,
-          vx:dir*(10+t*8)*Math.cos(angle), vy:-2+Math.sin(angle)*10,
-          life:1, maxLife:1, color:v.colors.top, noteName:midiToName(midi),
-          size:22, rot:0, rotSpeed:(Math.random()-0.5)*0.15, t,
-          damage:v.damageBase*v.damageCurve(t)*20*1.2
-        });
-      }
-      spawnTextParticles(p.x+p.w/2, p.y, 'Vincerò!', '#ff8c00'); break;
-    case 'slow': fx.slow = aria.duration; addActiveEffect('⏳ Замедление', aria.duration, aria.color); break;
-    case 'invuln': fx.invuln = aria.duration; gameState.invulnTimer = Math.max(gameState.invulnTimer, aria.duration); addActiveEffect('🛡️ Неуязвимость', aria.duration, aria.color); break;
-    case 'shield': fx.shield = 1; addActiveEffect('🔵 Щит', aria.duration, aria.color); break;
-        case 'explosion':
-      for (const e of gameState.enemies) {
-        if (!e.alive) continue;
-        if (e.x + e.w < gameState.camera.x - 100 || e.x > gameState.camera.x + W + 100) continue;
-        e.hp -= 150; e.hitFlash = 0.4;
-        for (let j = 0; j < 15; j++) burst(e.x+e.w/2, e.y+e.h/2, '#e74c3c');
-        if (e.hp <= 0 && e.alive) { e.alive = false; gameState.score += 100; onEnemyKilled(); }
-      }
-      // Босс: только визуальная реакция, без урона
-      if (gameState.boss && gameState.boss.hp > 0) {
-        const b = gameState.boss;
-        b.hitFlash = 0.25;              // короткое мерцание — «почувствовал»
-        b.hitPulse = 1;
-        // Вспышка и искры вокруг босса
-        for (let j = 0; j < 30; j++) {
-          const ang = Math.random() * Math.PI * 2;
-          const spd = 3 + Math.random() * 6;
-          gameState.particles.push({
-            x: b.x + b.w / 2, y: b.y + b.h / 2,
-            vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 2,
-            life: 0.8, maxLife: 0.8, color: '#e74c3c', size: 3 + Math.random() * 4
-          });
-        }
-        spawnTextParticles(b.x + b.w/2, b.y, '🛡️ НЕВОСПРИИМЧИВ', '#ffd700');
-      }
-      spawnTextParticles(p.x+p.w/2, p.y, '💥 БУМ!', '#e74c3c');
-      break;
-    case 'doubleJump': fx.doubleJump = aria.duration; fx.jumpsLeft = 2; addActiveEffect('🦘 Двойной прыжок', aria.duration, aria.color); break;
-    case 'magnet':
-      for (const cn of gameState.collectibleNotes) {
-        if (cn.collected) continue;
-        if (cn.x < gameState.camera.x - 200 || cn.x > gameState.camera.x + W + 200) continue;
-        cn.magnet = true;
-      }
-      spawnTextParticles(p.x+p.w/2, p.y, '🧲 Притяжение!', '#ff8c00'); break;
-    case 'push':
-      for (const e of gameState.enemies) {
-        if (!e.alive) continue;
-        const dx = (e.x+e.w/2) - (p.x+p.w/2);
-        e.vx = (dx > 0 ? 1 : -1) * 12;
-        e.patrolMinX -= 200; e.patrolMaxX += 200;
-      }
-      if (gameState.boss) {
-        const dx = (gameState.boss.x + gameState.boss.w/2) - (p.x + p.w/2);
-        gameState.boss.x += (dx > 0 ? 120 : -120);
-      }
-      spawnTextParticles(p.x+p.w/2, p.y, '💨 Отталкивание!', '#4fc3f7'); break;
-    case 'rage': fx.rage = aria.duration; addActiveEffect('⚔️ Ярость x2', aria.duration, aria.color); break;
+  case 'freeze': fx.frozen = aria.duration; addActiveEffect('snowflake','Заморозка', aria.duration, aria.color); break;
+case 'slow':   fx.slow   = aria.duration; addActiveEffect('hourglass','Замедление', aria.duration, aria.color); break;
+case 'invuln': fx.invuln = aria.duration; addActiveEffect('shield','Неуязвимость', aria.duration, aria.color); break;
+case 'shield': fx.shield = 1;             addActiveEffect('shield','Щит', aria.duration, aria.color); break;
+case 'doubleJump': fx.doubleJump = aria.duration; addActiveEffect('kangaroo','Двойной прыжок', aria.duration, aria.color); break;
+case 'rage':   fx.rage   = aria.duration; addActiveEffect('swords','Ярость x2', aria.duration, aria.color); break;
   }
 }
 function burst(x, y, color) {
@@ -2432,8 +3786,8 @@ function burst(x, y, color) {
     life:0.9, maxLife:0.9, color, size: 3 + Math.random()*4
   });
 }
-function addActiveEffect(name, duration, color) {
-  gameState.activeEffects.push({ name, time:duration, maxTime:duration, color });
+function addActiveEffect(iconName, label, duration, color) {
+  gameState.activeEffects.push({ iconName, label, time:duration, maxTime:duration, color });
 }
 function spawnTextParticles(x, y, text, color) {
   gameState.particles.push({
@@ -2917,13 +4271,14 @@ function updateObjectiveHUD() {
   const done = (stage.type === 'kill' && gameState.enemiesKilled >= gameState.enemiesTotal)
     || (stage.type === 'collect' && gameState.notesCollected >= gameState.notesNeeded)
     || (stage.type === 'boss' && gameState.boss && gameState.boss.hp <= 0);
-  el.innerHTML = `
-    <div class="opera-name">🎭 ${opera.name}</div>
-    <div class="opera-composer">${opera.composer}</div>
-    <div class="stage-info">Этап ${gameState.currentStageIdx + 1}/3 — ${stage.desc}</div>
-    <div class="goal ${done ? 'done' : ''}">
-      ${done ? '✔ ГОТОВО' : '◈ Прогресс'} <span class="count">${progress}</span>
-    </div>`;
+el.innerHTML = `
+  <div class="opera-name">${icon('mask','1em')} ${opera.name}</div>
+  <div class="opera-composer">${opera.composer}</div>
+  <div class="stage-info">Этап ${gameState.currentStageIdx + 1}/3 — ${stage.desc}</div>
+  <div class="goal ${done ? 'done' : ''}">
+    ${done ? icon('trophy','1em') + ' ГОТОВО' : icon('target','1em') + ' Прогресс'}
+    <span class="count">${progress}</span>
+  </div>`;
 }
 
 function checkStageComplete() {
@@ -2947,7 +4302,7 @@ function completeStage() {
   const stageIdx = gameState.currentStageIdx;
   if (stageIdx < 2) {
     showOverlay({
-      emoji: '🎉',
+      iconName: 'party',
       title: 'ЭТАП ПРОЙДЕН!',
       sub: 'Готовьтесь к следующему этапу...',
       btn: 'ДАЛЕЕ',
@@ -2956,7 +4311,7 @@ function completeStage() {
   } else {
     if (gameState.currentOperaIdx >= OPERAS.length - 1) {
       showOverlay({
-        emoji: '🏆',
+iconName: 'trophy',
         title: 'КАМПАНИЯ ПРОЙДЕНА!',
         sub: 'Вы — величайший оперный певец всех времён!',
         btn: 'НАЧАТЬ ЗАНОВО',
@@ -2965,7 +4320,7 @@ function completeStage() {
     } else {
       const nextOpera = OPERAS[gameState.currentOperaIdx + 1];
       showOverlay({
-        emoji: '🎭',
+       iconName: 'mask',
         title: 'ОПЕРА ЗАВЕРШЕНА!',
         sub: `Далее: «${nextOpera.name}»`,
         info: `${nextOpera.composer}`,
@@ -2976,10 +4331,13 @@ function completeStage() {
   }
 }
 
-function showOverlay({ emoji, title, sub, info, btn, onClick }) {
+function showOverlay({ iconName, title, sub, info, btn, onClick }) {
   const el = document.getElementById('overlay');
+  const iconHtml = iconName
+    ? `<div class="emoji" style="color:#ffd700;filter:drop-shadow(0 0 30px #ffd700);">${icon(iconName, '90px')}</div>`
+    : '';
   el.innerHTML = `
-    <div class="emoji">${emoji || ''}</div>
+    ${iconHtml}
     <h2>${title}</h2>
     <h3>${sub || ''}</h3>
     ${info ? `<p>${info}</p>` : ''}
@@ -4608,7 +5966,7 @@ b.hitPulse = 1;   // ← добавить
           if (gameState.effects.shield > 0) {
             gameState.effects.shield = 0;
             gameState.invulnTimer = 1.0;
-            spawnTextParticles(p.x + p.w/2, p.y, '🛡️ Щит!', '#4fc3f7');
+            spawnTextParticles(p.x + p.w/2, p.y, '🛡Щит!', '#4fc3f7');
           } else {
             gameState.health--;
             gameState.invulnTimer = 1.5;
@@ -4663,7 +6021,7 @@ b.hitPulse = 1;   // ← добавить
         if (gameState.effects.shield > 0) {
           gameState.effects.shield = 0;
           gameState.invulnTimer = 1.0;
-          spawnTextParticles(p.x + p.w/2, p.y, '🛡️ Щит!', '#4fc3f7');
+          spawnTextParticles(p.x + p.w/2, p.y, 'Щит!', '#4fc3f7');
           const dir = (p.x + p.w/2 < enemy.x + enemy.w/2) ? -1 : 1;
           enemy.vx = dir * 8;
           p.vx = -dir * 6;
@@ -4727,8 +6085,13 @@ b.hitPulse = 1;   // ← добавить
         : lerpColor(gameState.voice.colors.mid, gameState.voice.colors.top, (gameState.chargeValue - 0.5) * 2))
     : '#ffd700';
   document.getElementById('barFill').style.width = (gameState.chargeValue * 100) + '%';
-  document.getElementById('health').innerHTML = '❤️'.repeat(Math.max(0, gameState.health));
-  document.getElementById('score').textContent = '𝄞' + gameState.score;
+document.getElementById('health').innerHTML =
+  icon('heart', '1.1em', 'danger').repeat(Math.max(0, gameState.health));
+
+document.getElementById('scoreValue').textContent = gameState.score;
+// clef уже статически стоит в HTML
+
+
 }
 
 function updateEffects(dt) {
@@ -4747,7 +6110,6 @@ function updateEffects(dt) {
   }
   renderEffectBadges();
 }
-
 function renderEffectBadges() {
   const el = document.getElementById('effects');
   el.innerHTML = '';
@@ -4756,7 +6118,7 @@ function renderEffectBadges() {
     badge.className = 'effect-badge';
     badge.style.borderColor = eff.color;
     badge.style.color = eff.color;
-    badge.textContent = eff.name + ' ' + Math.ceil(eff.time) + 'с';
+    badge.innerHTML = icon(eff.iconName, '1em') + ' ' + eff.label + ' ' + Math.ceil(eff.time) + 'с';
     el.appendChild(badge);
   }
 }
@@ -5010,23 +6372,65 @@ function render() {
   ctx.fillStyle = vg;
   ctx.fillRect(0, 0, W, H);
 
-  // ===== ИНФО В ПРАВОМ ВЕРХНЕМ УГЛУ =====
+ // ===== ИНФО В ПРАВОМ ВЕРХНЕМ УГЛУ =====
   ctx.save();
   ctx.globalAlpha = 0.7;
+
+  // --- Строка 1: Иконка + Название оперы ---
+  // 1. Сначала рисуем иконку
+  ctx.save();
+  ctx.fillStyle = '#fff';
+  ctx.translate(W - 20 - 16, 22); // 20px отступ справа, 22px отступ сверху (для центрирования по вертикали)
+  ctx.scale(16/24, 16/24); // Масштабируем иконку до 16x16
+
+  ctx.restore();
+
+  // 2. Затем рисуем текст, отступая от иконки на 6px
   ctx.fillStyle = '#fff';
   ctx.font = '16px Georgia';
   ctx.textAlign = 'right';
-  ctx.fillText('🎭 ' + theme.name, W - 20, 30);
-  ctx.fillText('📍 ' + Math.floor(gameState.player.x) + ' px', W - 20, 54);
+  ctx.fillText(theme.name, W - 20 - 16 - 6, 30); // 30 - базовая линия текста
 
+
+  // --- Строка 2: Иконка + Координата X ---
+  const posText = Math.floor(gameState.player.x) + ' px';
+
+  // 1. Сначала рисуем иконку
+  ctx.save();
+  ctx.fillStyle = '#fff';
+  ctx.translate(W - 20 - 16, 46); // 46px отступ сверху для второй строки
+  ctx.scale(16/24, 16/24);
+ 
+  ctx.restore();
+
+  // 2. Затем рисуем текст
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px Georgia';
+  ctx.textAlign = 'right';
+  ctx.fillText(posText, W - 20 - 16 - 6, 54); // 54 - базовая линия для второй строки
+
+  // --- Подсказка внизу ---
   if (!gameState.paused && gameState.health > 0 && !gameState.stageComplete) {
     ctx.globalAlpha = 0.4 + Math.sin(gameState.time * 2) * 0.2;
     ctx.font = '14px Georgia';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffd700';
-    ctx.fillText('👆 Кликните по певцу для выбора арии', W / 2, H - 25);
+    const hintText = 'Кликните по певцу для выбора арии';
+    ctx.fillText(hintText, W / 2, H - 25);
+
+    // Иконка-палец слева от текста
+    ctx.save();
+    const tw = ctx.measureText(hintText).width;
+    // Позиционируем иконку относительно центра текста
+    ctx.translate(W / 2 - tw / 2 - 12, H - 25 - 7); // 12px отступ от текста, -7 для центрирования
+    ctx.scale(14/24, 14/24);
+    ctx.fillStyle = '#ffd700';
+    ctx.fill(CANVAS_ICONS.pointer);
+    ctx.restore();
   }
   ctx.restore();
+
+
 
   if (gameState.paused) {
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -10546,10 +11950,10 @@ function saveGameToFile() {
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast('💾 Уровень сохранён!');
+    showToast('Уровень сохранён!');
   } catch (err) {
     console.error('Save failed:', err);
-    showToast('❌ Ошибка сохранения', true);
+    showToast('Ошибка сохранения!', true);
   }
 }
 
@@ -10563,11 +11967,11 @@ function loadGameFromFile(file) {
         throw new Error('Неверный формат файла');
       }
       applyLoadedState(data);
-      showToast('📂 Уровень загружен!');
+      showToast('Уровень загружен!');
       closePauseMenu();
     } catch (err) {
       console.error('Load failed:', err);
-      showToast('❌ Ошибка загрузки: ' + err.message, true);
+      showToast('Ошибка загрузки: ' + err.message, true);
     }
   };
   reader.onerror = () => showToast('❌ Не удалось прочитать файл', true);
@@ -10659,8 +12063,11 @@ function applyLoadedState(data) {
 
   // 10. Обновляем HUD
   updateObjectiveHUD();
-  document.getElementById('health').innerHTML = '❤️'.repeat(Math.max(0, gameState.health));
-  document.getElementById('score').textContent = '𝄞' + gameState.score;
+document.getElementById('health').innerHTML =
+  icon('heart', '1.1em', 'danger').repeat(Math.max(0, gameState.health));
+
+document.getElementById('scoreValue').textContent = gameState.score;
+// Сам clef уже стоит в HTML статически;
 }
 
 // ===== Обработчики кнопок паузы =====
@@ -10671,14 +12078,14 @@ document.getElementById('btnToMenu').addEventListener('click', async () => {
   const ok = await gameConfirm(
     'Выйти в главное меню?<br><em>Несохранённый прогресс будет потерян.</em>',
     {
-      icon: '🏠',
+      icon: 'home',
       title: 'Выход в меню',
       yesLabel: 'ВЫЙТИ',
       noLabel: 'ОСТАТЬСЯ'
     }
   );
   if (ok) {
-    showToast('🏠 Возврат в главное меню...');
+    showToast('Возврат в главное меню...');
     setTimeout(() => location.reload(), 400);
   }
 });
@@ -10693,7 +12100,7 @@ document.getElementById('btnExit').addEventListener('click', async () => {
   const ok = await gameConfirm(
     'Покинуть оперную сцену?<br><em>Все несохранённые арии будут потеряны.</em>',
     {
-      icon: '🚪',
+      icon: 'close',
       title: 'Выход из игры',
       yesLabel: 'ВЫЙТИ',
       noLabel: 'ОСТАТЬСЯ'
@@ -10705,17 +12112,34 @@ document.getElementById('btnExit').addEventListener('click', async () => {
     window.close();
     // Фолбэк: показываем прощальный экран
     await new Promise(r => setTimeout(r, 300));
-    document.body.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;
-                  height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
-                  color:#ffd700;font-family:Georgia,serif;font-size:48px;
-                  flex-direction:column;gap:20px;text-align:center;padding:40px;">
-        <div style="font-size:90px;filter:drop-shadow(0 0 30px #ffd700);">🎭</div>
-        <div>До встречи на сцене!</div>
-        <div style="font-size:18px;color:#888;font-style:italic;">
-          «Соловей мой, соловей...» — можете закрыть эту вкладку
-        </div>
-      </div>`;
+   document.body.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:center;
+              height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);
+              color:#ffd700;font-family:Georgia,serif;font-size:48px;
+              flex-direction:column;gap:20px;text-align:center;padding:40px;">
+    <div style="width:110px;height:110px;color:#ffd700;
+                filter:drop-shadow(0 0 30px #ffd700);
+                display:flex;align-items:center;justify-content:center;">
+      ${icon('mask', '110px')}
+    </div>
+    <div>До встречи на сцене!</div>
+    <div style="font-size:18px;color:#888;font-style:italic;">
+      «Соловей мой, соловей...» — можете закрыть эту вкладку
+    </div>
+  </div>`;
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 });
 // ===== Горячие клавиши =====
@@ -10775,20 +12199,21 @@ const dialogMessageEl = document.getElementById('dialogMessage');
 const dialogButtonsEl = document.getElementById('dialogButtons');
 let dialogKeyHandler = null;
 let dialogPreviousPauseState = false;
-
 /**
  * Показать игровое диалоговое окно.
  * @param {Object} opts
- *   - icon:   {string}  эмодзи-иконка (по умолчанию '🎭')
- *   - title:  {string}  заголовок
- *   - message:{string}  сообщение (можно HTML)
- *   - buttons:{Array<{label, value, style, primary}>}
- *   - onClose:{Function} колбэк при закрытии (value кнопки)
- *   - closeOnBackdrop: {boolean} закрывать по клику на фон (для info-окон)
+ *   - icon:            {string}  имя иконки из ICONS (например, 'mask', 'close', 'home')
+ *   - iconColor:       {string}  цвет иконки (по умолчанию '#ffd700')
+ *   - title:           {string}  заголовок
+ *   - message:         {string}  сообщение (можно HTML)
+ *   - buttons:         {Array<{label, value, style?, primary?, iconName?, iconColor?}>}
+ *   - onClose:         {Function} колбэк при закрытии (value кнопки)
+ *   - closeOnBackdrop: {boolean}  закрывать по клику на фон (для info-окон)
  */
 function showGameDialog(opts) {
   const {
-    icon = '🎭',
+    icon: iconName = 'mask',
+    iconColor = '#ffd700',
     title = '',
     message = '',
     buttons = [{ label: 'OK', value: true, primary: true }],
@@ -10796,44 +12221,72 @@ function showGameDialog(opts) {
     closeOnBackdrop = false
   } = opts;
 
-  // Запомним паузу и поставим игру на паузу
+  // Запоминаем паузу и ставим игру на паузу
   dialogPreviousPauseState = gameState.paused;
   gameState.paused = true;
 
-  dialogIconEl.textContent = icon;
+  // ===== Иконка диалога (SVG вместо эмодзи) =====
+  if (ICONS[iconName]) {
+    dialogIconEl.innerHTML = icon(iconName, '72px');
+    dialogIconEl.style.color = iconColor;
+    dialogIconEl.style.display = 'flex';
+    dialogIconEl.style.alignItems = 'center';
+    dialogIconEl.style.justifyContent = 'center';
+  } else {
+    dialogIconEl.innerHTML = '';
+  }
+
+  // ===== Заголовок и сообщение =====
   dialogTitleEl.textContent = title;
   dialogMessageEl.innerHTML = message;
+
+  // ===== Кнопки =====
   dialogButtonsEl.innerHTML = '';
 
   let resolved = false;
   const close = (value) => {
     if (resolved) return;
     resolved = true;
+
     gameDialogEl.style.display = 'none';
+
     if (dialogKeyHandler) {
       window.removeEventListener('keydown', dialogKeyHandler);
       dialogKeyHandler = null;
     }
+
     // Восстанавливаем паузу: если диалог был вызван из паузы — оставляем паузу
-    // иначе возвращаем как было
     if (!dialogPreviousPauseState) {
       gameState.paused = false;
     }
+
     if (typeof onClose === 'function') onClose(value);
   };
 
-  // Создаём кнопки
   buttons.forEach((btn, idx) => {
     const b = document.createElement('button');
-    b.className = 'dialog-btn' + (btn.style ? ' ' + btn.style : (btn.primary ? ' primary' : ''));
-    b.textContent = btn.label;
+    b.className = 'dialog-btn'
+      + (btn.style ? ' ' + btn.style : (btn.primary ? ' primary' : ''));
     b.dataset.value = String(btn.value);
+
+    // ===== SVG-иконка внутри кнопки =====
+    let btnHTML = '';
+    if (btn.iconName && ICONS[btn.iconName]) {
+      const c = btn.iconColor || 'currentColor';
+      btnHTML += `<span class="dialog-btn-icon" style="color:${c};display:inline-flex;align-items:center;vertical-align:middle;margin-right:6px;">`
+              + icon(btn.iconName, '1.1em')
+              + `</span>`;
+    }
+    btnHTML += `<span>${btn.label}</span>`;
+    b.innerHTML = btnHTML;
+
     b.addEventListener('click', () => close(btn.value));
     dialogButtonsEl.appendChild(b);
+
     if (idx === 0) setTimeout(() => b.focus(), 50);
   });
 
-  // Клавиатура: Enter = primary, Esc = последняя кнопка (отмена)
+  // ===== Клавиатура =====
   dialogKeyHandler = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -10841,7 +12294,6 @@ function showGameDialog(opts) {
       close(primaryBtn.value);
     } else if (e.key === 'Escape') {
       e.preventDefault();
-      // Ищем «отмену»: neutral, danger без primary, или последнюю
       const cancelBtn = buttons.find(b => b.style === 'neutral')
                      || buttons[buttons.length - 1];
       close(cancelBtn.value);
@@ -10849,7 +12301,7 @@ function showGameDialog(opts) {
   };
   window.addEventListener('keydown', dialogKeyHandler);
 
-  // Клик по фону
+  // ===== Клик по фону =====
   if (closeOnBackdrop) {
     gameDialogEl.onclick = (e) => {
       if (e.target === gameDialogEl) close(buttons[buttons.length - 1].value);
@@ -10954,6 +12406,47 @@ window.addEventListener('keydown', (e) => {
     openMainMenu();
   }
 });
+
+
+// ============================================================
+//  ЗАПОЛНЕНИЕ HTML-ИКОНОК ПРИ ЗАГРУЗКЕ
+// ============================================================
+(function fillStaticIcons() {
+  // Сопоставление: id элемента → имя иконки в ICONS
+  const staticIcons = {
+   'ico-mask-1':   'tenorClefBold',
+'ico-mask-2':   'bassClefBold',
+'ico-mask-3':   'flatBold',
+    'ico-exit':     'close',
+    'ico-clef':     'clef',
+    'ico-curtain':  'mask',
+    'ico-pause':    'pause',
+    'ico-play':     'play',
+    'ico-save':     'save',
+    'ico-load':     'folder',
+    'ico-home':     'home',
+    'ico-sparkle-1':'sparkle',
+    'ico-sparkle-2':'sparkle',
+    'ico-sparkle-3':'sparkle',
+    'ico-sparkle-4':'sparkle',
+'ico-pause-title': 'pause',
+  };
+  for (const [id, name] of Object.entries(staticIcons)) {
+    const el = document.getElementById(id);
+    if (el && ICONS[name]) {
+      el.innerHTML = icon(name, '1em');
+      el.style.display = 'inline-flex';
+      el.style.alignItems = 'center';
+    }
+  }
+  
+  // Специальный случай — крупные иконки
+  const curtain = document.getElementById('ico-curtain');
+  if (curtain) {
+    curtain.innerHTML = icon('mask', '110px');
+    curtain.style.filter = 'drop-shadow(0 0 40px rgba(255,215,0,0.9))';
+  }
+})();
 
 
 </script>
