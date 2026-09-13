@@ -1176,8 +1176,44 @@ body { cursor: url('cur.png') 0 12, auto !important; }
   box-sizing: border-box;
 }
 
+/* Бейдж с номером горячей клавиши */
+.aria-slot .aria-key {
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  font: bold 10px/1 'Georgia', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-shadow: 0 0 4px #ffd700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+}
+
+/* На заблокированных/недоступных — приглушённый */
+.aria-slot.locked .aria-key,
+.aria-slot.cooling .aria-key,
+.aria-slot.no-score .aria-key {
+  border-color: #555;
+  color: #555;
+  box-shadow: none;
+  text-shadow: none;
+}
 
 
+#overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at center, rgba(20,10,40,0.92), rgba(0,0,0,0.97));
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; z-index: 60;   /* ← было 40, стало 60 */
+  text-align: center; padding: 40px;
+}
 </style>
 </head>
 <body>
@@ -4013,8 +4049,7 @@ const ARIAS = {
       color:'#e0f7fa', icon:'dove', iconColor:'#e0f7fa',
       unlockLevel:10 }
   ]
-};
-function renderAriaPanel() {
+};function renderAriaPanel() {
   const ariaPanelEl = document.getElementById('ariaPanel');
   if (!ariaPanelEl) return;
   if (!gameState.voice) return;
@@ -4026,7 +4061,7 @@ function renderAriaPanel() {
 
   ariaPanelEl.innerHTML = '';
 
-  list.forEach(aria => {
+  list.forEach((aria, index) => {
     const unlocked = currentLevel >= aria.unlockLevel;
     const cd = gameState.ariaCooldowns[aria.id] || 0;
     const realCost = Math.round(aria.cost * (gameState._levelCostMul || 1));
@@ -4038,26 +4073,31 @@ function renderAriaPanel() {
     else if (cd > 0) slot.classList.add('cooling');
     else if (!canAfford) slot.classList.add('no-score');
 
+    // Запоминаем состояние для точечного обновления
     slot._lastUnlocked = unlocked;
     slot._lastCanAfford = canAfford;
     slot._lastCd = cd;
     slot._lastCdCeil = Math.ceil(cd);
 
+    // ===== Иконка арии =====
     slot.innerHTML = icon(aria.icon, '28px');
 
+    // ===== Тултип с названием и описанием =====
     const tt = document.createElement('div');
     tt.className = 'aria-tooltip';
     tt.innerHTML = unlocked
-      ? `${aria.name}<div class="tt-desc">${aria.desc}</div>`
-      : `🔒 ${aria.name} — откроется на ур. ${aria.unlockLevel}<div class="tt-desc">${aria.desc}</div>`;
+      ? `<b>[${index + 1}]</b> ${aria.name}<div class="tt-desc">${aria.desc}</div>`
+      : `🔒 [${index + 1}] ${aria.name} — откроется на ур. ${aria.unlockLevel}<div class="tt-desc">${aria.desc}</div>`;
     slot.appendChild(tt);
 
     if (unlocked) {
+      // ===== Бейдж с ценой =====
       const cost = document.createElement('div');
       cost.className = 'aria-cost';
       cost.textContent = realCost;
       slot.appendChild(cost);
 
+      // ===== Бейдж кулдауна (если на кулдауне) =====
       if (cd > 0) {
         const cdEl = document.createElement('div');
         cdEl.className = 'aria-cd';
@@ -4065,10 +4105,11 @@ function renderAriaPanel() {
         slot.appendChild(cdEl);
       }
 
-      // ✅ Всегда вешаем обработчик — но внутри проверяем и показываем сообщение
+      // ===== Обработчик клика =====
       slot.addEventListener('click', () => {
         const curCd = gameState.ariaCooldowns[aria.id] || 0;
         const curCost = Math.round(aria.cost * (gameState._levelCostMul || 1));
+
         if (curCd > 0) {
           showToast(`Ария на кулдауне: ${Math.ceil(curCd)}с`);
           return;
@@ -4080,11 +4121,18 @@ function renderAriaPanel() {
         activateAria(aria);
       });
     } else {
+      // ===== Замок для заблокированных =====
       const lock = document.createElement('div');
       lock.className = 'aria-lock';
       lock.innerHTML = icon('close', '16px') + `<span>ур.${aria.unlockLevel}</span>`;
       slot.appendChild(lock);
     }
+
+    // ===== Бейдж с номером горячей клавиши =====
+    const keyNum = document.createElement('div');
+    keyNum.className = 'aria-key';
+    keyNum.textContent = (index + 1);
+    slot.appendChild(keyNum);
 
     ariaPanelEl.appendChild(slot);
   });
@@ -4371,19 +4419,31 @@ function applyAriaEffect(aria) {
         gameState.collectibleNotes.forEach(note => { note.magnet = false; });
       }, aria.duration * 1000);
       break;
+case 'push':
+  gameState.enemies.forEach(enemy => {
+    if (enemy.alive) {
+      const dx = (enemy.x + enemy.w / 2) - (p.x + p.w / 2);
+      const dy = (enemy.y + enemy.h / 2) - (p.y + p.h / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    case 'push':
-      // Отталкиваем всех врагов
-      gameState.enemies.forEach(enemy => {
-        if (enemy.alive) {
-          const dx = (enemy.x + enemy.w / 2) - (p.x + p.w / 2);
-          const dy = (enemy.y + enemy.h / 2) - (p.y + p.h / 2);
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          enemy.vx = (dx / dist) * 15;
-          enemy.vy = (dy / dist) * 5;
-        }
-      });
-      break;
+      // Мгновенный сдвиг позиции
+      const pushPower = 260;   // пикселей
+      let newX = enemy.x + (dx / dist) * pushPower;
+      let newY = enemy.y + (dy / dist) * pushPower * 0.3;
+
+      // Ограничиваем рамками патруля
+      newX = Math.max(enemy.patrolMinX,
+             Math.min(enemy.patrolMaxX - enemy.w, newX));
+      newY = Math.max(50,
+             Math.min(gameState.groundY - enemy.h - 10, newY));
+
+      enemy.x = newX;
+      enemy.y = newY;
+
+      // НЕ трогаем enemy.vx — патруль продолжит работать как обычно
+    }
+  });
+  break;
 
     case 'explosion':
       // Взрыв по всем врагам
@@ -5110,7 +5170,10 @@ gameState.positionHistory = [];
   gameState.lastEnemyX = 0;
 
   generatePlatformsUpTo(stage.width);
-
+const bonusNotes = stage.type === 'collect' ? 0 : Math.round(3 + gameState.currentOperaIdx * 0.5);
+if (bonusNotes > 0) {
+  placeNotes(bonusNotes);
+}
   const p = gameState.player;
   p.x = 100; p.y = gameState.groundY - 120;
   p.vx = 0; p.vy = 0; p.facing = 1;
@@ -13746,6 +13809,66 @@ window.addEventListener('keydown', (e) => {
     openMainMenu();
   }
 });
+
+// ===== Горячие клавиши 1–7 для арий =====
+window.addEventListener('keydown', (e) => {
+  // Игнорируем, если игра не запущена или идёт диалог/пауза
+  if (!gameState.voice) return;
+  if (gameState.paused || gameState.stageComplete || gameState.gameComplete) return;
+  if (dialogueState) return;
+  if (ariaMenuEl.style.display === 'flex') return;
+  if (gameOverlayOpen()) return; // если есть оверлей победы/поражения
+
+  // Цифры 1–7 (верхний ряд и нумпад)
+  let slotIndex = -1;
+  if (e.code.startsWith('Digit')) {
+    slotIndex = parseInt(e.code.replace('Digit', ''), 10) - 1;
+  } else if (e.code.startsWith('Numpad')) {
+    const n = parseInt(e.code.replace('Numpad', ''), 10);
+    if (n >= 1 && n <= 7) slotIndex = n - 1;
+  }
+
+  if (slotIndex < 0 || slotIndex > 6) return;
+
+  const list = ARIAS[gameState.voiceKey] || [];
+  const aria = list[slotIndex];
+  if (!aria) return;
+
+  e.preventDefault();
+
+  // Проверки
+  const currentLevel = levelSystem.level;
+  if (currentLevel < (aria.unlockLevel || 1)) {
+    showToast(`🔒 ${aria.name} — откроется на ур. ${aria.unlockLevel}`);
+    return;
+  }
+
+  const cd = gameState.ariaCooldowns[aria.id] || 0;
+  if (cd > 0) {
+    showToast(`⏳ ${aria.name} на кулдауне: ${Math.ceil(cd)}с`);
+    return;
+  }
+
+  const realCost = Math.round(aria.cost * (gameState._levelCostMul || 1));
+  if (gameState.score < realCost) {
+    showToast(`💎 Недостаточно очков: нужно ${realCost}, есть ${gameState.score}`);
+    return;
+  }
+
+  activateAria(aria);
+}, true); // capture: true, чтобы сработать раньше других
+
+
+
+function gameOverlayOpen() {
+  const overlayEl = document.getElementById('overlay');
+  if (overlayEl && overlayEl.style.display === 'flex') return true;
+  const statsModal = document.getElementById('statsModal');
+  if (statsModal && statsModal.classList.contains('open')) return true;
+  const gameDialog = document.getElementById('gameDialog');
+  if (gameDialog && gameDialog.style.display === 'flex') return true;
+  return false;
+}
 
 
 // ============================================================
