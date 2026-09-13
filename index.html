@@ -3839,6 +3839,40 @@ window.addEventListener('keydown', e => {
     gameState.charging = true;
   }
 });
+
+// ============================================================
+//  ЛЕВАЯ КНОПКА МЫШИ — аналог Enter (зарядка и выстрел ноты)
+// ============================================================
+canvas.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return; // только левая кнопка
+  if (!gameState.voice) return;
+  if (gameState.charging) return;
+  if (gameState.health <= 0) return;
+  if (gameState.paused) return;
+  if (gameState.stageComplete || gameState.gameComplete) return;
+  if (gameState.shotCooldown > 0) return;
+  if (dialogueState) return;           // не мешаем диалогам
+  if (ariaMenuEl && ariaMenuEl.style.display === 'flex') return;
+
+  e.preventDefault();
+  gameState.charging = true;
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (e.button !== 0) return; // только левая кнопка
+  if (gameState.charging && gameState.voice) {
+    fireNote();
+    gameState.charging = false;
+  }
+});
+
+// На случай, если игрок увёл курсор с canvas при зажатой кнопке
+window.addEventListener('blur', () => {
+  if (gameState.charging && gameState.voice) {
+    fireNote();
+    gameState.charging = false;
+  }
+});
 window.addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false;
   if (e.key === 'Enter' && gameState.charging && gameState.voice) {
