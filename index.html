@@ -1015,7 +1015,14 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
 }
 .levelup-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-
+/* ===== Панель опыта внизу ===== */
+.xp-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 26px;
+  z-index: 40;
+  display: none;        /* ← добавьте эту строку */
+}
 </style>
 </head>
 <body>
@@ -4293,6 +4300,18 @@ function stopMusic() {
   }
 }
 
+
+document.getElementById('btnToMenu').addEventListener('click', async () => {
+  const ok = await gameConfirm(/* ... */);
+  if (ok) {
+    // 👇 ДОБАВЬТЕ ЭТУ СТРОКУ
+    document.querySelector('.xp-panel').style.display = 'none';
+    showToast('Возврат в главное меню...');
+    setTimeout(() => location.reload(), 400);
+  }
+});
+
+
 function setMusicVolume(v) {
   if (bgMusicEl) bgMusicEl.volume = Math.max(0, Math.min(1, v));
 }
@@ -4303,7 +4322,7 @@ startMusic()
   document.getElementById('menu').style.display = 'none';
   document.getElementById('hud').style.display = 'block';
   document.getElementById('voiceInfo').textContent = gameState.voice.name + ' — ' + gameState.voice.damageDesc;
-
+  document.querySelector('.xp-panel').style.display = 'block';
   gameState.groundY = H - 80;
   gameState.player = {
     x:100, y: gameState.groundY - 120,
@@ -12025,9 +12044,11 @@ function openPauseMenu() {
   if (gameState.stageComplete || gameState.gameComplete) return;
   gameState.paused = true;
   pauseMenuEl.style.display = 'flex';
+  document.querySelector('.xp-panel').style.display = 'none';
 }
 function closePauseMenu() {
   pauseMenuEl.style.display = 'none';
+  document.querySelector('.xp-panel').style.display = 'block';
   // Не снимаем паузу, если открыто меню арий или оверлей
   if (ariaMenuEl.style.display !== 'flex' &&
       document.getElementById('overlay').style.display !== 'flex') {
