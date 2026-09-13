@@ -12330,7 +12330,17 @@ window.addEventListener('keydown', (e) => {
 // Добавляем дополнительную логику: если меню арий закрыто — открываем паузу
 const _origEscHandler = (e) => {
   if (e.key === 'Escape') {
-    if (ariaMenuEl.style.display === 'flex') return; // обработает основной
+
+    // 👇 ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ПЕРВОЙ
+    const statsModal = document.getElementById('statsModal');
+    if (statsModal && statsModal.classList.contains('open')) {
+      e.preventDefault();
+      e.stopImmediatePropagation();   // чтобы другие обработчики не сработали
+      closeStats();
+      return;
+    }
+
+    if (ariaMenuEl.style.display === 'flex') return;
     if (!gameState.voice) return;
     if (gameState.stageComplete || gameState.gameComplete) return;
     if (gameState.paused && pauseMenuEl.style.display !== 'flex') return;
