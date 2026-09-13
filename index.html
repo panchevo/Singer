@@ -909,6 +909,113 @@ body{ cursor: url('cur.png') 0 12, auto !important; }
     transition: all 0.3s; font-family: 'Georgia', serif; min-width: 280px;
     justify-content: space-between;
   }
+
+
+
+/* ===== Панель опыта внизу ===== */
+.xp-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 26px;
+  z-index: 40;
+}
+.level-badge {
+  position: absolute;
+  top: -36px; left: 10px;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  padding: 5px 14px;
+  border-radius: 8px 8px 0 0;
+  font: bold 15px/1 sans-serif;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+.level-badge:hover { filter: brightness(1.15); }
+.level-badge .points { color: #ffd54f; margin-left: 6px; animation: pulse 1.4s infinite; }
+@keyframes pulse { 50% { opacity: .4; } }
+
+.xp-bar {
+  height: 100%;
+  background: #0f0f1a;
+  border-top: 2px solid #2e7d32;
+  position: relative;
+  overflow: hidden;
+}
+.xp-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #388e3c, #66bb6a, #81c784);
+  transition: width .4s ease;
+}
+.xp-text {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font: bold 12px/1 sans-serif; color: #fff;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
+}
+
+/* ===== Окно характеристик ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: linear-gradient(160deg, #23233d, #16162a);
+  border: 2px solid #4caf50;
+  border-radius: 16px;
+  padding: 22px; width: 90%; max-width: 440px;
+  color: #fff;
+  font-family: sans-serif;
+}
+.modal h2 { text-align: center; color: #81c784; margin-bottom: 4px; font-size: 20px; }
+.modal .subtitle { text-align: center; color: #b0b0c0; font-size: 13px; margin-bottom: 16px; }
+.modal .subtitle b { color: #ffd54f; }
+
+.stat-row {
+  display: flex; align-items: center;
+  background: #1c1c30;
+  border: 1px solid #2e2e48;
+  border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 8px;
+}
+.stat-info { flex: 1; }
+.stat-name { font-weight: bold; font-size: 14px; }
+.stat-desc { font-size: 11px; color: #9090a8; }
+.stat-value { font-size: 18px; font-weight: bold; color: #66bb6a; margin: 0 12px; min-width: 24px; text-align: center; }
+
+.plus-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #fff; font-size: 20px; font-weight: bold; line-height: 1;
+}
+.plus-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+.plus-btn:hover:not(:disabled) { filter: brightness(1.2); }
+
+.close-btn {
+  width: 100%; margin-top: 6px; padding: 9px;
+  border: none; border-radius: 10px;
+  background: #33334d; color: #fff;
+  font-size: 14px; font-weight: bold; cursor: pointer;
+}
+.close-btn:hover { background: #44446a; }
+
+.levelup-toast {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(.5);
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  padding: 18px 36px; border-radius: 16px;
+  font: bold 24px/1 sans-serif; color: #fff;
+  box-shadow: 0 0 60px #4caf50;
+  opacity: 0; pointer-events: none; z-index: 200;
+  transition: all .4s ease;
+}
+.levelup-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+
 </style>
 </head>
 <body>
@@ -3748,9 +3855,10 @@ function renderAriaMenu() {
     `<span style="color:${clefIconColor};display:inline-flex;align-items:center;vertical-align:middle;margin-right:6px;">`
     + icon(clefIconName, '1.2em')
     + `</span> Арии — ` + v.name;
-  (ARIAS[key] || []).forEach(aria => {
+(ARIAS[key] || []).forEach(aria => {
     const cd = gameState.ariaCooldowns[aria.id] || 0;
-    const canAfford = gameState.score >= aria.cost;
+    const realCost = Math.round(aria.cost * (gameState._levelCostMul || 1));   // ← скидка
+    const canAfford = gameState.score >= realCost;
     const onCooldown = cd > 0;
     const disabled = !canAfford || onCooldown;
     const card = document.createElement('div');
@@ -3764,9 +3872,10 @@ function renderAriaMenu() {
   </div>
   <div class="aria-desc">${aria.desc}</div>
   <div class="aria-effect">Эффект: ${describeEffect(aria)}</div>
-  <div class="aria-cost">
-    <span>${icon('clef','1em')} ${aria.cost}</span>
-    <span class="cd">${onCooldown ? icon('hourglass','0.9em') + ' ' + cd.toFixed(1) + 'с' : (aria.cooldown ? 'КД ' + aria.cooldown + 'с' : '')}</span>
+    <div class="aria-cost">
+    <span>${icon('clef','1em')} ${realCost}${realCost < aria.cost
+      ? ` <s style="color:#666;font-size:0.85em;">${aria.cost}</s>`
+      : ''}</span>
   </div>`;
     if (!disabled) card.addEventListener('click', () => activateAria(aria));
     ariaGridEl.appendChild(card);
@@ -3782,10 +3891,11 @@ function describeEffect(a) {
   })[a.effect] || '';
 }
 function activateAria(aria) {
-  if (gameState.score < aria.cost) return;
-  if ((gameState.ariaCooldowns[aria.id] || 0) > 0) return;
-  gameState.score -= aria.cost;
-  gameState.ariaCooldowns[aria.id] = aria.cooldown;
+const cost = Math.round(aria.cost * (gameState._levelCostMul || 1));
+if (gameState.score < cost) return;
+if ((gameState.ariaCooldowns[aria.id] || 0) > 0) return;
+gameState.score -= cost;
+gameState.ariaCooldowns[aria.id] = aria.cooldown * (gameState._levelAriaMul || 1);
   applyAriaEffect(aria);
   closeAriaMenu();
 }
@@ -4331,10 +4441,12 @@ function checkStageComplete() {
 
 function onEnemyKilled() {
   gameState.enemiesKilled++;
+  addXP(40);              // ← +15 XP за обычного врага
   updateObjectiveHUD();
 }
 
 function completeStage() {
+addXP(50);    
   gameState.stageComplete = true;
   const stageIdx = gameState.currentStageIdx;
   if (stageIdx < 2) {
@@ -4404,9 +4516,9 @@ function fireNote() {
   if (t < 0.5) color = lerpColor(v.colors.low, v.colors.mid, t * 2);
   else color = lerpColor(v.colors.mid, v.colors.top, (t - 0.5) * 2);
 
-  let damage = v.damageBase * v.damageCurve(t) * 20;
-  if (gameState.effects.rage > 0) damage *= 2;
-
+let damage = v.damageBase * v.damageCurve(t) * 20;
+if (gameState.effects.rage > 0) damage *= 2;
+damage *= (gameState._levelPowerMul || 1);
   gameState.notes.push({
     x: p.x + p.w/2 + dir*30, y: p.y + p.h*0.4,
     vx: dir * (8 + t * 8), vy: -2 - t * 3,
@@ -4425,7 +4537,7 @@ function fireNote() {
    gameState.score++;
   gameState.chargeValue = 0;
   gameState.chargeDirection = 1;
-  gameState.shotCooldown = 0.35;   // ← перерыв между выстрелами (секунды)
+ gameState.shotCooldown = 0.35 * (gameState._levelSpeedMul || 1);  // ← перерыв между выстрелами (секунды)
 
 }
 function lerpColor(a, b, t) {
@@ -5817,9 +5929,10 @@ function update(dt) {
     if (p.x + p.w > cn.x - 15 && p.x < cn.x + 15 &&
         p.y + p.h > cn.y - 15 && p.y < cn.y + 15) {
       cn.collected = true;
-      const value = cn.type === 'single' ? 1 : 5;
-      gameState.score += value;
-      gameState.notesCollected++;
+     const value = cn.type === 'single' ? 1 : 5;
+gameState.score += value;
+addXP(cn.type === 'single' ? 5 : 15);   // ← +5 или +15 XP
+gameState.notesCollected++;
       updateObjectiveHUD();
 
       gameState.particles.push({
@@ -5930,6 +6043,7 @@ b.hitPulse = 1;   // ← добавить
         }
         if (b.hp <= 0) {
           gameState.score += 500;
+addXP(200);
           for (let j = 0; j < 40; j++) {
             const ang = Math.random() * Math.PI * 2;
             const spd = 4 + Math.random() * 8;
@@ -6453,16 +6567,11 @@ function render() {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffd700';
     const hintText = 'Кликните по певцу для выбора арии';
-    ctx.fillText(hintText, W / 2, H - 25);
+    ctx.fillText(hintText, W / 2, H - 35);
 
     // Иконка-палец слева от текста
     ctx.save();
-    const tw = ctx.measureText(hintText).width;
-    // Позиционируем иконку относительно центра текста
-    ctx.translate(W / 2 - tw / 2 - 12, H - 25 - 7); // 12px отступ от текста, -7 для центрирования
-    ctx.scale(14/24, 14/24);
-    ctx.fillStyle = '#ffd700';
-    ctx.fill(CANVAS_ICONS.pointer);
+
     ctx.restore();
   }
   ctx.restore();
@@ -12484,8 +12593,176 @@ window.addEventListener('keydown', (e) => {
     curtain.style.filter = 'drop-shadow(0 0 40px rgba(255,215,0,0.9))';
   }
 })();
+// ============================================================
+//  СИСТЕМА ОПЫТА, УРОВНЕЙ И ХАРАКТЕРИСТИК
+// ============================================================
+const levelSystem = {
+  level: 1,
+  xp: 0,
+  points: 0,
+  stats: { power: 0, phrase: 0, art: 0, perf: 0 },
+  MAX_LEVEL: 10
+};
 
+function xpForLevel(L) {
+  return 100 + (L - 1) * 50; // 100, 150, 200, 250...
+}
 
+function updateLevelUI() {
+  const ls = levelSystem;
+  const need = xpForLevel(ls.level);
+  const maxed = ls.level >= ls.MAX_LEVEL;
+
+  const lvlEl = document.getElementById('levelText');
+  const fillEl = document.getElementById('xpFill');
+  const textEl = document.getElementById('xpText');
+  const badgeEl = document.getElementById('pointsBadge');
+  if (!lvlEl) return;
+
+  lvlEl.textContent = ls.level;
+  fillEl.style.width = maxed ? '100%'
+    : Math.min(100, (ls.xp / need) * 100) + '%';
+  textEl.textContent = maxed
+    ? 'МАКС. УРОВЕНЬ'
+    : `${ls.xp} / ${need} XP`;
+
+  if (ls.points > 0) {
+    badgeEl.style.display = 'inline';
+    badgeEl.textContent = '+' + ls.points;
+  } else {
+    badgeEl.style.display = 'none';
+  }
+
+  const fp = document.getElementById('freePoints');
+  if (fp) {
+    fp.textContent = ls.points;
+    document.getElementById('statPower').textContent  = ls.stats.power;
+    document.getElementById('statPhrase').textContent = ls.stats.phrase;
+    document.getElementById('statArt').textContent    = ls.stats.art;
+    document.getElementById('statPerf').textContent   = ls.stats.perf;
+    document.querySelectorAll('.plus-btn').forEach(b => {
+      b.disabled = ls.points <= 0;
+    });
+  }
+}
+
+function addXP(amount) {
+  const ls = levelSystem;
+  if (ls.level >= ls.MAX_LEVEL) return;
+  ls.xp += amount;
+
+  while (ls.level < ls.MAX_LEVEL && ls.xp >= xpForLevel(ls.level)) {
+    ls.xp -= xpForLevel(ls.level);
+    ls.level++;
+    ls.points++;
+    showLevelUpToast();
+  }
+  if (ls.level >= ls.MAX_LEVEL) ls.xp = 0;
+  updateLevelUI();
+}
+
+function showLevelUpToast() {
+  const t = document.getElementById('levelupToast');
+  if (!t) return;
+  t.textContent = `УРОВЕНЬ ${levelSystem.level}!`;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function openStats() {
+  if (!gameState || !gameState.voice) return;
+  document.getElementById('statsModal').classList.add('open');
+  updateLevelUI();
+}
+function closeStats() {
+  document.getElementById('statsModal').classList.remove('open');
+}
+
+function spendPoint(key) {
+  const ls = levelSystem;
+  if (ls.points <= 0) return;
+  ls.points--;
+  ls.stats[key]++;
+  updateLevelUI();
+  applyLevelStats();
+}
+
+// ===== Применение характеристик к игре =====
+function applyLevelStats() {
+  const s = levelSystem.stats;
+  // Мощь голоса: +8% урона за очко
+  gameState._levelPowerMul  = 1 + s.power  * 0.08;
+  // Фразировка: -5% кулдаун выстрела за очко (мин. 0.5)
+  gameState._levelSpeedMul  = Math.max(0.5, 1 - s.phrase * 0.05);
+  // Артистизм: +10% длительности/силы арий
+  gameState._levelAriaMul   = 1 + s.art    * 0.10;
+  // Исполнительность: -6% стоимости арий
+  gameState._levelCostMul   = Math.max(0.4, 1 - s.perf * 0.06);
+}
+
+// ===== Инициализация =====
+updateLevelUI();
+applyLevelStats();
 </script>
+<!-- ===== ПАНЕЛЬ ОПЫТА + ХАРАКТЕРИСТИКИ ===== -->
+<div class="xp-panel">
+  <div class="level-badge" onclick="openStats()">
+    Ур. <span id="levelText">1</span>
+    <span class="points" id="pointsBadge" style="display:none;">+0</span>
+  </div>
+  <div class="xp-bar">
+    <div class="xp-fill" id="xpFill"></div>
+    <div class="xp-text" id="xpText">0 / 100 XP</div>
+  </div>
+</div>
+
+<div class="levelup-toast" id="levelupToast">УРОВЕНЬ ПОВЫШЕН!</div>
+
+<div class="modal-overlay" id="statsModal" onclick="if(event.target===this)closeStats()">
+  <div class="modal">
+    <h2>ХАРАКТЕРИСТИКИ</h2>
+    <div class="subtitle">Свободных очков: <b id="freePoints">0</b></div>
+
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-name">Мощь голоса</div>
+        <div class="stat-desc">Сила атаки</div>
+      </div>
+      <div class="stat-value" id="statPower">0</div>
+      <button class="plus-btn" onclick="spendPoint('power')">+</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-name">Фразировка</div>
+        <div class="stat-desc">Скорость атаки</div>
+      </div>
+      <div class="stat-value" id="statPhrase">0</div>
+      <button class="plus-btn" onclick="spendPoint('phrase')">+</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-name">Артистизм</div>
+        <div class="stat-desc">Эффективность арий</div>
+      </div>
+      <div class="stat-value" id="statArt">0</div>
+      <button class="plus-btn" onclick="spendPoint('art')">+</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-info">
+        <div class="stat-name">Исполнительность</div>
+        <div class="stat-desc">Снижает стоимость арий</div>
+      </div>
+      <div class="stat-value" id="statPerf">0</div>
+      <button class="plus-btn" onclick="spendPoint('perf')">+</button>
+    </div>
+
+    <button class="close-btn" onclick="closeStats()">ЗАКРЫТЬ</button>
+  </div>
+</div>
+
 </body>
 </html>
