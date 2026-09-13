@@ -1108,7 +1108,9 @@ initCanvasIcons();
 const ICONS = {
   // === Интерфейс ===
   mask: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.3 0-4.3-1.2-5.5-3 .1-1.8 3.7-2.8 5.5-2.8s5.4 1 5.5 2.8c-1.2 1.8-3.2 3-5.5 3z"/></svg>`,
-  
+    spade: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 6 4 9 4 13c0 2.5 2 4.5 4.5 4.5 1.5 0 2.5-.7 3.5-1.8v3.3h-3v2h6v-2h-3v-3.3c1 1.1 2 1.8 3.5 1.8C18 17.5 20 15.5 20 13c0-4-5-7-8-11z"/></svg>`,
+
+  pyramid: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 21h20L12 2zm0 4.5L18.5 19h-13L12 6.5z"/></svg>`,
   snowflake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1M12 2l-2 3M12 2l2 3M12 22l-2-3M12 22l2-3M2 12l3-2M2 12l3 2M22 12l-3-2M22 12l-3 2"/></svg>`,
   
   heart: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
@@ -1695,11 +1697,11 @@ const VOICE_TYPES = {
     }
   }
 };
-
-// ===== ОПЕРЫ (21 опера, у каждой — свои уникальные 3 этапа) =====
+// ===== ОПЕРЫ (21 опера, у каждой — свои уникальные 3 этапа и иконка) =====
 const OPERAS = [
   {
     id:'ruslan', name:'Руслан и Людмила', composer:'М. Глинка',
+    icon:'shield',
     bossName:'Черномор', bossDesc:'Коварный карлик-похититель', bossColor:'#6a1b9a',
     stages: [
       { type:'collect', target: 8,  desc:'Соберите ноты Людмилы' },
@@ -1709,6 +1711,7 @@ const OPERAS = [
   },
   {
     id:'sadko', name:'Садко', composer:'Н. Римский-Корсаков',
+    icon:'water',
     bossName:'Морской Царь', bossDesc:'Владыка морской пучины', bossColor:'#00695c',
     stages: [
       { type:'kill',    target: 6,  desc:'Прогоните морских чудищ' },
@@ -1718,6 +1721,7 @@ const OPERAS = [
   },
   {
     id:'boris', name:'Борис Годунов', composer:'М. Мусоргский',
+    icon:'crown',
     bossName:'Борис Годунов', bossDesc:'Царь, терзаемый совестью', bossColor:'#4e342e',
     stages: [
       { type:'collect', target: 10, desc:'Соберите царские грамоты-ноты' },
@@ -1727,6 +1731,7 @@ const OPERAS = [
   },
   {
     id:'faust', name:'Фауст', composer:'Ш. Гуно',
+    icon:'devil',
     bossName:'Мефистофель', bossDesc:'Дьявол-искуситель', bossColor:'#b71c1c',
     stages: [
       { type:'kill',    target: 6,  desc:'Отгоните демонов Мефистофеля' },
@@ -1736,6 +1741,7 @@ const OPERAS = [
   },
   {
     id:'susanin', name:'Жизнь за царя', composer:'М. Глинка',
+    icon:'wheat',
     bossName:'Польский Командир', bossDesc:'Предводитель врагов', bossColor:'#455a64',
     stages: [
       { type:'collect', target: 10, desc:'Соберите ноты Родины' },
@@ -1745,6 +1751,7 @@ const OPERAS = [
   },
   {
     id:'onegin', name:'Евгений Онегин', composer:'П. Чайковский',
+    icon:'tophat',
     bossName:'Евгений Онегин', bossDesc:'Холодный скептик', bossColor:'#37474f',
     stages: [
       { type:'kill',    target: 6,  desc:'Прервите светскую болтовню' },
@@ -1754,6 +1761,7 @@ const OPERAS = [
   },
   {
     id:'pique', name:'Пиковая дама', composer:'П. Чайковский',
+    icon:'spade',
     bossName:'Графиня', bossDesc:'Хранительница трёх карт', bossColor:'#4a148c',
     stages: [
       { type:'collect', target: 12, desc:'Соберите три заветные карты' },
@@ -1763,6 +1771,7 @@ const OPERAS = [
   },
   {
     id:'igor', name:'Князь Игорь', composer:'А. Бородин',
+    icon:'swords',
     bossName:'Кончак', bossDesc:'Хан половецкий', bossColor:'#bf360c',
     stages: [
       { type:'kill',    target: 8,  desc:'Отбейте половецкие набеги' },
@@ -1772,6 +1781,7 @@ const OPERAS = [
   },
   {
     id:'aida', name:'Аида', composer:'Дж. Верди',
+    icon:'pyramid',
     bossName:'Рамфис', bossDesc:'Верховный жрец', bossColor:'#33691e',
     stages: [
       { type:'collect', target: 14, desc:'Соберите ноты Нила' },
@@ -1781,6 +1791,7 @@ const OPERAS = [
   },
   {
     id:'traviata', name:'Травиата', composer:'Дж. Верди',
+    icon:'rose',
     bossName:'Жермон', bossDesc:'Суровый отец', bossColor:'#5d4037',
     stages: [
       { type:'kill',    target: 7,  desc:'Прервите светские интриги' },
@@ -1790,6 +1801,7 @@ const OPERAS = [
   },
   {
     id:'rigoletto', name:'Риголетто', composer:'Дж. Верди',
+    icon:'mask2',
     bossName:'Риголетто', bossDesc:'Придворный шут', bossColor:'#880e4f',
     stages: [
       { type:'collect', target: 12, desc:'Соберите ноты Джильды' },
@@ -1799,6 +1811,7 @@ const OPERAS = [
   },
   {
     id:'tosca', name:'Тоска', composer:'Дж. Пуччини',
+    icon:'blood',
     bossName:'Скарпиа', bossDesc:'Жестокий шеф полиции', bossColor:'#3e2723',
     stages: [
       { type:'kill',    target: 9,  desc:'Отбейте полицейские облавы' },
@@ -1808,6 +1821,7 @@ const OPERAS = [
   },
   {
     id:'carmen', name:'Кармен', composer:'Ж. Бизе',
+    icon:'bull',
     bossName:'Эскамильо', bossDesc:'Тореадор', bossColor:'#d84315',
     stages: [
       { type:'collect', target: 12, desc:'Соберите ноты Хабанера' },
@@ -1817,6 +1831,7 @@ const OPERAS = [
   },
   {
     id:'flute', name:'Волшебная флейта', composer:'В. А. Моцарт',
+    icon:'star',
     bossName:'Царица Ночи', bossDesc:'Повелительница тьмы', bossColor:'#1a237e',
     stages: [
       { type:'kill',    target: 8,  desc:'Отгоните слуг Царицы Ночи' },
@@ -1826,6 +1841,7 @@ const OPERAS = [
   },
   {
     id:'figaro', name:'Свадьба Фигаро', composer:'В. А. Моцарт',
+    icon:'scissors',
     bossName:'Бартоло', bossDesc:'Старый доктор', bossColor:'#6d4c41',
     stages: [
       { type:'collect', target: 14, desc:'Соберите ноты свадебного обряда' },
@@ -1835,6 +1851,7 @@ const OPERAS = [
   },
   {
     id:'donjuan', name:'Дон Жуан', composer:'В. А. Моцарт',
+    icon:'statue',
     bossName:'Командор', bossDesc:'Каменный гость', bossColor:'#546e7a',
     stages: [
       { type:'kill',    target: 9,  desc:'Отгоните слуг Дон Жуана' },
@@ -1844,6 +1861,7 @@ const OPERAS = [
   },
   {
     id:'barber', name:'Севильский цирюльник', composer:'Дж. Россини',
+    icon:'guitar',
     bossName:'Дон Базилио', bossDesc:'Лицемерный монах', bossColor:'#4e342e',
     stages: [
       { type:'collect', target: 13, desc:'Соберите ноты серенады графа' },
@@ -1853,6 +1871,7 @@ const OPERAS = [
   },
   {
     id:'lohengrin', name:'Лоэнгрин', composer:'Р. Вагнер',
+    icon:'dove',
     bossName:'Тельрамунд', bossDesc:'Граф-мятежник', bossColor:'#424242',
     stages: [
       { type:'kill',    target: 10, desc:'Отбейте мятежников Тельрамунда' },
@@ -1862,6 +1881,7 @@ const OPERAS = [
   },
   {
     id:'tannhauser', name:'Тангейзер', composer:'Р. Вагнер',
+    icon:'fire',
     bossName:'Венера', bossDesc:'Богиня любви', bossColor:'#ad1457',
     stages: [
       { type:'collect', target: 16, desc:'Соберите ноты грота Венеры' },
@@ -1871,6 +1891,7 @@ const OPERAS = [
   },
   {
     id:'dutchman', name:'Летучий голландец', composer:'Р. Вагнер',
+    icon:'ghost',
     bossName:'Голландец', bossDesc:'Проклятый капитан', bossColor:'#263238',
     stages: [
       { type:'kill',    target: 10, desc:'Отгоните призрачный экипаж' },
@@ -1880,6 +1901,7 @@ const OPERAS = [
   },
   {
     id:'walkure', name:'Валькирия', composer:'Р. Вагнер',
+    icon:'shield',
     bossName:'Хундинг', bossDesc:'Свирепый воин', bossColor:'#5d4037',
     stages: [
       { type:'collect', target: 18, desc:'Соберите ноты валькирий' },
@@ -1888,8 +1910,6 @@ const OPERAS = [
     ]
   }
 ];
-
-
 
 // =============================================================
 //  ВНУТРИИГРОВЫЕ ДИАЛОГИ — по 3 этапа на каждую оперу
@@ -3671,6 +3691,8 @@ const ARIAS = {
   ]
 };
 function renderAriaMenu() {
+ ariaGridEl.innerHTML = '';
+
   const v = gameState.voice, key = gameState.voiceKey;
 
 
@@ -4256,29 +4278,44 @@ function startStage(operaIdx, stageIdx) {
     }, 200);
 
 }
-}
-
-function updateObjectiveHUD() {
+}function updateObjectiveHUD() {
   const opera = OPERAS[gameState.currentOperaIdx];
   const stage = gameState.stageDef;
   const el = document.getElementById('objective');
   if (!el) return;
+
+  // ===== Иконка оперы (индивидуальная для каждой) =====
+  const operaIconName  = opera.icon || 'mask';
+  const operaIconColor = opera.bossColor || '#ffd700';
+
+  // ===== Прогресс этапа =====
   const progress = stage.type === 'kill'
     ? `${gameState.enemiesKilled} / ${gameState.enemiesTotal}`
     : stage.type === 'collect'
     ? `${gameState.notesCollected} / ${gameState.notesNeeded}`
     : 'БОСС';
-  const done = (stage.type === 'kill' && gameState.enemiesKilled >= gameState.enemiesTotal)
-    || (stage.type === 'collect' && gameState.notesCollected >= gameState.notesNeeded)
-    || (stage.type === 'boss' && gameState.boss && gameState.boss.hp <= 0);
-el.innerHTML = `
-  <div class="opera-name">${icon('mask','1em')} ${opera.name}</div>
-  <div class="opera-composer">${opera.composer}</div>
-  <div class="stage-info">Этап ${gameState.currentStageIdx + 1}/3 — ${stage.desc}</div>
-  <div class="goal ${done ? 'done' : ''}">
-    ${done ? icon('trophy','1em') + ' ГОТОВО' : icon('target','1em') + ' Прогресс'}
-    <span class="count">${progress}</span>
-  </div>`;
+
+  const done =
+    (stage.type === 'kill'    && gameState.enemiesKilled  >= gameState.enemiesTotal) ||
+    (stage.type === 'collect' && gameState.notesCollected >= gameState.notesNeeded) ||
+    (stage.type === 'boss'    && gameState.boss && gameState.boss.hp <= 0);
+
+  el.innerHTML = `
+    <div class="opera-name">
+      <span style="color:${operaIconColor};display:inline-flex;vertical-align:middle;margin-right:6px;filter:drop-shadow(0 0 6px ${operaIconColor});">
+        ${icon(operaIconName, '1.1em')}
+      </span>
+      ${opera.name}
+    </div>
+    <div class="opera-composer">${opera.composer}</div>
+    <div class="stage-info">Этап ${gameState.currentStageIdx + 1}/3 — ${stage.desc}</div>
+    <div class="goal ${done ? 'done' : ''}">
+      ${done
+        ? icon('trophy','1em') + ' ГОТОВО'
+        : icon('target','1em') + ' Прогресс'}
+      <span class="count">${progress}</span>
+    </div>
+  `;
 }
 
 function checkStageComplete() {
