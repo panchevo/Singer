@@ -1214,6 +1214,32 @@ body { cursor: url('cur.png') 0 12, auto !important; }
   color: #fff; z-index: 60;   /* ← было 40, стало 60 */
   text-align: center; padding: 40px;
 }
+body {
+    user-select: none;
+}
+
+/* ===== ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА ===== */
+* {
+  -webkit-user-select: none;  /* Safari, Chrome */
+  -moz-user-select: none;     /* Firefox */
+  -ms-user-select: none;      /* IE/Edge */
+  user-select: none;          /* Стандарт */
+  -webkit-touch-callout: none; /* Запрет контекстного меню на iOS */
+  -webkit-tap-highlight-color: transparent; /* Убирает подсветку при тапе на мобильных */
+}
+
+/* Разрешаем выделение только там, где это действительно нужно
+   (например, если вы хотите, чтобы игрок мог копировать текст из диалогов) */
+.dialogue-text,
+.dialog-message,
+.aria-desc {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+
 </style>
 </head>
 <body>
@@ -5796,7 +5822,7 @@ function drawSinger(p, singing, chargeT) {
   ctx.translate(-p.w / 2, -p.h / 2);
 
   const headBob = singing ? Math.sin(gameState.time * 20) * 2 : 0;
-  const breathe = Math.sin(gameState.time * 2) * 1;
+  const breathe = Math.sin(gameState.time * 2) * 2.5;
 
   switch (p.voiceKey) {
     case 'tenor':    drawTenor(p, singing, chargeT, headBob, breathe, dir); break;
@@ -5949,10 +5975,11 @@ function drawTenor(p, singing, chargeT, headBob, breathe, dir) {
   torsoGrad.addColorStop(0.5, '#5a0518');
   torsoGrad.addColorStop(1, '#2a0210');
   ctx.fillStyle = torsoGrad;
-  ctx.beginPath();
-  ctx.moveTo(bodyCX - 15, 40); ctx.lineTo(bodyCX + 15, 40);
-  ctx.lineTo(bodyCX + 20, 112); ctx.lineTo(bodyCX - 20, 112);
-  ctx.closePath(); ctx.fill();
+ctx.beginPath();
+ctx.moveTo(bodyCX - 16, 40); ctx.lineTo(bodyCX + 16, 40);
+ctx.lineTo(bodyCX + 20 + breathe * 0.7, 112);
+ctx.lineTo(bodyCX - 20 - breathe * 0.7, 112);
+ctx.closePath(); ctx.fill();
   ctx.strokeStyle = '#1a0108'; ctx.lineWidth = 1.2; ctx.stroke();
 
   // Бархатный блеск
@@ -6042,10 +6069,9 @@ function drawTenor(p, singing, chargeT, headBob, breathe, dir) {
   ctx.beginPath(); ctx.arc(0, 42, 1.2, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 
-  // ===== ГОЛОВА =====
-  const headY = 20 + headBob + idleSway * 0.3;
-  const headCX = bodyCX;
-
+  // ===== ГОЛОВА ====
+const headY = 20 + headBob + idleSway * 0.3 + breathe * 0.5;
+const headCX = bodyCX;
   // Шея
   ctx.fillStyle = '#e8b088';
   ctx.fillRect(headCX - 3, headY + 10, 6, 10);
@@ -6302,7 +6328,7 @@ function drawBass(p, singing, chargeT, headBob, breathe, dir) {
 
 
   // ===== ГОЛОВА =====
-  const headY = 20 + headBob + idleSway * 0.3;
+  const headY = 20 + headBob + idleSway * 0.3 + breathe * 0.4;
   const headCX = bodyCX;
 
   ctx.fillStyle = '#e8b088';
@@ -6456,10 +6482,11 @@ function drawBaritone(p, singing, chargeT, headBob, breathe, dir) {
   suitGrad.addColorStop(0.5, '#12122e');
   suitGrad.addColorStop(1, '#08081a');
   ctx.fillStyle = suitGrad;
-  ctx.beginPath();
-  ctx.moveTo(bodyCX - 16, 40); ctx.lineTo(bodyCX + 16, 40);
-  ctx.lineTo(bodyCX + 20, 112); ctx.lineTo(bodyCX - 20, 112);
-  ctx.closePath(); ctx.fill();
+ctx.beginPath();
+ctx.moveTo(bodyCX - 15, 40); ctx.lineTo(bodyCX + 15, 40);
+ctx.lineTo(bodyCX + 20 + breathe * 0.6, 112);
+ctx.lineTo(bodyCX - 20 - breathe * 0.6, 112);
+ctx.closePath(); ctx.fill();
 
   ctx.strokeStyle = 'rgba(255,215,0,0.35)';
   ctx.lineWidth = 1.5;
@@ -14589,6 +14616,33 @@ function applyLevelStats() {
 // ===== Инициализация =====
 updateLevelUI();
 applyLevelStats();
+
+// ===== ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА (JS) =====
+document.addEventListener('selectstart', (e) => {
+  // Разрешаем выделение только внутри полей ввода и текстовых областей
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) {
+    return;
+  }
+  e.preventDefault();
+});
+
+// Запрет Ctrl+A (выделить всё)
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+    e.preventDefault();
+  }
+});
+
+// Запрет перетаскивания (drag) элементов
+document.addEventListener('dragstart', (e) => {
+  e.preventDefault();
+});
+
+// Запрет контекстного меню (по желанию — можно убрать, если оно нужно)
+// document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+
 </script>
 <!-- ===== ПАНЕЛЬ ОПЫТА + ХАРАКТЕРИСТИКИ ===== -->
 <div class="aria-panel" id="ariaPanel"></div>
