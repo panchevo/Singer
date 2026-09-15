@@ -2020,17 +2020,17 @@ const VOICE_TYPES = {
       return 0.7 * Math.pow(1 - x, 2.5) + 0.02;
     }
   },
-  baritone: {
-    name:'Баритон', minMidi:45, maxMidi:69,
-    colors:{top:'#c0392b',mid:'#ffd700',low:'#ff8c00'},  rangeMul: 0.95, 
-    damageBase:1.3, damageCurve:t=>0.6+1.4*(1-Math.abs(t-0.5)*2), damageDesc:'Средний голос',
-    gainCurve: t => {
-      const peak = 0.4;
-      if (t <= peak) return 0.55 + 0.45 * (t / peak);
-      const x = (t - peak) / (1 - peak);
-      return 0.12 + 0.88 * Math.pow(1 - x, 1.6);
-    }
+ baritone: {
+  name:'Баритон', minMidi:45, maxMidi:69,
+  colors:{top:'#8b4513',mid:'#ffd700',low:'#8b4513'},  rangeMul: 0.95, 
+  damageBase:1.3, damageCurve:t=>0.6+1.4*(1-Math.abs(t-0.5)*2), damageDesc:'Средний голос',
+  gainCurve: t => {
+    const peak = 0.4;
+    if (t <= peak) return 0.55 + 0.45 * (t / peak);
+    const x = (t - peak) / (1 - peak);
+    return 0.12 + 0.88 * Math.pow(1 - x, 1.6);
   }
+}
 };
 // ===== ОПЕРЫ (21 опера, у каждой — свои уникальные 3 этапа и иконка) =====
 const OPERAS = [
@@ -3794,6 +3794,9 @@ function themeAt(x) {
 }
 
 let gameState = {
+  hazards: [],        // шипы, лава и т.п.
+  fallDeathY: 0,      // Y, ниже которого — смерть от падения
+  movingPlatforms: 0, // счётчик для отладки
   voice:null, voiceKey:null,
   player:null,
   notes:[], collectibleNotes:[], particles:[], platforms:[], enemies:[],
@@ -3929,25 +3932,25 @@ const ARIAS = {
     // === Уровень 1 — оставляем ===
     { id:'lensky', name:'Ария Ленского',
       desc:'«Куда, куда вы удалились...» — замораживает всех врагов.',
-      effect:'freeze', duration:5, cooldown:12, cost:150,
+      effect:'freeze', duration:5, cooldown:12, cost:20,
       color:'#4fc3f7', icon:'snowflake', iconColor:'#4fc3f7',
       unlockLevel:2 },
 
     { id:'serenade', name:'Ария Альфреда',
       desc:'«Я был диким и мрачным, теперь ожил...» — восстанавливает 1 здоровье.',
-      effect:'heal', duration:0, cooldown:15, cost:100,
+      effect:'heal', duration:0, cooldown:15, cost:30,
       color:'#2ecc71', icon:'heartGreen', iconColor:'#2ecc71',
       unlockLevel:4 },
 
     { id:'vincero', name:'Ария Калафа',
       desc:'«Nessun dorma» — залп из 5 нот веером.',
-      effect:'volley', duration:0, cooldown:10, cost:120,
+      effect:'volley', duration:0, cooldown:10, cost:40,
       color:'#ff8c00', icon:'target', iconColor:'#ff8c00',
       unlockLevel:6 },
 
     { id:'romance', name:'Ария Фауста',
       desc:'«Остановись, мгновение! Ты прекрасно!» — замедляет время.',
-      effect:'slow', duration:6, cooldown:18, cost:180,
+      effect:'slow', duration:6, cooldown:18, cost:50,
       color:'#ba68c8', icon:'hourglass', iconColor:'#ba68c8',
       unlockLevel:8 },
 
@@ -3958,7 +3961,7 @@ const ARIAS = {
     // === Уровень 7 — ГРОЗА ЮРОДИВОГО ===
     { id:'gromoboy', name:'Ария Юродивого',
       desc:'«Слёзы людские, о слёзы людские!» — молния перескакивает между врагами, поражая до 5 целей.',
-      effect:'chain', duration:0, cooldown:14, cost:180,
+      effect:'chain', duration:0, cooldown:14, cost:60,
       color:'#ffd700', icon:'explosion', iconColor:'#ffd700',
       unlockLevel:10 },
 
@@ -3969,14 +3972,14 @@ const ARIAS = {
     // === Уровень 1 — оставляем ===
     { id:'varlaam', name:'Песня Варлаама',
       desc:'«Как во городе было во Казани...» — неуязвимость.',
-      effect:'invuln', duration:5, cooldown:14, cost:150,
+      effect:'invuln', duration:5, cooldown:14, cost:20,
       color:'#ffd700', icon:'shield', iconColor:'#ffd700',
       unlockLevel:2 },
 
     
     { id:'boris_a', name:'Ария Бориса',
       desc:'«Скорбит душа...» — щит, поглощающий удар.',
-      effect:'shield', duration:15, cooldown:12, cost:100,
+      effect:'shield', duration:15, cooldown:12, cost:30,
       color:'#4fc3f7', icon:'shield', iconColor:'#4fc3f7',
       unlockLevel:4 },
 
@@ -3984,13 +3987,13 @@ const ARIAS = {
 // === Уровень 5 — АРИЯ МЕФИСТОФЕЛЯ ===
     { id:'varlaam_tp', name:'Ария Мефистофеля',
       desc:'«На земле!» — мгновенно телепортирует певца к курсору.',
-      effect:'teleport', duration:0, cooldown:10, cost:120,
+      effect:'teleport', duration:0, cooldown:10, cost:40,
       color:'#ba68c8', icon:'star', iconColor:'#ba68c8',
       unlockLevel:6 },
 
     { id:'requiem', name:'Ария Бартоло',
       desc:'«Отмщенье» — уничтожает всех врагов.',
-      effect:'killAll', duration:0, cooldown:30, cost:350,
+      effect:'killAll', duration:0, cooldown:30, cost:50,
       color:'#c0392b', icon:'skull', iconColor:'#c0392b',
       unlockLevel:8 },
 
@@ -3999,7 +4002,7 @@ const ARIAS = {
     // === Уровень 7 — ПАМЯТЬ ВЕКОВ ===
     { id:'memoria', name:'Поминальная ария',
       desc:'«Вечная память» — отматывает время певца на 3 секунды назад.',
-      effect:'timeRewind', duration:3, cooldown:30, cost:300,
+      effect:'timeRewind', duration:3, cooldown:30, cost:60,
       color:'#fff8dc', icon:'hourglass', iconColor:'#fff8dc',
       unlockLevel:10 },
 
@@ -4013,7 +4016,7 @@ const ARIAS = {
     // === Уровень 1 — оставляем ===
     { id:'figaro_a', name:'Ария Фигаро',
       desc:'«Largo al factotum» — двойной прыжок.',
-      effect:'doubleJump', duration:8, cooldown:12, cost:120,
+      effect:'doubleJump', duration:8, cooldown:12, cost:20,
       color:'#ffd700', icon:'kangaroo', iconColor:'#ffd700',
       unlockLevel:2 },
 
@@ -4024,28 +4027,28 @@ const ARIAS = {
 
     { id:'serenade', name:'Кавантина Валентина',
       desc:'«О, Боже, услышь мою мольбу...» — восстанавливает 1 здоровье.',
-      effect:'heal', duration:0, cooldown:5, cost:150,
+      effect:'heal', duration:0, cooldown:5, cost:30,
       color:'#2ecc71', icon:'heartGreen', iconColor:'#2ecc71',
       unlockLevel:4 },
 
 
     { id:'donjuan_a', name:'Серенада Дон Жуана',
       desc:'«Deh, vieni alla finestra» — притягивает ноты.',
-      effect:'magnet', duration:0, cooldown:10, cost:80,
+      effect:'magnet', duration:0, cooldown:10, cost:40,
       color:'#ff8c00', icon:'magnet', iconColor:'#ff8c00',
       unlockLevel:6 },
 
    
     { id:'toreador', name:'Куплеты Тореадора',
       desc:'«Toréador, en garde!» — двойной урон.',
-      effect:'rage', duration:8, cooldown:18, cost:200,
+      effect:'rage', duration:8, cooldown:18, cost:50,
       color:'#e74c3c', icon:'swords', iconColor:'#e74c3c',
       unlockLevel:8 },
    
     // === Уровень 10 — ПОЛЁТ КАРМЕН ===
     { id:'carmen', name:'Хабанера Кармен',
       desc:'«L\'amour est un oiseau rebelle» — невесомость и тройной прыжок на 12 секунд.',
-      effect:'lowGravity', duration:12, cooldown:35, cost:400,
+      effect:'lowGravity', duration:12, cooldown:35, cost:60,
       color:'#e0f7fa', icon:'dove', iconColor:'#e0f7fa',
       unlockLevel:10 }
   ]
@@ -4327,15 +4330,14 @@ function applyAriaEffect(aria) {
     // ============================================================
     //  СТАРЫЕ ЭФФЕКТЫ (оставляем без изменений)
     // ============================================================
-
-    case 'freeze':
-      fx.frozen = aria.duration;
-      addEffect('snowflake', 'Заморозка', aria.duration, aria.color);
-      // Замораживаем всех врагов
-      gameState.enemies.forEach(enemy => {
-        if (enemy.alive) enemy.vx = 0;
-      });
-      break;
+case 'freeze':
+  fx.frozen = aria.duration;
+  addEffect('snowflake', 'Заморозка', aria.duration, aria.color);
+  // ❌ УДАЛИТЕ этот блок:
+  // gameState.enemies.forEach(enemy => {
+  //   if (enemy.alive) enemy.vx = 0;
+  // });
+  break;
 
     case 'heal':
       // Восстанавливаем здоровье, но не больше 3 (или другого максимума)
@@ -4726,64 +4728,175 @@ function rectsOverlap(a, b, pad = 0) {
 const PLAT_MIN_W = 120, PLAT_MAX_W = 280, PLAT_H = 25;
 const JUMP_H_REACH = 300, JUMP_UP_REACH = 100, JUMP_DOWN_REACH = 240;
 function canReach(from, to) {
+  // Если предыдущая платформа движется — увеличиваем допуск
+  const isMoving = from.platformType === 'moveX' || from.platformType === 'moveY';
+  const reachBonus = isMoving ? 1.4 : 1.0;
+
   const fromRight = from.x + from.w, toRight = to.x + to.w;
   const gap = Math.max(0, Math.max(from.x - toRight, to.x - fromRight));
-  if (gap > JUMP_H_REACH) return false;
+  if (gap > JUMP_H_REACH * reachBonus) return false;
+
   const dy = to.y - from.y;
-  const horizRatio = gap / JUMP_H_REACH;
+  const horizRatio = gap / (JUMP_H_REACH * reachBonus);
   const maxUp = JUMP_UP_REACH * (1 - horizRatio * 0.6);
   if (dy < -maxUp) return false;
   if (dy > JUMP_DOWN_REACH) return false;
   return true;
 }
+
 function generatePlatformsUpTo(targetX) {
   const groundY = gameState.groundY;
   const limitX = gameState.stageWidth;
   const target = Math.min(targetX, limitX);
+  const operaIdx = gameState.currentOperaIdx;
+  const difficulty = Math.min(1, operaIdx / 20);
 
   while (gameState.generatedUpToX < target) {
     const last = gameState.lastPlatform;
     let placed = false, attempts = 0;
+
     while (!placed && attempts < 40) {
       attempts++;
       const w = PLAT_MIN_W + Math.random() * (PLAT_MAX_W - PLAT_MIN_W);
-      const minGap = 70, maxGap = 220;
+        const minGap = 100, maxGap = 200 + difficulty * 120;
       const x = last.x + last.w + minGap + Math.random() * (maxGap - minGap);
       if (x + w > limitX) break;
+
       const roll = Math.random();
       let dy;
       if (roll < 0.35) dy = -(30 + Math.random() * 60);
       else if (roll < 0.60) dy = (30 + Math.random() * 70);
       else dy = (Math.random() - 0.5) * 50;
+
       let y = last.y + dy;
-const minY = Math.max(80, groundY - 520);  maxY = groundY - 90;
+      const minY = Math.max(80, groundY - 520);
+      const maxY = groundY - 90;
       y = Math.max(minY, Math.min(maxY, y));
-      const candidate = { x, y, w, h:PLAT_H, theme: themeAt(x) };
+
+       const candidate = { x, y, w, h: PLAT_H, theme: themeAt(x) };
+
       if (!canReach(last, candidate)) continue;
+
+      // ===== ВЫБОР ТИПА ПЛАТФОРМЫ (ДО проверки пересечений!) =====
+      const typeRoll = Math.random();
+      const specialChance = 0.15 + difficulty * 0.45;
+
+      if (typeRoll < specialChance) {
+        const sub = Math.random();
+
+        if (sub < 0.4) {
+          // --- ДВИЖУЩАЯСЯ ВЕРТИКАЛЬНО ---
+          const range = 60 + Math.random() * 80;
+          candidate.platformType = 'moveY';
+          candidate.originY = y;
+          candidate.moveRange = Math.min(range, 60);   // ← ограничили
+          candidate.moveSpeed = 0.6 + Math.random() * 0.8;
+          candidate.movePhase = Math.random() * Math.PI * 2;
+
+        } else if (sub < 0.75) {
+          // --- ДВИЖУЩАЯСЯ ГОРИЗОНТАЛЬНО ---
+          const range = 80 + Math.random() * 120;
+          candidate.platformType = 'moveX';
+          candidate.originX = x;
+          candidate.moveRange = Math.min(range, maxGap * 0.5);  // ← было 0.8
+          candidate.moveSpeed = 0.5 + Math.random() * 0.7;
+          candidate.movePhase = Math.random() * Math.PI * 2;
+
+        } else {
+          // --- ИСЧЕЗАЮЩАЯ ---
+          candidate.platformType = 'vanish';
+          candidate.vanishPeriod = 3.5 + Math.random() * 2;
+          candidate.vanishPhase = Math.random() * candidate.vanishPeriod;
+          candidate.visibleTime = 2.2;
+          candidate.isVisible = true;
+        }
+      } else {
+        candidate.platformType = 'static';
+      }
+
+      // ===== СТРОГАЯ ПРОВЕРКА ПЕРЕСЕЧЕНИЙ С УЧЁТОМ ДВИЖЕНИЯ =====
       let overlaps = false;
+      const MARGIN_X = 60;
+      const MARGIN_Y = 40;
+
       for (const p of gameState.platforms) {
         if (p.isGround) continue;
-        if (rectsOverlap(candidate, p, 30)) { overlaps = true; break; }
+
+        // Границы существующей платформы с учётом её движения
+        let pL = p.x;
+        let pR = p.x + p.w;
+        let pT = p.y;
+        let pB = p.y + p.h;
+
+        if (p.platformType === 'moveX' && p.originX !== undefined) {
+          pL = p.originX - p.moveRange;
+          pR = p.originX + p.w + p.moveRange;
+        }
+        if (p.platformType === 'moveY' && p.originY !== undefined) {
+          pT = p.originY - p.moveRange;
+          pB = p.originY + p.h + p.moveRange;
+        }
+
+        // Границы новой платформы с учётом её движения
+        let cL = candidate.x - MARGIN_X;
+        let cR = candidate.x + candidate.w + MARGIN_X;
+        let cT = candidate.y - MARGIN_Y;
+        let cB = candidate.y + candidate.h + MARGIN_Y;
+
+        if (candidate.platformType === 'moveX') {
+          cL -= candidate.moveRange;
+          cR += candidate.moveRange;
+        }
+        if (candidate.platformType === 'moveY') {
+          cT -= candidate.moveRange;
+          cB += candidate.moveRange;
+        }
+
+        // AABB с отступами
+        if (cL < pR && cR > pL && cT < pB && cB > pT) {
+          overlaps = true;
+          break;
+        }
       }
       if (overlaps) continue;
+
+      // ===== ВСЁ ОК — добавляем платформу =====
+      if (candidate.platformType === 'moveX' || candidate.platformType === 'moveY') {
+        gameState.movingPlatforms++;
+      }
       gameState.platforms.push(candidate);
       gameState.lastPlatform = candidate;
       gameState.generatedUpToX = candidate.x + candidate.w;
       placed = true;
     }
-    if (!placed) {
-      const x = Math.min(last.x + last.w + 100, limitX - 180);
+
+       if (!placed) {
+      // Фолбэк — простая платформа
+      const x = Math.min(last.x + last.w + 120, limitX - 180);
       if (x + 180 > limitX) break;
       const y = Math.max(groundY - 520, Math.min(groundY - 90, last.y - 50 + Math.random()*100));
-      const candidate = { x, y, w:180, h:PLAT_H, theme: themeAt(x) };
+      const candidate = { x, y, w:180, h:PLAT_H, theme: themeAt(x), platformType: 'static' };
+
+      // Проверяем пересечения даже для фолбэка
+      let overlaps = false;
+      for (const p of gameState.platforms) {
+        if (p.isGround) continue;
+        if (candidate.x - 60 < p.x + p.w &&
+            candidate.x + candidate.w + 60 > p.x &&
+            candidate.y - 40 < p.y + p.h &&
+            candidate.y + candidate.h + 40 > p.y) {
+          overlaps = true;
+          break;
+        }
+      }
+      if (overlaps) { break; }   // если пересекается — просто завершаем
+
       gameState.platforms.push(candidate);
       gameState.lastPlatform = candidate;
       gameState.generatedUpToX = candidate.x + candidate.w;
     }
   }
 }
-
-
 function weightedPick(weights) {
   const entries = Object.entries(weights);
   const total = entries.reduce((s, [, w]) => s + w, 0);
@@ -4811,8 +4924,7 @@ function weightedPick(weights) {
     if (placed >= count) break;
     const ew = 44, eh = 60;
     const ex = c.x + 20 + Math.random() * Math.max(0, c.w - ew - 40);
-    const ey = c.y - eh;
-
+    const ey = c.y - eh - 20;   // ← стартует чуть выше, потом упадёт
     const hp = (80 + diff * 140) * stats.hpMul;
     const baseSpeed = 1.2 + Math.random() * 1.3 + diff * 0.8;
     const speed = baseSpeed * stats.speedMul;
@@ -4829,6 +4941,8 @@ function weightedPick(weights) {
       wobble: Math.random() * Math.PI * 2,
       type: enemyType,
       theme: theme,
+     onGround: false,          // ← ДОБАВИТЬ
+      _ridingPlatform: null,    // ← ДОБАВИТЬ
       phase: Math.random() * Math.PI * 2,
       baseY: ey,
       damage: Math.max(1, Math.round((1 + diff * 0.5) * stats.damageMul))
@@ -5124,6 +5238,81 @@ renderAriaPanel();
   requestAnimationFrame(gameLoop);
 }
 
+
+
+// ============================================================
+//  ЗЕМЛЯ С ЯМАМИ
+// ============================================================
+function buildGroundWithGaps(stageWidth, stageType, operaIdx) {
+  const groundY = gameState.groundY;
+  const tileW = 400;
+  let x = 0;
+
+  // Босс-этапы — без ям (арена должна быть ровной)
+  const noGaps = (stageType === 'boss');
+  // Первые 800px — всегда безопасная зона для старта
+  const safeZone = 800;
+
+  while (x < stageWidth) {
+    // Длина «пятачка» земли
+    let runLen = tileW + Math.random() * 300;
+
+    // Решаем, будет ли яма после этого пятачка
+    let gapLen = 0;
+    if (!noGaps && x > safeZone && Math.random() < 0.45) {
+      // Чем дальше — тем шире ямы
+      const difficulty = Math.min(1, x / stageWidth);
+      const operaBonus = Math.min(1, operaIdx / 15);
+      const maxGap = 120 + difficulty * 120 + operaBonus * 60;
+      const minGap = 70;
+      gapLen = minGap + Math.random() * (maxGap - minGap);
+    }
+
+    // Кладём землю
+    gameState.platforms.push({
+      x, y: groundY,
+      w: runLen, h: 200,
+      isGround: true
+    });
+
+    x += runLen;
+
+    // Пропускаем яму
+    if (gapLen > 0 && x + gapLen < stageWidth - 600) {
+      x += gapLen;
+    } else if (x >= stageWidth - 600) {
+      // Последние 600px — безопасная зона перед боссом
+      gameState.platforms.push({
+        x, y: groundY,
+        w: stageWidth - x, h: 200,
+        isGround: true
+      });
+      break;
+    }
+  }
+}
+
+
+
+function respawnFromFall() {
+  const p = gameState.player;
+  // Ищем ближайшую землю слева от текущей позиции
+  let bestX = 100;
+  let bestDist = Infinity;
+  for (const plat of gameState.platforms) {
+    if (!plat.isGround) continue;
+    const platCenter = plat.x + plat.w / 2;
+    const dist = Math.abs(platCenter - p.x);
+    if (platCenter < p.x + 50 && dist < bestDist) {
+      bestDist = dist;
+      bestX = platCenter;
+    }
+  }
+  p.x = bestX;
+  p.y = gameState.groundY - p.h - 40;
+  p.vx = 0;
+  p.vy = 0;
+}
 function startStage(operaIdx, stageIdx) {
   gameState.currentOperaIdx = operaIdx;
   gameState.currentStageIdx = stageIdx;
@@ -5133,6 +5322,7 @@ function startStage(operaIdx, stageIdx) {
   gameState.stageDef = stage;
   gameState.stageWidth = stage.width;
 
+  // ===== Сброс счётчиков =====
   gameState.enemiesTotal = 0;
   gameState.enemiesKilled = 0;
   gameState.notesNeeded = 0;
@@ -5141,43 +5331,77 @@ function startStage(operaIdx, stageIdx) {
   gameState.stageComplete = false;
   gameState.pendingAdvance = null;
 
+  // ===== Очистка массивов =====
   gameState.platforms = [];
   gameState.collectibleNotes = [];
   gameState.enemies = [];
   gameState.notes = [];
   gameState.particles = [];
+  gameState.hazards = [];               // ← НОВОЕ
+  gameState.movingPlatforms = 0;        // ← НОВОЕ
   gameState.camera.x = 0;
   gameState.time = 0;
-gameState.effects = {
-  frozen:0, invuln:0, shield:0, slow:0,
-  doubleJump:0, rage:0, jumpsLeft:0,
-  lowGravity:0
-};
-gameState.blackHole = null;
-gameState.mirrorClone = null;
-gameState.positionHistory = [];
+
+  // ===== Сброс эффектов =====
+  gameState.effects = {
+    frozen: 0, invuln: 0, shield: 0, slow: 0,
+    doubleJump: 0, rage: 0, jumpsLeft: 0,
+    lowGravity: 0
+  };
+  gameState.blackHole = null;
+  gameState.mirrorClone = null;
+  gameState.positionHistory = [];
   gameState.activeEffects = [];
   gameState.invulnTimer = 1.0;
 
-  const groundTiles = Math.ceil(stage.width / 400) + 2;
-  for (let i = 0; i < groundTiles; i++) {
-    gameState.platforms.push({ x:i*400, y:gameState.groundY, w:400, h:200, isGround:true });
-  }
-  const startPlat = { x:260, y:gameState.groundY - 140, w:200, h:PLAT_H, theme:themeAt(260) };
+  // ===== НОВОЕ: нижняя граница смерти =====
+  gameState.fallDeathY = gameState.groundY + 400;
+
+  // ============================================================
+  //  ЗЕМЛЯ С ЯМАМИ (вместо старых сплошных тайлов)
+  // ============================================================
+  buildGroundWithGaps(stage.width, stage.type, operaIdx);
+
+  // ===== Стартовая платформа (гарантированно безопасная) =====
+  const startPlat = {
+    x: 260,
+    y: gameState.groundY - 140,
+    w: 200,
+    h: PLAT_H,
+    theme: themeAt(260),
+    platformType: 'static'
+  };
   gameState.platforms.push(startPlat);
   gameState.lastPlatform = startPlat;
   gameState.generatedUpToX = startPlat.x + startPlat.w;
   gameState.lastEnemyX = 0;
 
+  // ===== Генерация платформ до конца этапа =====
+  // (включая движущиеся и исчезающие)
   generatePlatformsUpTo(stage.width);
-const bonusNotes = stage.type === 'collect' ? 0 : Math.round(3 + gameState.currentOperaIdx * 0.5);
-if (bonusNotes > 0) {
-  placeNotes(bonusNotes);
-}
-  const p = gameState.player;
-  p.x = 100; p.y = gameState.groundY - 120;
-  p.vx = 0; p.vy = 0; p.facing = 1;
 
+  // ===== Бонусные ноты (не на этапах collect) =====
+  const bonusNotes = stage.type === 'collect'
+    ? 0
+    : Math.round(3 + gameState.currentOperaIdx * 0.5);
+  if (bonusNotes > 0) {
+    placeNotes(bonusNotes);
+  }
+
+  // ===== Позиция игрока =====
+  const p = gameState.player;
+  p.x = 100;
+  p.y = gameState.groundY - 120;
+  p.vx = 0;
+  p.vy = 0;
+  p.facing = 1;
+  p.onGround = false;
+  p._ridingPlatform = null;   // ← сброс «платформы под ногами»
+  p._jumpPrev = false;
+
+  // ============================================================
+  //  ВРАГИ / НОТЫ / БОСС — в зависимости от типа этапа
+  // ============================================================
   if (stage.type === 'kill') {
     placeEnemies(stage.target);
     gameState.enemiesTotal = stage.target;
@@ -5188,21 +5412,22 @@ if (bonusNotes > 0) {
     spawnBoss(opera);
   }
 
+  // ===== Обновляем HUD цели =====
   updateObjectiveHUD();
 
- const operaId = opera.id;
+  // ============================================================
+  //  ДИАЛОГИ ПЕРЕД ЭТАПОМ
+  // ============================================================
+  const operaId = opera.id;
   const dialoguesForOpera = STAGE_DIALOGUES[operaId];
   const lines = dialoguesForOpera ? dialoguesForOpera[stageIdx] : null;
   if (lines && lines.length > 0) {
-    // Небольшая задержка, чтобы мир успел отрисоваться
     setTimeout(() => {
       showDialogue(lines, () => {
-        // После диалога — небольшой отсчёт «3, 2, 1»
-        // (опционально, можно убрать)
+        // После диалога ничего не делаем — игра просто продолжается
       });
     }, 200);
-
-}
+  }
 }function updateObjectiveHUD() {
   const opera = OPERAS[gameState.currentOperaIdx];
   const stage = gameState.stageDef;
@@ -5393,6 +5618,168 @@ function lerpColor(a, b, t) {
   const br = parseInt(b.slice(1,3),16), bg = parseInt(b.slice(3,5),16), bb = parseInt(b.slice(5,7),16);
   return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
 }
+
+
+// ============================================================
+//  ПРИЦЕЛ — показывает направление и силу выстрела
+// ============================================================
+// ============================================================
+//  ПРИЦЕЛ — показывает направление и силу выстрела
+// ============================================================
+function drawAimIndicator(p, chargeT) {
+  if (!gameState.charging) return;
+  if (!gameState.voice) return;
+
+  // ===== ЭКРАННАЯ позиция игрока =====
+  const playerScreenX = p.x + p.w / 2 - gameState.camera.x;
+  const playerScreenY = p.y + p.h * 0.4;
+
+  // ===== Экранный вектор к курсору =====
+  let sdx = mouse.x - playerScreenX;
+  let sdy = mouse.y - playerScreenY;
+  const dist = Math.hypot(sdx, sdy) || 1;
+  sdx /= dist;
+  sdy /= dist;
+  const angle = Math.atan2(sdy, sdx);
+
+  // ===== ЦВЕТ =====
+  const v = gameState.voice;
+  let color;
+  if (chargeT < 0.5) {
+    color = lerpColor(v.colors.low, v.colors.mid, chargeT * 2);
+  } else {
+    color = lerpColor(v.colors.mid, v.colors.top, (chargeT - 0.5) * 2);
+  }
+
+  // ===== ДЛИНА =====
+  const voiceRangeMul = (gameState.voice && gameState.voice.rangeMul) || 1;
+  const levelRangeMul = gameState._levelRangeMul || 1;
+  const rangeScale = voiceRangeMul * levelRangeMul;
+  const baseLen = 90;
+  const maxExtra = 220;
+  const lineLen = (baseLen + chargeT * maxExtra) * rangeScale;
+
+  // ===== МИРОВЫЕ координаты =====
+  const startX = p.x + p.w / 2 + sdx * 30;
+  const startY = p.y + p.h * 0.4 + sdy * 20;
+  const endX   = startX + sdx * lineLen;
+  const endY   = startY + sdy * lineLen;
+
+  // Мировые координаты курсора (для перекрестия)
+  const mouseWorldX = mouse.x + gameState.camera.x;
+  const mouseWorldY = mouse.y;
+
+  ctx.save();
+
+  // ===== 1. ЛУЧ НАПРАВЛЕНИЯ (пунктир) =====
+  ctx.shadowBlur = 12 + chargeT * 25;
+  ctx.shadowColor = color;
+
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.35 + chargeT * 0.55;
+  ctx.lineWidth = 2 + chargeT * 4;
+  ctx.setLineDash([12, 8]);
+  ctx.lineDashOffset = -gameState.time * 60;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ===== 2. ВНУТРЕННЯЯ ЯРКАЯ ЛИНИЯ =====
+  ctx.globalAlpha = 0.7 + chargeT * 0.3;
+  ctx.lineWidth = 1 + chargeT * 1.5;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.stroke();
+
+  // ===== 3. СТРЕЛКА =====
+  const arrowSize = 10 + chargeT * 8;
+  ctx.globalAlpha = 0.8 + chargeT * 0.2;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(endX, endY);
+  ctx.lineTo(
+    endX - Math.cos(angle - 0.4) * arrowSize,
+    endY - Math.sin(angle - 0.4) * arrowSize
+  );
+  ctx.lineTo(
+    endX - Math.cos(angle + 0.4) * arrowSize,
+    endY - Math.sin(angle + 0.4) * arrowSize
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  // ===== 4. КОЛЬЦО СИЛЫ ВОКРУГ ИГРОКА =====
+  const ringR = 34 + chargeT * 14;
+  ctx.globalAlpha = 0.4 + chargeT * 0.5;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2 + chargeT * 3;
+  ctx.beginPath();
+  ctx.arc(p.x + p.w / 2, p.y + p.h / 2, ringR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Пульсирующее внешнее кольцо
+  ctx.globalAlpha = (0.2 + chargeT * 0.3) * (0.6 + Math.sin(gameState.time * 8) * 0.4);
+  ctx.lineWidth = 1 + chargeT * 2;
+  ctx.beginPath();
+  ctx.arc(p.x + p.w / 2, p.y + p.h / 2, ringR + 8 + chargeT * 6, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // ===== 5. ЧАСТИЦЫ ВДОЛЬ ЛУЧА =====
+  const particleCount = Math.floor(3 + chargeT * 10);
+  ctx.globalAlpha = 1;
+  for (let i = 0; i < particleCount; i++) {
+    const t = ((gameState.time * 2 + i * 0.7) % 1);
+    const px = startX + sdx * lineLen * t;
+    const py = startY + sdy * lineLen * t;
+    const perpX = -sdy * (Math.random() - 0.5) * 12;
+    const perpY =  sdx * (Math.random() - 0.5) * 12;
+
+    ctx.fillStyle = color;
+    ctx.globalAlpha = (1 - t) * (0.4 + chargeT * 0.6);
+    ctx.beginPath();
+    ctx.arc(px + perpX, py + perpY, 1.5 + chargeT * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ===== 6. ПЕРЕКРЕСТИЕ У КУРСОРА (в мировых координатах!) =====
+  ctx.globalAlpha = 0.5 + chargeT * 0.5;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5 + chargeT * 1.5;
+  const crossR = 10 + chargeT * 8;
+
+  ctx.beginPath();
+  ctx.arc(mouseWorldX, mouseWorldY, crossR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(mouseWorldX - crossR - 4, mouseWorldY);
+  ctx.lineTo(mouseWorldX - crossR + 3, mouseWorldY);
+  ctx.moveTo(mouseWorldX + crossR - 3, mouseWorldY);
+  ctx.lineTo(mouseWorldX + crossR + 4, mouseWorldY);
+  ctx.moveTo(mouseWorldX, mouseWorldY - crossR - 4);
+  ctx.lineTo(mouseWorldX, mouseWorldY - crossR + 3);
+  ctx.moveTo(mouseWorldX, mouseWorldY + crossR - 3);
+  ctx.lineTo(mouseWorldX, mouseWorldY + crossR + 4);
+  ctx.stroke();
+
+  // ===== 7. ПРОЦЕНТ ЗАРЯДКИ =====
+  ctx.globalAlpha = 0.85;
+  ctx.font = 'bold 12px Georgia';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#000';
+  ctx.fillText(Math.round(chargeT * 100) + '%',
+               p.x + p.w / 2 + 1, p.y - 15 + 1);
+  ctx.fillStyle = color;
+  ctx.fillText(Math.round(chargeT * 100) + '%',
+               p.x + p.w / 2, p.y - 15);
+
+  ctx.restore();
+}
+
 function drawSinger(p, singing, chargeT) {
   const cx = p.x + p.w / 2;
   const cy = p.y + p.h / 2;
@@ -6677,8 +7064,6 @@ function drawNoteSymbol(ctx, x, y, size, color) {
 }
 
 const GRAVITY = 0.8, MOVE_SPEED = 6, JUMP_POWER = -16;
-
-
 function update(dt) {
   if (gameState.paused) return;
   if (gameState.stageComplete) return;
@@ -6698,7 +7083,7 @@ function update(dt) {
     health: gameState.health
   });
   if (gameState.positionHistory.length > 300) {
-    gameState.positionHistory.shift(); // держим 5 секунд истории (300 кадров)
+    gameState.positionHistory.shift();
   }
 
   // ============================================================
@@ -6717,7 +7102,7 @@ function update(dt) {
   else if (dirToMouse < -1) p.facing = -1;
 
   // ============================================================
-  //  ПРЫЖКИ (с учётом doubleJump и lowGravity)
+  //  ПРЫЖКИ
   // ============================================================
   const jumpPressed = keys[' '] || keys['arrowup'] || keys['w'] || keys['ц'];
   const jumpJustPressed = jumpPressed && !p._jumpPrev;
@@ -6746,24 +7131,63 @@ function update(dt) {
   p._jumpPrev = jumpPressed;
 
   // ============================================================
-  //  ГРАВИТАЦИЯ (с учётом lowGravity)
+  //  ГРАВИТАЦИЯ
   // ============================================================
   const gravityMul = (gameState.effects.lowGravity > 0) ? 0.35 : 1;
   p.vy += GRAVITY * timeScale * gravityMul;
 
+  // ============================================================
+  //  ОБНОВЛЕНИЕ ДВИЖУЩИХСЯ ПЛАТФОРМ (ДО коллизий!)
+  // ============================================================
+  for (const plat of gameState.platforms) {
+    if (!plat.platformType || plat.platformType === 'static') continue;
+
+    if (plat.platformType === 'moveY') {
+      plat.movePhase += plat.moveSpeed * effectiveDt;
+      const newY = plat.originY + Math.sin(plat.movePhase) * plat.moveRange;
+      plat._dy = newY - plat.y;
+      plat.y = newY;
+    } else if (plat.platformType === 'moveX') {
+      plat.movePhase += plat.moveSpeed * effectiveDt;
+      const newX = plat.originX + Math.sin(plat.movePhase) * plat.moveRange;
+      plat._dx = newX - plat.x;
+      plat.x = newX;
+    } else if (plat.platformType === 'vanish') {
+      plat.vanishPhase = (plat.vanishPhase + effectiveDt) % plat.vanishPeriod;
+      plat.isVisible = plat.vanishPhase < plat.visibleTime;
+    }
+  }
+
+  // ============================================================
+  //  ПРИМЕНЕНИЕ ДВИЖЕНИЯ К ИГРОКУ, ЕСЛИ ОН СТОИТ НА ПЛАТФОРМЕ
+  // ============================================================
+  if (p._ridingPlatform) {
+    const rp = p._ridingPlatform;
+    if (rp._dx) p.x += rp._dx;
+    if (rp._dy) p.y += rp._dy;
+  }
+
+  // ============================================================
+  //  ГОРИЗОНТАЛЬНОЕ И ВЕРТИКАЛЬНОЕ ДВИЖЕНИЕ ИГРОКА
+  // ============================================================
   p.x += p.vx * timeScale;
   p.y += p.vy * timeScale;
 
   // ============================================================
-  //  СТОЛКНОВЕНИЯ С ПЛАТФОРМАМИ
+  //  СТОЛКНОВЕНИЯ ИГРОКА С ПЛАТФОРМАМИ
   // ============================================================
   p.onGround = false;
+  p._ridingPlatform = null;
+
   for (const plat of gameState.platforms) {
+    if (plat.platformType === 'vanish' && plat.isVisible === false) continue;
+
     if (p.x + p.w > plat.x && p.x < plat.x + plat.w) {
       if (p.vy >= 0 && p.y + p.h > plat.y && p.y + p.h - p.vy <= plat.y + 12) {
         p.y = plat.y - p.h;
         p.vy = 0;
         p.onGround = true;
+        p._ridingPlatform = plat;
       }
     }
   }
@@ -6773,13 +7197,37 @@ function update(dt) {
   const rightLimit = gameState.stageWidth - p.w;
   if (p.x > rightLimit) p.x = rightLimit;
 
-  // Камера
+  // ============================================================
+  //  КАМЕРА
+  // ============================================================
   const targetCamX = p.x + p.w / 2 - W / 3;
   gameState.camera.x += (targetCamX - gameState.camera.x) * 0.1;
   if (gameState.camera.x < 0) gameState.camera.x = 0;
 
   // Генерация платформ впереди
   generatePlatformsUpTo(p.x + W + 1500);
+
+  // ============================================================
+  //  ПАДЕНИЕ В ЯМУ
+  // ============================================================
+  if (p.y > gameState.fallDeathY && gameState.deathTimer <= 0) {
+    gameState.health--;
+    if (gameState.health <= 0) {
+      gameState.deathTimer = 2;
+    } else {
+      respawnFromFall();
+      gameState.invulnTimer = 1.5;
+    }
+    for (let j = 0; j < 25; j++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 3 + Math.random() * 6;
+      gameState.particles.push({
+        x: p.x + p.w / 2, y: gameState.fallDeathY - 80,
+        vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 2,
+        life: 1, maxLife: 1, color: '#ff3030', size: 4 + Math.random() * 5
+      });
+    }
+  }
 
   // ============================================================
   //  ЗАРЯДКА НОТЫ
@@ -6968,24 +7416,71 @@ function update(dt) {
   }
 
   // ============================================================
-  //  ВРАГИ
+  //  ВРАГИ — гравитация, коллизии с платформами, патруль
   // ============================================================
   for (const enemy of gameState.enemies) {
     if (!enemy.alive) {
       if (enemy.hitFlash > 0) enemy.hitFlash -= effectiveDt;
       continue;
     }
+
+    // --- Гравитация ---
+    enemy.vy += GRAVITY * timeScale;
+
+    // --- Горизонтальное движение (только если не заморожен) ---
     if (gameState.effects.frozen <= 0) {
       enemy.x += enemy.vx * timeScale;
     }
-    enemy.wobble += 0.1 * timeScale;
-    if (enemy.x < enemy.patrolMinX) {
-      enemy.x = enemy.patrolMinX;
-      if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+
+    // --- Вертикальное движение ---
+    enemy.y += enemy.vy * timeScale;
+
+    // --- Если стоит на движущейся платформе — едет вместе с ней ---
+    if (enemy._ridingPlatform) {
+      const rp = enemy._ridingPlatform;
+      if (rp._dx) enemy.x += rp._dx;
+      if (rp._dy) enemy.y += rp._dy;
     }
-    if (enemy.x + enemy.w > enemy.patrolMaxX) {
-      enemy.x = enemy.patrolMaxX - enemy.w;
-      if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+
+    // --- Коллизии с платформами (только сверху) ---
+    enemy.onGround = false;
+    enemy._ridingPlatform = null;
+
+    for (const plat of gameState.platforms) {
+      if (plat.platformType === 'vanish' && plat.isVisible === false) continue;
+
+      if (enemy.x + enemy.w > plat.x && enemy.x < plat.x + plat.w) {
+        if (enemy.vy >= 0 &&
+            enemy.y + enemy.h > plat.y &&
+            enemy.y + enemy.h - enemy.vy <= plat.y + 12) {
+          enemy.y = plat.y - enemy.h;
+          enemy.vy = 0;
+          enemy.onGround = true;
+          enemy._ridingPlatform = plat;
+        }
+      }
+    }
+
+    // --- Упал в яму — погибает ---
+    if (enemy.y > gameState.fallDeathY) {
+      enemy.alive = false;
+      enemy.hitFlash = 0.5;
+      continue;
+    }
+
+    // --- Патруль по горизонтали (только когда на земле) ---
+    if (enemy.onGround) {
+      enemy.wobble += 0.1 * timeScale;
+      if (enemy.x < enemy.patrolMinX) {
+        enemy.x = enemy.patrolMinX;
+        if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+      }
+      if (enemy.x + enemy.w > enemy.patrolMaxX) {
+        enemy.x = enemy.patrolMaxX - enemy.w;
+        if (gameState.effects.frozen <= 0) enemy.vx *= -1;
+      }
+    } else {
+      enemy.wobble += 0.05 * timeScale;
     }
   }
 
@@ -7084,7 +7579,6 @@ function update(dt) {
     bh.time -= effectiveDt;
     bh.radius = Math.min(bh.maxRadius, bh.radius + 400 * effectiveDt);
 
-    // Втягиваем врагов
     for (const enemy of gameState.enemies) {
       if (!enemy.alive) continue;
       const ex = enemy.x + enemy.w / 2;
@@ -7107,7 +7601,6 @@ function update(dt) {
       }
     }
 
-    // Втягиваем босса
     if (gameState.boss && gameState.boss.hp > 0) {
       const b = gameState.boss;
       const bx = b.x + b.w / 2;
@@ -7124,7 +7617,6 @@ function update(dt) {
       }
     }
 
-    // Втягиваем собираемые ноты
     for (const note of gameState.collectibleNotes) {
       if (note.collected) continue;
       const dx = bh.x - note.x;
@@ -7137,7 +7629,6 @@ function update(dt) {
       }
     }
 
-    // Спавн частиц вокруг дыры
     if (Math.random() < 0.6) {
       const ang = Math.random() * Math.PI * 2;
       const r = bh.radius * (0.7 + Math.random() * 0.3);
@@ -7152,7 +7643,6 @@ function update(dt) {
     }
 
     if (bh.time <= 0) {
-      // Финальный взрыв
       for (let i = 0; i < 40; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 5 + Math.random() * 10;
@@ -7175,12 +7665,10 @@ function update(dt) {
     const clone = gameState.mirrorClone;
     clone.time -= effectiveDt;
 
-    // Клон следует за игроком, но зеркально (слева от него)
     clone.x += (p.x - 60 - clone.x) * 0.1;
     clone.y = p.y;
     clone.facing = p.facing;
 
-    // Стрельба клона
     clone.shotTimer -= effectiveDt;
     if (clone.shotTimer <= 0 && gameState.voice) {
       clone.shotTimer = clone.shotInterval;
@@ -7193,7 +7681,7 @@ function update(dt) {
       const color = v.colors.mid;
       const speed = 10;
 
-      let damage = v.damageBase * v.damageCurve(0.5) * 20 * 0.6; // 60% урона игрока
+      let damage = v.damageBase * v.damageCurve(0.5) * 20 * 0.6;
       damage *= (gameState._levelPowerMul || 1);
       if (gameState.effects.rage > 0) damage *= 2;
 
@@ -7209,7 +7697,6 @@ function update(dt) {
         t: 0.5, damage
       });
 
-      // Звук клона — тише
       if (v === VOICE_TYPES.tenor && tenorSampleLoaded) playTenorSample(midi, 0.5);
       else if (v === VOICE_TYPES.bass && bassSampleLoaded) playBassSample(midi, 0.5);
       else if (v === VOICE_TYPES.baritone && baritoneSampleLoaded) playBaritoneSample(midi, 0.5);
@@ -7217,7 +7704,6 @@ function update(dt) {
 
     if (clone.time <= 0) {
       clone.active = false;
-      // Вспышка исчезновения
       for (let i = 0; i < 15; i++) {
         const ang = Math.random() * Math.PI * 2;
         const spd = 3 + Math.random() * 5;
@@ -7240,7 +7726,7 @@ function update(dt) {
   if (gameState.shotCooldown > 0) gameState.shotCooldown -= effectiveDt;
 
   // ============================================================
-  //  СТОЛКНОВЕНИЯ С ВРАГАМИ
+  //  СТОЛКНОВЕНИЯ ИГРОКА С ВРАГАМИ
   // ============================================================
   if (gameState.invulnTimer <= 0 && gameState.health > 0) {
     for (const enemy of gameState.enemies) {
@@ -7287,8 +7773,7 @@ function update(dt) {
         return;
       }
       gameState.health = 3;
-      p.x = Math.max(100, gameState.camera.x + 100);
-      p.y = gameState.groundY - p.h - 200;
+      respawnFromFall();
       p.vx = 0; p.vy = 0;
       gameState.invulnTimer = 2;
     }
@@ -7333,7 +7818,6 @@ function update(dt) {
   document.getElementById('scoreValue').textContent = gameState.score;
   updateAriaPanelLive();
 }
-
 function updateEffects(dt) {
   const fx = gameState.effects;
   if (fx.frozen > 0) fx.frozen -= dt;
@@ -7462,23 +7946,66 @@ if (gameState.effects.lowGravity > 0) {
       ctx.moveTo(plat.x, plat.y);
       ctx.lineTo(plat.x + plat.w, plat.y);
       ctx.stroke();
-    } else {
+      } else {
+      // Пропускаем невидимые исчезающие
+      if (plat.platformType === 'vanish' && plat.isVisible === false) continue;
+
+      // Разные цвета для разных типов
+      let topColor = t.platTop;
+      let midColor = t.platMid;
+      let botColor = t.platBot;
+
+      if (plat.platformType === 'moveY' || plat.platformType === 'moveX') {
+        // Голубоватый оттенок — движущиеся
+        topColor = '#80e0ff';
+        midColor = '#00a0d0';
+        botColor = '#005070';
+      } else if (plat.platformType === 'vanish') {
+        // Полупрозрачность зависит от остатка времени
+        const remain = plat.visibleTime - plat.vanishPhase;
+        const alpha = Math.max(0.25, Math.min(1, remain / 1.5));
+        ctx.globalAlpha = alpha;
+        topColor = '#ffd700';
+        midColor = '#ff8c00';
+        botColor = '#8b4500';
+      }
+
       const g3 = ctx.createLinearGradient(0, plat.y, 0, plat.y + plat.h);
-      g3.addColorStop(0, t.platTop);
-      g3.addColorStop(0.5, t.platMid);
-      g3.addColorStop(1, t.platBot);
+      g3.addColorStop(0, topColor);
+      g3.addColorStop(0.5, midColor);
+      g3.addColorStop(1, botColor);
       ctx.fillStyle = g3;
       ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+
       ctx.strokeStyle = t.platEdge;
       ctx.lineWidth = 2;
       ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
 
-      ctx.fillStyle = 'rgba(255, 248, 220, 0.35)';
-      for (let i = 10; i < plat.w - 10; i += 25) {
+      // Иконки/метки типа
+      if (plat.platformType === 'moveY' || plat.platformType === 'moveX') {
+        // Стрелки
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = 'bold 14px Georgia';
+        ctx.textAlign = 'center';
+        ctx.fillText(plat.platformType === 'moveY' ? '↕' : '↔',
+                     plat.x + plat.w / 2, plat.y + plat.h / 2 + 5);
+      } else if (plat.platformType === 'vanish') {
+        // Точка-индикатор
+        ctx.fillStyle = '#fff';
         ctx.beginPath();
-        ctx.arc(plat.x + i, plat.y + plat.h / 2, 3, 0, Math.PI * 2);
+        ctx.arc(plat.x + plat.w / 2, plat.y + plat.h / 2, 3, 0, Math.PI * 2);
         ctx.fill();
+      } else {
+        // Обычные точки
+        ctx.fillStyle = 'rgba(255, 248, 220, 0.35)';
+        for (let i = 10; i < plat.w - 10; i += 25) {
+          ctx.beginPath();
+          ctx.arc(plat.x + i, plat.y + plat.h / 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
+
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -7695,18 +8222,57 @@ if (gameState.blackHole) {
     }
   }
 
-  // ===== БОСС =====
-  if (gameState.boss) {
-    const b = gameState.boss;
-    if (b.x + b.w > camX - 200 && b.x < camX + W + 200) {
+ // ===== БОСС =====
+if (gameState.boss) {
+  const b = gameState.boss;
+  if (b.x + b.w > camX - 200 && b.x < camX + W + 200) {
+    if (gameState.effects.frozen > 0) {
+      // Полупрозрачность
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      drawBoss(b);
+      ctx.restore();
+
+      // Голубая ледяная сфера вокруг
+      ctx.save();
+      const freezeGrad = ctx.createRadialGradient(
+        b.x + b.w / 2, b.y + b.h / 2, 10,
+        b.x + b.w / 2, b.y + b.h / 2, b.w * 1.1
+      );
+      freezeGrad.addColorStop(0, 'rgba(79, 195, 247, 0.05)');
+      freezeGrad.addColorStop(0.7, 'rgba(79, 195, 247, 0.35)');
+      freezeGrad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+      ctx.fillStyle = freezeGrad;
+      ctx.beginPath();
+      ctx.arc(b.x + b.w / 2, b.y + b.h / 2, b.w * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Кристаллы льда
+      ctx.strokeStyle = 'rgba(179, 229, 252, 0.9)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + gameState.time;
+        const cx2 = b.x + b.w / 2 + Math.cos(a) * b.w * 0.9;
+        const cy2 = b.y + b.h / 2 + Math.sin(a) * b.h * 0.9;
+        ctx.beginPath();
+        ctx.moveTo(cx2, cy2);
+        ctx.lineTo(cx2 + Math.cos(a) * 12, cy2 + Math.sin(a) * 12);
+        ctx.stroke();
+      }
+      ctx.restore();
+    } else {
       drawBoss(b);
     }
   }
+}
 
-  // ===== ИГРОК =====
-  if (gameState.player) {
-    drawSinger(gameState.player, gameState.charging, gameState.chargeValue);
-  }
+
+ // ===== ИГРОК =====
+if (gameState.player) {
+  // Прицел рисуем ПОД игроком, чтобы лучи не перекрывали спрайт
+  drawAimIndicator(gameState.player, gameState.chargeValue);
+  drawSinger(gameState.player, gameState.charging, gameState.chargeValue);
+}
 
   ctx.restore();
 
